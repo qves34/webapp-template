@@ -15,10 +15,16 @@ export const STATUSES = [
   { id: 'hotovo', label: 'Dokoukáno' },
 ]
 
+export const SORT_MODES = [
+  { id: 'stav', label: 'Stav' },
+  { id: 'abeceda', label: 'Abecedně' },
+  { id: 'hodnoceni', label: 'Hodnocení' },
+]
+
 const KIND_IDS = KINDS.map((k) => k.id)
 const STATUS_IDS = STATUSES.map((s) => s.id)
 
-// Pořadí ve výpisu: rozkoukané nahoru, dokoukané a přerušené dolů.
+// Pořadí ve výpisu (mode 'stav'): rozkoukané nahoru, dokoukané a přerušené dolů.
 const SORT_RANK = { divam: 0, pauza: 1, chci: 2, preruseno: 3, hotovo: 4 }
 
 export const kindLabel = (id) => KINDS.find((k) => k.id === id)?.short ?? id
@@ -78,12 +84,32 @@ export function normalizeItem(raw) {
 }
 
 /** Řadí podle addedAt, ne updatedAt - jinak by řádek při psaní poskakoval nahoru. */
-export function sortItems(items) {
+function sortByStav(items) {
   return [...items].sort((a, b) => {
     const rank = SORT_RANK[a.status] - SORT_RANK[b.status]
     if (rank !== 0) return rank
     return b.addedAt.localeCompare(a.addedAt)
   })
+}
+
+function sortByAbeceda(items) {
+  return [...items].sort((a, b) => a.title.localeCompare(b.title, 'cs'))
+}
+
+/** Bez hodnocení jdou vždycky na konec, ne namíchané mezi ohodnocené. */
+function sortByHodnoceni(items) {
+  return [...items].sort((a, b) => {
+    if (a.rating == null && b.rating == null) return 0
+    if (a.rating == null) return 1
+    if (b.rating == null) return -1
+    return b.rating - a.rating
+  })
+}
+
+const SORTERS = { stav: sortByStav, abeceda: sortByAbeceda, hodnoceni: sortByHodnoceni }
+
+export function sortItems(items, mode = 'stav') {
+  return (SORTERS[mode] ?? sortByStav)(items)
 }
 
 export function loadItems() {

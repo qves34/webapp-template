@@ -1,10 +1,12 @@
-import { KINDS, STATUSES } from '../lib/watchlist'
+import { KINDS, SORT_MODES, STATUSES } from '../lib/watchlist'
 
 export function Toolbar({
   filter,
   onFilter,
   kindFilter,
   onKindFilter,
+  sort,
+  onSort,
   query,
   onQuery,
   counts,
@@ -65,14 +67,29 @@ export function Toolbar({
         </div>
       </div>
 
-      <input
-        className="search"
-        type="search"
-        value={query}
-        onChange={(event) => onQuery(event.target.value)}
-        placeholder="Hledat"
-        aria-label="Hledat v seznamu"
-      />
+      <div className="toolbar__controls">
+        <select
+          className="sort"
+          value={sort}
+          onChange={(event) => onSort(event.target.value)}
+          aria-label="Řadit"
+        >
+          {SORT_MODES.map((mode) => (
+            <option key={mode.id} value={mode.id}>
+              Řadit: {mode.label}
+            </option>
+          ))}
+        </select>
+
+        <input
+          className="search"
+          type="search"
+          value={query}
+          onChange={(event) => onQuery(event.target.value)}
+          placeholder="Hledat"
+          aria-label="Hledat v seznamu"
+        />
+      </div>
     </div>
   )
 }

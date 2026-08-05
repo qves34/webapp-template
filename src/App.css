@@ -377,6 +377,14 @@ li:last-child > .add__result {
   color: var(--tape);
 }
 
+.toolbar__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.sort,
 .search {
   width: 170px;
   background: var(--can-2);
@@ -384,6 +392,7 @@ li:last-child > .add__result {
   border-radius: var(--radius);
   padding: 7px 11px;
   font-size: 14px;
+  color: var(--label);
 }
 
 /* ---------- seznam ---------- */
@@ -707,6 +716,11 @@ li:last-child > .add__result {
     flex-direction: column;
   }
 
+  .toolbar__controls {
+    align-items: stretch;
+  }
+
+  .sort,
   .search {
     width: 100%;
   }

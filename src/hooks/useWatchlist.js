@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import { createItem, mergeItems, sortItems } from '../lib/watchlist'
+import { createItem, mergeItems } from '../lib/watchlist'
 import { itemToRow, rowToItem } from '../lib/watchlistRemote'
 
 /**
@@ -122,5 +122,5 @@ export function useWatchlist(userId) {
     [userId],
   )
 
-  return { items: sortItems(items), add, update, remove, merge, storageError, loading }
+  return { items, add, update, remove, merge, storageError, loading }
 }

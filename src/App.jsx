@@ -6,7 +6,7 @@ import { ItemRow } from './components/ItemRow'
 import { Toolbar } from './components/Toolbar'
 import { useAuth } from './hooks/useAuth'
 import { useWatchlist } from './hooks/useWatchlist'
-import { STATUSES, downloadExport, loadItems, readExport } from './lib/watchlist'
+import { STATUSES, downloadExport, loadItems, readExport, sortItems } from './lib/watchlist'
 
 const EMPTY_TEXT = {
   vse: 'Zatím prázdno. Napiš nahoru název a přidej první titul.',
@@ -31,6 +31,7 @@ function Watchlist({ user, onSignOut }) {
   const { items, add, update, remove, merge, storageError, loading } = useWatchlist(user.id)
   const [filter, setFilter] = useState('vse')
   const [kindFilter, setKindFilter] = useState('vse')
+  const [sort, setSort] = useState('stav')
   const [query, setQuery] = useState('')
   const [notice, setNotice] = useState(null)
   const [migration, setMigration] = useState(null)
@@ -87,13 +88,14 @@ function Watchlist({ user, onSignOut }) {
 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase()
-    return items.filter((item) => {
+    const filtered = items.filter((item) => {
       if (filter !== 'vse' && item.status !== filter) return false
       if (kindFilter !== 'vse' && item.kind !== kindFilter) return false
       if (!needle) return true
       return `${item.title} ${item.note}`.toLowerCase().includes(needle)
     })
-  }, [items, filter, kindFilter, query])
+    return sortItems(filtered, sort)
+  }, [items, filter, kindFilter, query, sort])
 
   const watching = items.filter((item) => item.status === 'divam')
 
@@ -183,6 +185,8 @@ function Watchlist({ user, onSignOut }) {
         onFilter={setFilter}
         kindFilter={kindFilter}
         onKindFilter={setKindFilter}
+        sort={sort}
+        onSort={setSort}
         query={query}
         onQuery={setQuery}
         counts={counts}
