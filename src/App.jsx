@@ -1,10 +1,12 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { AddForm } from './components/AddForm'
+import { AuthForm } from './components/AuthForm'
 import { ItemRow } from './components/ItemRow'
 import { Toolbar } from './components/Toolbar'
+import { useAuth } from './hooks/useAuth'
 import { useWatchlist } from './hooks/useWatchlist'
-import { STATUSES, downloadExport, readExport } from './lib/watchlist'
+import { STATUSES, downloadExport, loadItems, readExport } from './lib/watchlist'
 
 const EMPTY_TEXT = {
   vse: 'Zatím prázdno. Napiš nahoru název a přidej první titul.',
@@ -13,19 +15,60 @@ const EMPTY_TEXT = {
   hotovo: 'Zatím nic dokoukaného.',
 }
 
+const MIGRATION_FLAG = 'watchlist.migrated.v1'
+
 function App() {
-  const { items, add, update, remove, merge, storageError } = useWatchlist()
+  const { session, user, loading, signIn, signUp, signOut } = useAuth()
+
+  if (loading) return <p className="app-loading">Načítám…</p>
+  if (!session) return <AuthForm onSignIn={signIn} onSignUp={signUp} />
+  return <Watchlist user={user} onSignOut={signOut} />
+}
+
+function Watchlist({ user, onSignOut }) {
+  const { items, add, update, remove, merge, storageError, loading } = useWatchlist(user.id)
   const [filter, setFilter] = useState('vse')
   const [kindFilter, setKindFilter] = useState('vse')
   const [query, setQuery] = useState('')
   const [notice, setNotice] = useState(null)
+  const [migration, setMigration] = useState(null)
   const fileInput = useRef(null)
   const noticeId = useRef(0)
+  const migrationChecked = useRef(false)
 
   // Nový klíč při každé hlášce, aby se odpočet do zmizení spustil znovu.
   function showNotice(kind, text) {
     noticeId.current += 1
     setNotice({ id: noticeId.current, kind, text })
+  }
+
+  // Jednou za přihlášení do tohoto prohlížeče nabídne nahrání dat, co tu
+  // z dřívějška zůstala v localStorage (dokud appka ještě neměla účty).
+  useEffect(() => {
+    if (loading || migrationChecked.current) return
+    migrationChecked.current = true
+
+    if (localStorage.getItem(MIGRATION_FLAG) === '1') return
+
+    const localItems = loadItems()
+    if (localItems.length === 0) {
+      localStorage.setItem(MIGRATION_FLAG, '1')
+      return
+    }
+
+    setMigration(localItems)
+  }, [loading])
+
+  function acceptMigration() {
+    const { added, updated } = merge(migration)
+    localStorage.setItem(MIGRATION_FLAG, '1')
+    setMigration(null)
+    showNotice('ok', `Nahráno ${added + updated} z ${migration.length} titulů z tohoto prohlížeče.`)
+  }
+
+  function declineMigration() {
+    localStorage.setItem(MIGRATION_FLAG, '1')
+    setMigration(null)
   }
 
   const counts = useMemo(() => {
@@ -109,6 +152,9 @@ function App() {
               onChange={handleImport}
               hidden
             />
+            <button type="button" className="ghost" onClick={onSignOut}>
+              Odhlásit se
+            </button>
           </div>
         </div>
 
@@ -142,10 +188,23 @@ function App() {
         total={items.length}
       />
 
+      {migration && (
+        <p className="notice notice--warn notice--sticky migration">
+          Našli jsme {migration.length} titulů uložených v tomhle prohlížeči. Nahrát je do účtu?
+          <span className="migration__actions">
+            <button type="button" className="ghost" onClick={acceptMigration}>
+              Nahrát
+            </button>
+            <button type="button" className="ghost" onClick={declineMigration}>
+              Nechat být
+            </button>
+          </span>
+        </p>
+      )}
+
       {storageError && (
         <p className="notice notice--warn notice--sticky">
-          Prohlížeč odmítl data uložit. Zkontroluj, jestli nemáš blokované úložiště, a zatím si
-          udělej Export.
+          Synchronizace s účtem selhala. Zkus to znovu, mezitím si radši udělej Export.
         </p>
       )}
 
@@ -159,7 +218,9 @@ function App() {
         </p>
       )}
 
-      {visible.length > 0 ? (
+      {loading ? (
+        <p className="empty">Načítám tvůj seznam…</p>
+      ) : visible.length > 0 ? (
         <ul className="list">
           {visible.map((item) => (
             <ItemRow key={item.id} item={item} onUpdate={update} onRemove={handleRemove} />
@@ -174,7 +235,7 @@ function App() {
       )}
 
       <footer className="foot">
-        <span>Data zůstávají v tomhle prohlížeči. Zálohu přenes přes Export a Import.</span>
+        <span>Data jsou u tvého účtu, dostupná odkudkoli. Zálohu si navíc uděláš přes Export.</span>
         {items.length > 0 && (
           <span className="foot__tally">
             {STATUSES.map((status) => `${status.label.toLowerCase()} ${counts[status.id] ?? 0}`).join(
