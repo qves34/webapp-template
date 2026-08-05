@@ -5,6 +5,7 @@ import { AuthForm } from './components/AuthForm'
 import { ItemRow } from './components/ItemRow'
 import { Toolbar } from './components/Toolbar'
 import { useAuth } from './hooks/useAuth'
+import { useTheme } from './hooks/useTheme'
 import { useWatchlist } from './hooks/useWatchlist'
 import { STATUSES, downloadExport, loadItems, readExport, sortItems } from './lib/watchlist'
 
@@ -21,10 +22,29 @@ const MIGRATION_FLAG = 'watchlist.migrated.v1'
 
 function App() {
   const { session, user, loading, signIn, signUp, signOut } = useAuth()
+  const { theme, toggleTheme } = useTheme()
 
-  if (loading) return <p className="app-loading">Načítám…</p>
-  if (!session) return <AuthForm onSignIn={signIn} onSignUp={signUp} />
-  return <Watchlist user={user} onSignOut={signOut} />
+  return (
+    <>
+      <button
+        type="button"
+        className="theme-toggle"
+        onClick={toggleTheme}
+        aria-label={theme === 'dark' ? 'Přepnout na světlý režim' : 'Přepnout na tmavý režim'}
+        title={theme === 'dark' ? 'Světlý režim' : 'Tmavý režim'}
+      >
+        {theme === 'dark' ? '☀️' : '🌙'}
+      </button>
+
+      {loading ? (
+        <p className="app-loading">Načítám…</p>
+      ) : !session ? (
+        <AuthForm onSignIn={signIn} onSignUp={signUp} />
+      ) : (
+        <Watchlist user={user} onSignOut={signOut} />
+      )}
+    </>
+  )
 }
 
 function Watchlist({ user, onSignOut }) {

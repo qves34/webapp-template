@@ -16,6 +16,8 @@ Postavené na React + Vite, nasazuje se na Vercel přes `git push`. Účty a dat
 
 Rozkoukané tituly jsou vždycky nahoře a hlavička ukazuje, co zrovna koukáš.
 
+Vzhled: tlačítko vpravo nahoře (☀️/🌙) přepíná světlý/tmavý motiv, uložený per prohlížeč (jinak podle systému).
+
 ## Požadavky
 
 **Node 20.19+ nebo 22.12+.** Vite 8 na starším Node nenaběhne. Ověř si `node -v`.
