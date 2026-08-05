@@ -224,7 +224,7 @@ li:last-child > .add__result {
 
 .toolbar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
@@ -233,10 +233,28 @@ li:last-child > .add__result {
   border-bottom: 1px solid var(--edge-soft);
 }
 
+.toolbar__tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .tabs {
   display: flex;
   gap: 4px;
   flex-wrap: wrap;
+}
+
+.tab[data-kind='film'][aria-selected='true'] {
+  color: var(--kind-film);
+}
+
+.tab[data-kind='anime'][aria-selected='true'] {
+  color: var(--kind-anime);
+}
+
+.tab[data-kind='serial'][aria-selected='true'] {
+  color: var(--kind-serial);
 }
 
 .tab {

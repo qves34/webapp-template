@@ -16,6 +16,7 @@ const EMPTY_TEXT = {
 function App() {
   const { items, add, update, remove, merge, storageError } = useWatchlist()
   const [filter, setFilter] = useState('vse')
+  const [kindFilter, setKindFilter] = useState('vse')
   const [query, setQuery] = useState('')
   const [notice, setNotice] = useState(null)
   const fileInput = useRef(null)
@@ -33,14 +34,21 @@ function App() {
     return result
   }, [items])
 
+  const kindCounts = useMemo(() => {
+    const result = {}
+    for (const item of items) result[item.kind] = (result[item.kind] ?? 0) + 1
+    return result
+  }, [items])
+
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase()
     return items.filter((item) => {
       if (filter !== 'vse' && item.status !== filter) return false
+      if (kindFilter !== 'vse' && item.kind !== kindFilter) return false
       if (!needle) return true
       return `${item.title} ${item.note}`.toLowerCase().includes(needle)
     })
-  }, [items, filter, query])
+  }, [items, filter, kindFilter, query])
 
   const watching = items.filter((item) => item.status === 'divam')
 
@@ -125,9 +133,12 @@ function App() {
       <Toolbar
         filter={filter}
         onFilter={setFilter}
+        kindFilter={kindFilter}
+        onKindFilter={setKindFilter}
         query={query}
         onQuery={setQuery}
         counts={counts}
+        kindCounts={kindCounts}
         total={items.length}
       />
 
