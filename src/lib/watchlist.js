@@ -10,14 +10,16 @@ export const KINDS = [
 export const STATUSES = [
   { id: 'chci', label: 'Chci vidět' },
   { id: 'divam', label: 'Dívám se' },
+  { id: 'pauza', label: 'Dočasně přerušeno' },
+  { id: 'preruseno', label: 'Přerušeno' },
   { id: 'hotovo', label: 'Dokoukáno' },
 ]
 
 const KIND_IDS = KINDS.map((k) => k.id)
 const STATUS_IDS = STATUSES.map((s) => s.id)
 
-// Pořadí ve výpisu: rozkoukané nahoru, dokoukané dolů.
-const SORT_RANK = { divam: 0, chci: 1, hotovo: 2 }
+// Pořadí ve výpisu: rozkoukané nahoru, dokoukané a přerušené dolů.
+const SORT_RANK = { divam: 0, pauza: 1, chci: 2, preruseno: 3, hotovo: 4 }
 
 export const kindLabel = (id) => KINDS.find((k) => k.id === id)?.short ?? id
 export const statusLabel = (id) => STATUSES.find((s) => s.id === id)?.label ?? id

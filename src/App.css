@@ -415,6 +415,14 @@ li:last-child > .add__result {
   --sprocket: var(--tape);
 }
 
+.row[data-status='pauza'] {
+  --sprocket: var(--gold);
+}
+
+.row[data-status='preruseno'] {
+  --sprocket: var(--dim-2);
+}
+
 .row[data-status='hotovo'] {
   --sprocket: var(--done);
 }
@@ -474,6 +482,7 @@ li:last-child > .add__result {
   font-size: 13px;
 }
 
+.row[data-status='preruseno'] .row__title,
 .row[data-status='hotovo'] .row__title {
   color: var(--dim);
 }
@@ -510,6 +519,11 @@ li:last-child > .add__result {
 .row[data-status='divam'] .row__status {
   color: var(--tape);
   border-color: rgba(228, 87, 46, 0.45);
+}
+
+.row[data-status='pauza'] .row__status {
+  color: var(--gold);
+  border-color: rgba(217, 164, 65, 0.4);
 }
 
 .row[data-status='hotovo'] .row__status {

@@ -8,7 +8,7 @@ Postavené na React + Vite, nasazuje se na Vercel přes `git push`. Účty a dat
 
 - **Účet**: registrace/přihlášení emailem a heslem (Supabase Auth), data patří k účtu a jsou dostupná odkudkoli, ne jen v jednom prohlížeči.
 - Přidat titul: napiš název a našeptávač z TMDB nabídne film/seriál s plakátkem a rokem; klik doplní i typ. Jde i napsat ručně bez výběru (funguje i anime, TMDB ho nerozlišuje jako zvlášť typ).
-- Stav titulu: **Chci vidět → Dívám se → Dokoukáno**. Klik na štítek stavu ho přepne na další.
+- Stav titulu: **Chci vidět → Dívám se → Dočasně přerušeno → Přerušeno → Dokoukáno**. Klik na štítek stavu ho přepne na další.
 - U každého titulu navíc: kde jsi (`S2E5`), hodnocení 1-10 a poznámka. Rozbalíš tlačítkem „Upravit".
 - Filtr podle stavu i podle typu (film/anime/seriál), hledání v názvech a poznámkách.
 - **Export** stáhne `watchlist-RRRR-MM-DD.json`, **Import** ho načte zpátky - nezávislá ruční záloha vedle cloud sync. Import slučuje: stejný titul (podle `id`) vyhrává ten s novější změnou, nic se nemaže.

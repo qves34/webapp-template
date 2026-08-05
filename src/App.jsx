@@ -12,6 +12,8 @@ const EMPTY_TEXT = {
   vse: 'Zatím prázdno. Napiš nahoru název a přidej první titul.',
   chci: 'Nic tu nečeká. Co přidáš, začíná tady.',
   divam: 'Nic rozkoukaného. U titulu přepni stav na „Dívám se“.',
+  pauza: 'Nic v pauze. Titul, ke kterému se chceš vrátit, sem přepneš přes „Upravit“.',
+  preruseno: 'Nic přerušeného. Klidně tu ale zůstane, kdyby ses k tomu vrátil.',
   hotovo: 'Zatím nic dokoukaného.',
 }
 

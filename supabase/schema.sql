@@ -6,7 +6,7 @@ create table public.watchlist_items (
   user_id uuid not null references auth.users (id) on delete cascade default auth.uid(),
   title text not null,
   kind text not null check (kind in ('film', 'anime', 'serial')),
-  status text not null check (status in ('chci', 'divam', 'hotovo')),
+  status text not null check (status in ('chci', 'divam', 'pauza', 'preruseno', 'hotovo')),
   progress text not null default '',
   rating smallint check (rating is null or (rating between 1 and 10)),
   note text not null default '',
