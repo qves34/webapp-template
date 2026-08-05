@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { KINDS } from '../lib/watchlist'
 
+const KIND_LABEL = Object.fromEntries(KINDS.map((k) => [k.id, k.label]))
+
 const DEBOUNCE_MS = 350
 
 export function AddForm({ onAdd }) {
@@ -10,6 +12,7 @@ export function AddForm({ onAdd }) {
   const [open, setOpen] = useState(false)
   const [picked, setPicked] = useState(null)
   const abortRef = useRef(null)
+  const blurTimerRef = useRef(null)
 
   useEffect(() => {
     const needle = title.trim()
@@ -23,9 +26,10 @@ export function AddForm({ onAdd }) {
       const controller = new AbortController()
       abortRef.current = controller
       try {
-        const response = await fetch(`/api/search?q=${encodeURIComponent(needle)}`, {
-          signal: controller.signal,
-        })
+        const response = await fetch(
+          `/api/search?q=${encodeURIComponent(needle)}&kind=${kind}`,
+          { signal: controller.signal },
+        )
         const data = await response.json()
         setResults(response.ok ? (data.results ?? []) : [])
       } catch {
@@ -34,7 +38,7 @@ export function AddForm({ onAdd }) {
     }, DEBOUNCE_MS)
 
     return () => clearTimeout(timer)
-  }, [title, picked])
+  }, [title, kind, picked])
 
   function handleTitleChange(value) {
     setTitle(value)
@@ -70,7 +74,9 @@ export function AddForm({ onAdd }) {
           value={title}
           onChange={(event) => handleTitleChange(event.target.value)}
           onFocus={() => setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), 150)}
+          onBlur={() => {
+            blurTimerRef.current = setTimeout(() => setOpen(false), 150)
+          }}
           placeholder="Název titulu"
           aria-label="Název titulu"
           autoComplete="off"
@@ -89,7 +95,7 @@ export function AddForm({ onAdd }) {
                   <span className="add__result-text">
                     <span className="add__result-title">{result.title}</span>
                     <span className="add__result-meta">
-                      {result.kind === 'film' ? 'Film' : 'Seriál'}
+                      {KIND_LABEL[result.kind] ?? result.kind}
                       {result.year ? ` · ${result.year}` : ''}
                     </span>
                   </span>
@@ -109,7 +115,12 @@ export function AddForm({ onAdd }) {
             aria-checked={kind === option.id}
             className="add__kind"
             data-kind={option.id}
-            onClick={() => setKind(option.id)}
+            onClick={() => {
+              clearTimeout(blurTimerRef.current)
+              setKind(option.id)
+              setPicked(null)
+              setOpen(true)
+            }}
           >
             {option.label}
           </button>
