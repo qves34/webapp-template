@@ -37,6 +37,17 @@ export function ItemRow({ item, onUpdate, onRemove }) {
 
         <button
           type="button"
+          className="row__favorite"
+          data-active={item.favorite || undefined}
+          aria-pressed={item.favorite}
+          onClick={() => onUpdate(item.id, { favorite: !item.favorite })}
+          title={item.favorite ? 'Odebrat z oblíbených' : 'Přidat do oblíbených'}
+        >
+          {item.favorite ? '★' : '☆'}
+        </button>
+
+        <button
+          type="button"
           className="row__status"
           onClick={() => onUpdate(item.id, { status: nextStatus(item.status) })}
           title={`Přepnout na „${statusLabel(nextStatus(item.status))}“`}

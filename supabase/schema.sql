@@ -10,6 +10,7 @@ create table public.watchlist_items (
   progress text not null default '',
   rating smallint check (rating is null or (rating between 1 and 10)),
   hated boolean not null default false,
+  favorite boolean not null default false,
   note text not null default '',
   added_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),

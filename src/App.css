@@ -607,6 +607,28 @@ li:last-child > .add__result {
   padding: 1px 6px;
 }
 
+.row__favorite {
+  flex: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: 19px;
+  line-height: 1;
+  color: var(--dim-2);
+  cursor: pointer;
+  transition: color 120ms, transform 120ms;
+}
+
+.row__favorite:hover {
+  color: var(--gold);
+  transform: scale(1.15);
+}
+
+.row__favorite[data-active] {
+  color: var(--gold);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--gold) 55%, transparent));
+}
+
 .row__status {
   flex: none;
   background: transparent;

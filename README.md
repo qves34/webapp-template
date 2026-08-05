@@ -10,6 +10,7 @@ Postavené na React + Vite, nasazuje se na Vercel přes `git push`. Účty a dat
 - Přidat titul: napiš název a našeptávač z TMDB nabídne tituly s plakátkem a rokem podle zvoleného typu (Film/Anime/Seriál) - tlačítko typu zúží i výsledky hledání, ne jen to, co se přidá. TMDB nemá "anime" jako vlastní kategorii, takže se přiblíží přes žánr Animace + japonský originál (nemusí sedět úplně vždy, ruční zápis bez výběru pořád funguje).
 - Stav titulu: **Chci vidět → Dívám se → Dočasně přerušeno → Přerušeno → Dokoukáno**. Klik na štítek stavu ho přepne na další.
 - U každého titulu navíc: kde jsi (`S2E5`), hodnocení 1-10, poznámka a zaškrtávátko **HATED** (viditelný červený štítek u titulu). Rozbalíš tlačítkem „Upravit".
+- **Oblíbené**: hvězdička přímo na řádku, přepíná se jedním klikem bez otevření Upravit.
 - Filtr podle stavu i podle typu (film/anime/seriál), hledání v názvech a poznámkách, řazení (stav/abecedně/hodnocení).
 - **Export** stáhne `watchlist-RRRR-MM-DD.json`, **Import** ho načte zpátky - nezávislá ruční záloha vedle cloud sync. Import slučuje: stejný titul (podle `id`) vyhrává ten s novější změnou, nic se nemaže.
 - Titulům, co zůstaly v `localStorage` z doby před účty, appka po prvním přihlášení nabídne jednorázové nahrání do účtu.
