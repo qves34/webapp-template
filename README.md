@@ -1,46 +1,56 @@
-# webapp-template
+# Watchlist
 
-Frontend (React + Vite) + backend (Vercel serverless funkce ve složce `api/`) v jednom repu. Každý `git push` na `main` automaticky nasadí novou verzi.
+Osobní seznam filmů, anime a seriálů. Tituly si zapisuješ ručně, data zůstávají v prohlížeči (localStorage) a přenášíš je přes Export / Import JSON.
+
+Postavené na React + Vite, nasazuje se na Vercel přes `git push`.
+
+## Co appka umí
+
+- Přidat titul: název + typ (film / anime / seriál).
+- Stav titulu: **Chci vidět → Dívám se → Dokoukáno**. Klik na štítek stavu ho přepne na další.
+- U každého titulu navíc: kde jsi (`S2E5`), hodnocení 1-10 a poznámka. Rozbalíš tlačítkem „Upravit".
+- Filtr podle stavu, hledání v názvech a poznámkách.
+- **Export** stáhne `watchlist-RRRR-MM-DD.json`, **Import** ho načte zpátky. Import slučuje: stejný titul (podle `id`) vyhrává ten s novější změnou, nic se nemaže.
+
+Rozkoukané tituly jsou vždycky nahoře a hlavička ukazuje, co zrovna koukáš.
+
+## Požadavky
+
+**Node 20.19+ nebo 22.12+.** Vite 8 na starším Node nenaběhne. Ověř si `node -v`.
 
 ## Lokální vývoj
 
 ```bash
 npm install
-npm run dev          # jen frontend, běží na http://localhost:5173
-```
-
-Pro otestování backendu lokálně (volitelné, potřebuje Vercel CLI):
-
-```bash
-npm install -g vercel
-vercel dev            # frontend + /api funkce dohromady
+npm run dev      # http://localhost:5173
+npm run lint
+npm run build
 ```
 
 ## Struktura
 
 ```
-src/          React frontend (Vite)
-api/          Backend - každý soubor = 1 serverless endpoint
-  hello.js -> dostupné na /api/hello
-vercel.json   SPA routing pravidlo pro Vercel
+src/
+  App.jsx                layout, filtry, export/import
+  components/            AddForm, Toolbar, ItemRow
+  hooks/useWatchlist.js  stav seznamu + zápis do localStorage
+  lib/watchlist.js       datový model, řazení, merge, export/import
+  index.css              barvy, fonty, reset
+  App.css                vzhled komponent
+api/                     Vercel serverless funkce (1 soubor = 1 endpoint)
+vercel.json              SPA routing
 ```
 
-Nový endpoint = nový soubor v `api/`, např. `api/users.js` bude dostupný na `/api/users`.
+Klíč v localStorage: `watchlist.v1`.
 
-## Nasazení (GitHub -> Vercel, deploy přes git push)
+## Nasazení (GitHub → Vercel)
 
-1. Vytvoř prázdný repo na GitHubu a napoj ho na tento projekt:
-   ```bash
-   git remote add origin git@github.com:<tvuj-ucet>/webapp-template.git
-   git branch -M main
-   git push -u origin main
-   ```
-2. Jdi na https://vercel.com, přihlas se přes GitHub účet.
-3. "Add New Project" -> vyber tento repo -> "Deploy" (Vercel framework preset "Vite" pozná automaticky).
-4. Hotovo - appka běží na `https://<nazev-projektu>.vercel.app`. Od teď stačí `git push` na `main` a Vercel automaticky nasadí novou verzi (u ostatních branchí/PR vytvoří preview URL).
+Jednorázové napojení: https://vercel.com → „Add New Project" → vyber repo → Deploy (preset „Vite" se pozná sám).
 
-## Doména
+Od té chvíle každý `git push` na `main` nasadí novou verzi, ostatní branche dostanou preview URL.
 
-- Zdarma: subdoména `*.vercel.app`, kterou dostaneš automaticky.
-- Vlastní subdoména zdarma: https://is-a.dev (PR na jejich GitHub repo, pak nastavíš CNAME na Vercel).
-- Vlastní TLD (`.dev`, `.app`, `.cz`...): koupit u registrátora a v nastavení projektu na Vercelu -> Settings -> Domains přidat a nasměrovat DNS podle jejich návodu.
+## Kam dál
+
+- **Sdílení mezi zařízeními** - dneska je seznam vázaný na jeden prohlížeč. Přenos řeší Export/Import; trvale to vyřeší backend v `api/` nad Vercel Postgres nebo KV.
+- **Doplňování z databáze filmů** - TMDB / AniList API místo ručního psaní názvů (potřebuje API klíč v env proměnných, proto volání přes `api/`, ne z prohlížeče).
+- **Vlastní doména** - zdarma subdoména přes https://is-a.dev, nebo koupená doména v Settings → Domains.

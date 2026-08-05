@@ -1,7 +1,516 @@
-#center {
-  max-width: 640px;
-  margin: 80px auto;
-  padding: 0 24px;
+.app {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 40px 20px 64px;
+}
+
+/* ---------- hlavička ---------- */
+
+.head__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--edge);
+}
+
+.head__mark {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 42px;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.head__backup {
+  display: flex;
+  gap: 8px;
+}
+
+.ghost {
+  background: transparent;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  color: var(--dim);
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 120ms, border-color 120ms;
+}
+
+.ghost:hover {
+  color: var(--label);
+  border-color: var(--dim-2);
+}
+
+.head__now {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 16px 0 2px;
+}
+
+.head__now-label {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tape);
+}
+
+.head__now-titles {
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.head__now-titles--quiet {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--dim-2);
+}
+
+/* ---------- přidání titulu ---------- */
+
+.add {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  margin: 22px 0 18px;
+}
+
+.add__title {
+  background: var(--can-2);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  padding: 11px 13px;
+  min-width: 0;
+}
+
+.add__kinds {
+  display: flex;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.add__kind {
+  background: transparent;
+  border: 0;
+  padding: 10px 13px;
+  font-size: 14px;
+  color: var(--dim-2);
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+
+.add__kind + .add__kind {
+  border-left: 1px solid var(--edge);
+}
+
+.add__kind:hover {
+  color: var(--label);
+}
+
+.add__kind[aria-checked='true'] {
+  background: var(--can-3);
+  color: var(--kind-film);
+}
+
+.add__kind[aria-checked='true'][data-kind='anime'] {
+  color: var(--kind-anime);
+}
+
+.add__kind[aria-checked='true'][data-kind='serial'] {
+  color: var(--kind-serial);
+}
+
+.add__submit {
+  background: var(--tape);
+  border: 0;
+  border-radius: var(--radius);
+  color: #14100e;
+  font-weight: 600;
+  padding: 11px 22px;
+  cursor: pointer;
+}
+
+.add__submit:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ---------- filtry ---------- */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 9px 0;
+  border-top: 1px solid var(--edge-soft);
+  border-bottom: 1px solid var(--edge-soft);
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  font-size: 14px;
+  color: var(--dim);
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+
+.tab:hover {
+  color: var(--label);
+}
+
+.tab[aria-selected='true'] {
+  background: var(--can-3);
+  color: var(--label);
+}
+
+.tab__count {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--dim-2);
+}
+
+.tab[aria-selected='true'] .tab__count {
+  color: var(--tape);
+}
+
+.search {
+  width: 170px;
+  background: var(--can-2);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  padding: 7px 11px;
+  font-size: 14px;
+}
+
+/* ---------- seznam ---------- */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 16px;
+}
+
+.row {
+  --sprocket: #3a524a;
+  position: relative;
+  background: var(--can-2);
+  border: 1px solid var(--edge-soft);
+  border-radius: var(--radius);
+  padding-left: var(--gutter);
+  overflow: hidden;
+  transition: border-color 120ms;
+}
+
+.row:hover,
+.row[data-open] {
+  border-color: var(--edge);
+}
+
+.row[data-status='divam'] {
+  --sprocket: var(--tape);
+}
+
+.row[data-status='hotovo'] {
+  --sprocket: var(--done);
+}
+
+/* Perforace filmového pásu - rozsvítí se podle stavu titulu. */
+.row__strip {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--gutter);
+  border-right: 1px solid var(--edge-soft);
+  background-image: linear-gradient(var(--sprocket) 0 10px, transparent 10px 22px);
+  background-size: 9px 22px;
+  background-position: center 7px;
+  background-repeat: repeat-y;
+}
+
+.row__main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  min-height: 46px;
+}
+
+.row__kind {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--kind-film);
+}
+
+.row__kind[data-kind='anime'] {
+  color: var(--kind-anime);
+}
+
+.row__kind[data-kind='serial'] {
+  color: var(--kind-serial);
+}
+
+.row__title {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.row[data-status='hotovo'] .row__title {
+  color: var(--dim);
+}
+
+.row__progress {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--dim);
+}
+
+.row__rating {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--gold);
+  border: 1px solid rgba(217, 164, 65, 0.35);
+  border-radius: 2px;
+  padding: 1px 6px;
+}
+
+.row__status {
+  flex: none;
+  background: transparent;
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--dim);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.row[data-status='divam'] .row__status {
+  color: var(--tape);
+  border-color: rgba(228, 87, 46, 0.45);
+}
+
+.row[data-status='hotovo'] .row__status {
+  color: var(--done);
+  border-color: rgba(111, 143, 126, 0.4);
+}
+
+.row__toggle {
+  flex: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: 13px;
+  color: var(--dim-2);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.row__toggle:hover {
+  color: var(--label);
+}
+
+.row__note {
+  padding: 0 12px 11px;
+  font-size: 14px;
+  color: var(--dim);
+}
+
+/* ---------- detail titulu ---------- */
+
+.detail {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 13px 12px 15px;
+  border-top: 1px dashed var(--edge);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.field--wide {
+  grid-column: 1 / -1;
+}
+
+.field__label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dim-2);
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  background: var(--can);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  font-size: 14px;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.detail__remove {
+  grid-column: 1 / -1;
+  justify-self: start;
+  background: none;
+  border: 1px solid rgba(228, 87, 46, 0.35);
+  border-radius: var(--radius);
+  padding: 7px 13px;
+  font-size: 13px;
+  color: var(--tape);
+  cursor: pointer;
+  transition: background 120ms;
+}
+
+.detail__remove:hover {
+  background: rgba(228, 87, 46, 0.12);
+}
+
+/* ---------- stavy a pata ---------- */
+
+.empty {
+  margin-top: 16px;
+  padding: 34px 16px;
   text-align: center;
-  font-family: system-ui, sans-serif;
+  color: var(--dim);
+  border: 1px dashed var(--edge-soft);
+  border-radius: var(--radius);
+}
+
+.notice {
+  margin-top: 14px;
+  padding: 9px 12px;
+  font-size: 14px;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  background: var(--can-2);
+  animation: notice-life 4.5s forwards;
+}
+
+.notice--ok {
+  border-color: rgba(111, 143, 126, 0.45);
+}
+
+.notice--warn {
+  color: var(--gold);
+  border-color: rgba(217, 164, 65, 0.4);
+}
+
+.notice--sticky {
+  animation: none;
+}
+
+@keyframes notice-life {
+  0% {
+    opacity: 0;
+  }
+  8%,
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+  padding-top: 14px;
+  border-top: 1px solid var(--edge-soft);
+  font-size: 13px;
+  color: var(--dim-2);
+}
+
+.foot__tally {
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+/* ---------- mobil ---------- */
+
+@media (max-width: 640px) {
+  .app {
+    padding: 26px 14px 48px;
+    --gutter: 20px;
+  }
+
+  .head__mark {
+    font-size: 32px;
+  }
+
+  .add {
+    grid-template-columns: 1fr;
+  }
+
+  .add__kinds {
+    justify-content: stretch;
+  }
+
+  .add__kind {
+    flex: 1;
+  }
+
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .search {
+    width: 100%;
+  }
+
+  .row__main {
+    flex-wrap: wrap;
+  }
+
+  .row__title {
+    flex-basis: 100%;
+    order: -1;
+  }
+
+  .detail {
+    grid-template-columns: 1fr;
+  }
 }
