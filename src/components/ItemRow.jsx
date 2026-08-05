@@ -11,10 +11,17 @@ export function ItemRow({ item, onUpdate, onRemove }) {
       <div className="row__strip" aria-hidden="true" />
 
       <div className="row__main">
-        <span className="row__kind" data-kind={item.kind}>
-          {kindLabel(item.kind)}
+        {item.poster ? (
+          <img className="row__poster" src={item.poster} alt="" />
+        ) : (
+          <span className="row__kind" data-kind={item.kind}>
+            {kindLabel(item.kind)}
+          </span>
+        )}
+        <span className="row__title">
+          {item.title}
+          {item.year && <span className="row__year"> ({item.year})</span>}
         </span>
-        <span className="row__title">{item.title}</span>
 
         {item.progress && <span className="row__progress">{item.progress}</span>}
         {item.rating != null && (

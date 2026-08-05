@@ -32,7 +32,7 @@ function newId() {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
 }
 
-export function createItem(title, kind = 'film') {
+export function createItem(title, kind = 'film', extra = {}) {
   const now = new Date().toISOString()
   return {
     id: newId(),
@@ -44,6 +44,9 @@ export function createItem(title, kind = 'film') {
     note: '',
     addedAt: now,
     updatedAt: now,
+    tmdbId: typeof extra.tmdbId === 'number' ? extra.tmdbId : null,
+    year: typeof extra.year === 'string' ? extra.year : null,
+    poster: typeof extra.poster === 'string' ? extra.poster : null,
   }
 }
 
@@ -66,6 +69,9 @@ export function normalizeItem(raw) {
     note: typeof raw.note === 'string' ? raw.note : '',
     addedAt: typeof raw.addedAt === 'string' ? raw.addedAt : now,
     updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : now,
+    tmdbId: typeof raw.tmdbId === 'number' ? raw.tmdbId : null,
+    year: typeof raw.year === 'string' ? raw.year : null,
+    poster: typeof raw.poster === 'string' ? raw.poster : null,
   }
 }
 

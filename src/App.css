@@ -84,12 +84,87 @@
   margin: 22px 0 18px;
 }
 
+.add__search {
+  position: relative;
+  min-width: 0;
+}
+
 .add__title {
+  width: 100%;
   background: var(--can-2);
   border: 1px solid var(--edge);
   border-radius: var(--radius);
   padding: 11px 13px;
   min-width: 0;
+}
+
+.add__results {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--can-2);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.add__result {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--edge-soft);
+  padding: 7px 10px;
+  text-align: left;
+  cursor: pointer;
+}
+
+li:last-child > .add__result {
+  border-bottom: 0;
+}
+
+.add__result:hover {
+  background: var(--can-3);
+}
+
+.add__poster {
+  flex: none;
+  width: 28px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 3px;
+  background: var(--can-3);
+}
+
+.add__poster--empty {
+  border: 1px dashed var(--edge);
+}
+
+.add__result-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.add__result-title {
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.add__result-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim-2);
 }
 
 .add__kinds {
@@ -272,10 +347,23 @@
   color: var(--kind-serial);
 }
 
+.row__poster {
+  flex: none;
+  width: 24px;
+  height: 34px;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
 .row__title {
   flex: 1;
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.row__year {
+  color: var(--dim-2);
+  font-size: 13px;
 }
 
 .row[data-status='hotovo'] .row__title {

@@ -44,8 +44,8 @@ function App() {
 
   const watching = items.filter((item) => item.status === 'divam')
 
-  function handleAdd(title, kind) {
-    add(title, kind)
+  function handleAdd(title, kind, extra) {
+    add(title, kind, extra)
     setQuery('')
     if (filter !== 'vse' && filter !== 'chci') setFilter('vse')
   }

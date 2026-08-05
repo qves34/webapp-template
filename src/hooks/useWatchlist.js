@@ -25,8 +25,8 @@ export function useWatchlist() {
     setStorageError(!saveItems(items))
   }, [items])
 
-  const add = useCallback((title, kind) => {
-    const item = createItem(title, kind)
+  const add = useCallback((title, kind, extra) => {
+    const item = createItem(title, kind, extra)
     itemsRef.current = [item, ...itemsRef.current]
     setItems(itemsRef.current)
     return item
