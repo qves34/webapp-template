@@ -80,4 +80,4 @@ Po přidání `TMDB_API_KEY`, `VITE_SUPABASE_URL` a `VITE_SUPABASE_ANON_KEY` do 
 
 - **Realtime sync mezi otevřenými zařízeními** - dnes se data načtou při přihlášení/refreshi, ne živě přes Supabase Realtime (`postgres_changes`). Zatím netřeba, appka řeší jen „data mě následují", ne živé multi-device updaty.
 - **Offline zápis** - appka teď vyžaduje spojení pro každou akci (přidání/úprava/smazání jde rovnou na Supabase). Offline fronta by šla dodělat, zatím to pro osobní použití nevadí.
-- **Vlastní doména** - zdarma subdoména přes https://is-a.dev, nebo koupená doména v Settings → Domains.
+- **Skutečná vlastní doména** - zdarma přejmenovaná `*.vercel.app` adresa (Domains → Add Existing, název s příponou `.vercel.app`) už nastavená; opravdová vlastní TLD doména (mimo `*.vercel.app`) zatím ne.

@@ -4,15 +4,16 @@
 
 Projekt je nasazený a live.
 
-- **Produkce**: https://webapp-template-three.vercel.app/
+- **Produkce**: https://wwatchlist.vercel.app/
 - **Repo**: https://github.com/qves34/webapp-template
 - **Deploy**: automaticky přes Vercel při `git push` na `main`
 
 ## Co je hotové
 
-- **Watchlist appka**: seznam filmů/anime/seriálů, stavy Chci vidět → Dívám se → Dokoukáno, filtr podle stavu i typu (film/anime/seriál), hledání, Export/Import JSON s merge podle `updatedAt`
+- **Watchlist appka**: seznam filmů/anime/seriálů, stavy Chci vidět → Dívám se → Dočasně přerušeno → Přerušeno → Dokoukáno, filtr podle stavu i typu (film/anime/seriál), hledání, Export/Import JSON s merge podle `updatedAt`
 - **TMDB našeptávač**: `api/search.js` proxuje `search/multi` na TMDB (klíč `TMDB_API_KEY` jen na serveru), frontend (`AddForm.jsx`) při psaní debounced dotazem nabídne film/seriál s plakátkem a rokem; vybraný titul si nese `tmdbId`/`year`/`poster`, ruční zápis bez výběru pořád funguje (jediná cesta pro anime, TMDB ho zvlášť nerozlišuje)
 - **Účty + cloud sync (Supabase)**: `useAuth`/`AuthForm` (email+heslo), `useWatchlist` přepsaný na čtení/zápis do Supabase místo localStorage, RLS politiky (`supabase/schema.sql`) hlídají, že uživatel vidí/mění jen svoje řádky, jednorázová nabídka migrace starých `localStorage` dat po prvním přihlášení. Supabase projekt založený, schéma spuštěné, **end-to-end ověřeno** (viz "Poznámka k testování").
+- **5 stavů titulu**: přidány Dočasně přerušeno (zlatý akcent) a Přerušeno (ztlumené) vedle původních tří; DB `CHECK` constraint na sloupci `status` rozšířený, migrace spuštěná přímo na produkční databázi (viz "Poznámka k testování")
 - **Vercel deploy**: `vercel.json` s SPA routing pravidlem, framework preset "Vite" rozpoznán automaticky
 - **Git**: napojeno na GitHub (`qves34/webapp-template`), `main` nasazen na produkci
 - **Lint**: oxlint (`.oxlintrc.json`)
@@ -20,10 +21,9 @@ Projekt je nasazený a live.
 
 ## Co chybí / další kroky
 
-- `TMDB_API_KEY`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` zatím jen v lokálním `.env` - **před nasazením nutně přidat i do Vercel Environment Variables + redeploy**, jinak produkce po tomhle pushi spadne hned při načtení (Supabase klient se vytváří při startu appky)
 - Realtime sync mezi otevřenými zařízeními (dnes jen při přihlášení/refreshi) a offline zápis - vědomě mimo scope, appka teď vyžaduje spojení pro každou akci
 - Bez routingu (React Router), testů a CI
-- Vlastní doména zatím nenastavena (běží jen na `*.vercel.app`)
+- Skutečná vlastní doména (mimo `*.vercel.app`) zatím nenastavena - produkce běží na zdarma přejmenované `wwatchlist.vercel.app`
 
 ## Poznámka k testování
 
@@ -39,3 +39,13 @@ Supabase auth + sync ověřeno end-to-end proti reálnému projektu uživatele (
 - smazání titulu (`remove`) ověřeno samostatně, self-cleaning testem (titul po smazání zmizí, žádná data nezůstala)
 
 Jediná zádrhel cestou: `schema.sql` se napoprvé nespustil (tabulka v DB chyběla, REST vracel `PGRST205`) - po doplnění fungovalo vše na první pokus.
+
+## Přímý přístup k databázi
+
+Pro pozdější schema změny (např. rozšíření `CHECK` constraintu u nových stavů) je v lokálním `.env` `SUPABASE_DB_URL` - connection string na Postgres přes **Session pooler** (`aws-1-eu-west-1.pooler.supabase.com:6543`), ne přímé spojení (`db.<ref>.supabase.co:5432`), protože to je jen přes IPv6 a tohle prostředí IPv6 nemá. SQL se pak pouští přes Node balíček `pg` (`npm install pg`, `new pg.Client({connectionString, ssl:{rejectUnauthorized:false}})`), žádný `psql` binárka nebyla potřeba.
+
+`SUPABASE_DB_URL` obsahuje heslo k databázi - zůstává jen v `.env`, nikdy jako `VITE_` proměnná ani ve Vercelu (appka za běhu Postgres přímo nepoužívá, jen Supabase klient přes REST).
+
+## Vercel
+
+Produkční adresa přejmenovaná z `webapp-template-three.vercel.app` na `wwatchlist.vercel.app` (Vercel → Domains → Add Existing s `.vercel.app` příponou, zdarma). `TMDB_API_KEY`, `VITE_SUPABASE_URL` a `VITE_SUPABASE_ANON_KEY` jsou nastavené i ve Vercel Environment Variables - hotovo, produkce běží.
