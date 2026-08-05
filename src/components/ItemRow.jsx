@@ -29,6 +29,11 @@ export function ItemRow({ item, onUpdate, onRemove }) {
             {item.rating}
           </span>
         )}
+        {item.hated && (
+          <span className="row__hated" title="Nesnášeno">
+            HATED
+          </span>
+        )}
 
         <button
           type="button"
@@ -113,6 +118,15 @@ export function ItemRow({ item, onUpdate, onRemove }) {
                 </option>
               ))}
             </select>
+          </label>
+
+          <label className="field field--check">
+            <input
+              type="checkbox"
+              checked={item.hated}
+              onChange={(event) => onUpdate(item.id, { hated: event.target.checked })}
+            />
+            <span className="field__label">HATED</span>
           </label>
 
           <label className="field field--wide">

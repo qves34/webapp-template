@@ -596,6 +596,17 @@ li:last-child > .add__result {
   padding: 1px 6px;
 }
 
+.row__hated {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--tape);
+  border: 1px solid var(--tape);
+  border-radius: 2px;
+  padding: 1px 6px;
+}
+
 .row__status {
   flex: none;
   background: transparent;
@@ -664,6 +675,18 @@ li:last-child > .add__result {
 
 .field--wide {
   grid-column: 1 / -1;
+}
+
+.field--check {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.field--check input {
+  width: auto;
+  accent-color: var(--tape);
 }
 
 .field__label {
