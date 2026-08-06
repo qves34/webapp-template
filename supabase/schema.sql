@@ -140,3 +140,76 @@ create policy "select friends items"
         )
     )
   );
+
+-- Doporučení přátel podle shodných titulů. SECURITY DEFINER obchází RLS
+-- interně (jinak by šlo počítat průnik jen s vlastními/přátelskými
+-- položkami), ale ven pouští jen agregát (id, nickname, počty) - nikdy
+-- konkrétní názvy z cizího seznamu. Shoda titulu: tmdb_id když ho obě
+-- strany mají, jinak normalizovaný název (manuální zápisy, hlavně anime).
+create or replace function public.recommend_friends(p_limit integer default 10)
+returns table (
+  candidate_id uuid,
+  nickname text,
+  shared_count integer,
+  shared_favorite_count integer,
+  score integer
+)
+language sql
+security definer
+set search_path = public
+as $$
+  with my_items as (
+    select
+      coalesce('tmdb:' || tmdb_id::text, 'title:' || lower(trim(title))) as match_key,
+      favorite
+    from public.watchlist_items
+    where user_id = auth.uid()
+  ),
+  other_items as (
+    select
+      user_id,
+      coalesce('tmdb:' || tmdb_id::text, 'title:' || lower(trim(title))) as match_key,
+      favorite
+    from public.watchlist_items
+    where user_id <> auth.uid()
+  ),
+  matches as (
+    select
+      o.user_id,
+      o.match_key,
+      (m.favorite and o.favorite) as both_favorite
+    from other_items o
+    join my_items m on m.match_key = o.match_key
+  ),
+  scored as (
+    select
+      user_id,
+      count(distinct match_key) as shared_count,
+      count(distinct match_key) filter (where both_favorite) as shared_favorite_count
+    from matches
+    group by user_id
+  )
+  select
+    s.user_id as candidate_id,
+    p.nickname,
+    s.shared_count,
+    s.shared_favorite_count,
+    -- oblíbená shoda váží víc než obyčejná - silnější signál shodného vkusu
+    (s.shared_count + 2 * s.shared_favorite_count) as score
+  from scored s
+  join public.profiles p on p.id = s.user_id
+  where s.shared_count >= 3
+    and not exists (
+      select 1
+      from public.friendships f
+      where (f.requester_id = auth.uid() and f.addressee_id = s.user_id)
+         or (f.addressee_id = auth.uid() and f.requester_id = s.user_id)
+    )
+  order by score desc, s.shared_count desc
+  limit p_limit;
+$$;
+
+-- Supabase defaultně granuje nové funkce i anon/service_role - explicitně
+-- zavřít, i když funkce s auth.uid() = null (anon) vrátí prázdný výsledek.
+revoke all on function public.recommend_friends(integer) from public, anon;
+grant execute on function public.recommend_friends(integer) to authenticated;

@@ -15,6 +15,7 @@ Postavené na React + Vite, nasazuje se na Vercel přes `git push`. Účty a dat
 - **Export** stáhne `watchlist-RRRR-MM-DD.json`, **Import** ho načte zpátky - nezávislá ruční záloha vedle cloud sync. Import slučuje: stejný titul (podle `id`) vyhrává ten s novější změnou, nic se nemaže.
 - Titulům, co zůstaly v `localStorage` z doby před účty, appka po prvním přihlášení nabídne jednorázové nahrání do účtu.
 - **Přátelé**: při prvním přihlášení si zvolíš nickname (3-20 znaků, unikátní). V sekci „Přátelé" podle nicku najdeš ostatní, pošleš žádost o přátelství - druhá strana ji musí přijmout. Po přijetí vidíš watchlist přítele (read-only, bez úprav). Odebrání z přátel/odmítnutí/zrušení žádosti jde jedním tlačítkem.
+- **Možná znáš**: appka sama navrhne lidi s podobným vkusem - podle shodných titulů v seznamu (a ještě víc podle shodných oblíbených) doporučí uživatele, se kterými se dost překrýváš, aniž bys musel znát jejich nickname.
 
 Rozkoukané tituly jsou vždycky nahoře a hlavička ukazuje, co zrovna koukáš.
 

@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabaseClient'
 export function useFriends(userId) {
   const [rows, setRows] = useState([])
   const [nicknames, setNicknames] = useState({})
+  const [recommendations, setRecommendations] = useState([])
   const [loading, setLoading] = useState(true)
   const rowsRef = useRef(rows)
 
@@ -20,15 +21,17 @@ export function useFriends(userId) {
     if (!userId) {
       setRows([])
       setNicknames({})
+      setRecommendations([])
       setLoading(false)
       return
     }
 
     setLoading(true)
-    const { data: friendshipRows, error } = await supabase
-      .from('friendships')
-      .select('*')
-      .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
+    const [{ data: friendshipRows, error }, { data: recommended }] = await Promise.all([
+      supabase.from('friendships').select('*').or(`requester_id.eq.${userId},addressee_id.eq.${userId}`),
+      supabase.rpc('recommend_friends', { p_limit: 8 }),
+    ])
+    setRecommendations(recommended ?? [])
 
     if (error || !friendshipRows) {
       setRows([])
@@ -128,6 +131,7 @@ export function useFriends(userId) {
     incoming,
     outgoing,
     nicknames,
+    recommendations,
     loading,
     searchNickname,
     sendRequest,

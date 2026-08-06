@@ -7,6 +7,7 @@ export function FriendsPanel({
   incoming,
   outgoing,
   nicknames,
+  recommendations,
   searchNickname,
   sendRequest,
   acceptRequest,
@@ -132,6 +133,28 @@ export function FriendsPanel({
           </ul>
         )}
       </section>
+
+      {recommendations.length > 0 && (
+        <section className="friends__section">
+          <h3 className="friends__heading">Možná znáš</h3>
+          <ul className="friends__list">
+            {recommendations.map((rec) => (
+              <li key={rec.candidate_id} className="friends__row">
+                <span className="friends__nickname">{rec.nickname}</span>
+                <span className="friends__actions">
+                  <span className="friends__state">
+                    {rec.shared_count} společných titulů
+                    {rec.shared_favorite_count > 0 ? ` (${rec.shared_favorite_count} oblíbených)` : ''}
+                  </span>
+                  <button type="button" className="ghost" onClick={() => handleSend(rec.candidate_id)}>
+                    Přidat
+                  </button>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {outgoing.length > 0 && (
         <section className="friends__section">

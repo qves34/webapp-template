@@ -15,6 +15,7 @@ Projekt je nasazený a live.
 - **Účty + cloud sync (Supabase)**: `useAuth`/`AuthForm` (email+heslo), `useWatchlist` přepsaný na čtení/zápis do Supabase místo localStorage, RLS politiky (`supabase/schema.sql`) hlídají, že uživatel vidí/mění jen svoje řádky, jednorázová nabídka migrace starých `localStorage` dat po prvním přihlášení. Supabase projekt založený, schéma spuštěné, **end-to-end ověřeno** (viz "Poznámka k testování").
 - **5 stavů titulu**: přidány Dočasně přerušeno (zlatý akcent) a Přerušeno (ztlumené) vedle původních tří; DB `CHECK` constraint na sloupci `status` rozšířený, migrace spuštěná přímo na produkční databázi (viz "Poznámka k testování")
 - **Přátelé**: nickname (povinný při prvním přihlášení, `useProfile`/`NicknameGate`, case-insensitive unikátní v `profiles`), hledání podle nicku, žádost o přátelství s potvrzením (`friendships`, stavy `pending`/`accepted`), po přijetí vidíš watchlist přítele read-only (`useFriendWatchlist`, nová RLS policy "select friends items" na `watchlist_items`). Odmítnutí/zrušení/odebrání z přátel = smazání řádku, žádný zvláštní stav "declined". `FriendsPanel.jsx` řeší vyhledávání i správu žádostí/přátel, přepínání mezi "Moje" a "Přátelé" je v `App.jsx` (`view` state), badge u tlačítka Přátelé ukazuje počet čekajících žádostí.
+- **Doporučení přátel ("Možná znáš")**: DB funkce `recommend_friends(p_limit)` (`SECURITY DEFINER`, `supabase/schema.sql`) spočítá pro přihlášeného uživatele překryv s každým ostatním - shoda titulu podle `tmdb_id`, u manuálních záznamů bez něj podle normalizovaného názvu. Skóre = počet shodných titulů + 2× počet shodných oblíbených, zobrazí se od 3 shodných titulů výš, vyloučení lidí, se kterými už žádost/přátelství existuje. Ven jde jen agregát (nickname + počty), nikdy konkrétní názvy z cizího seznamu - funkce běží s vyššími právy (obchází RLS interně), ale `EXECUTE` je omezené jen na `authenticated` (explicitně odebráno `anon`, které Supabase defaultně přidává novým funkcím). Počítá se při načtení Friends panelu, ne živě - stejné omezení jako zbytek přátel (viz "Co chybí").
 - **Vercel deploy**: `vercel.json` s SPA routing pravidlem, framework preset "Vite" rozpoznán automaticky
 - **Git**: napojeno na GitHub (`qves34/webapp-template`), `main` nasazen na produkci
 - **Lint**: oxlint (`.oxlintrc.json`)
@@ -56,6 +57,14 @@ Jediná zádrhel cestou: `schema.sql` se napoprvé nespustil (tabulka v DB chyb�
 - testovací `auth.users` účty (email `@example.com`) smazané přímo přes `SUPABASE_DB_URL`/`pg` (cascade smazal i navázané `profiles`/`watchlist_items`/`friendships`) - Admin API/service_role klíč nebyl potřeba, stačilo přímé DB spojení popsané níže
 
 Cestou odhalen a opravený race condition v `useWatchlist` (viz "Bugfix" výše) - bez zpoždění mezi načtením stránky a přidáním titulu se ztrácel čerstvě přidaný titul z UI.
+
+**Doporučení přátel** ověřeno stejným způsobem, 2 testovací účty se 3 shodnými manuálně zapsanými tituly (bez `tmdb_id`, takže shoda přes normalizovaný název) + 1 shodný oblíbený:
+- účet B vidí účet A v "Možná znáš" s textem "3 společných titulů (1 oblíbených)" - přesně sedí s daty
+- po odeslání žádosti z doporučení účet A z "Možná znáš" zmizí (vyloučení podle existující `friendships` funguje)
+- doporučení se počítají při načtení Friends panelu (`useFriends`), ne živě - po přidání titulu je potřeba reload, než se v doporučení projeví (konzistentní s tím, že appka obecně nemá realtime)
+- self-cleaning: zrušení přátelství + smazání testovacích titulů po testu, testovací účty smazané stejně jako u předchozích testů
+
+**Zjištění mimo scope tohoto testu**: v produkční DB zůstalo ~15 testovacích `auth.users` účtů (`test-a-*`, `test-status-*`, `test-sort-*`, `test-kindsearch-*`, `test-hated-*`, `test-theme-*`, `test-favorite-*@yopmail.com` aj.) z předchozích testovacích session - nebyly součástí úklidu, protože nesouvisely s aktuálním úkolem. Reálný účet uživatele je pravděpodobně `t34ar001@gmail.com` (12 položek); `2222@gmail.com` a `dedsakldsa@gmail.com` nejde bez zeptání rozeznat, jestli jsou taky testovací, nebo je uživatel založil sám. Dřívější tvrzení v konverzaci, že "35 zbylých watchlist_items" po úklidu byla uživatelova reálná data, bylo nesprávné - ve skutečnosti šlo o součet napříč všemi těmito starými testovacími účty.
 
 ## Přímý přístup k databázi
 

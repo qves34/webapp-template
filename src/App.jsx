@@ -68,6 +68,7 @@ function Watchlist({ user, onSignOut }) {
     incoming,
     outgoing,
     nicknames: friendNicknames,
+    recommendations,
     searchNickname,
     sendRequest,
     acceptRequest,
@@ -253,6 +254,7 @@ function Watchlist({ user, onSignOut }) {
           incoming={incoming}
           outgoing={outgoing}
           nicknames={friendNicknames}
+          recommendations={recommendations}
           searchNickname={searchNickname}
           sendRequest={sendRequest}
           acceptRequest={acceptRequest}

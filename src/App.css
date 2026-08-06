@@ -934,6 +934,7 @@ li:last-child > .add__result {
 
 .friends__actions {
   display: flex;
+  align-items: center;
   gap: 8px;
   flex: none;
 }
