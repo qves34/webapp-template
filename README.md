@@ -29,7 +29,7 @@ Pro našeptávač titulů potřebuješ zdarma TMDB API klíč (https://www.themo
 
 1. Založ projekt.
 2. **Authentication → Providers → Email** - vypni „Confirm email" (osobní appka, ať se po registraci rovnou přihlásíš bez klikání na odkaz v mailu).
-3. **SQL Editor** - vlož a spusť obsah `supabase/schema.sql` (vytvoří tabulky `watchlist_items`, `profiles`, `friendships` + RLS politiky - vlastní tituly vidí jen majitel, přátelé s přijatou žádostí navíc read-only cizí, nickname v `profiles` je hledatelný komukoli přihlášenému).
+3. **SQL Editor** - vlož a spusť obsah `supabase/schema.sql` (vytvoří tabulky `watchlist_items`, `profiles`, `friendships` + RLS politiky - vlastní tituly vidí jen majitel, přátelé s přijatou žádostí navíc read-only cizí, nickname v `profiles` je hledatelný komukoli přihlášenému - a funkci `recommend_friends` pro doporučení podle shodných titulů).
 4. **Settings → API** - zkopíruj Project URL a `anon` `public` klíč.
 
 Vše dej do `.env` (viz `.env.example`):
@@ -62,7 +62,7 @@ src/
   hooks/useAuth.js           session ze Supabase Auth (signUp/signIn/signOut)
   hooks/useProfile.js        vlastní nickname (načtení, nastavení, kontrola unikátnosti)
   hooks/useWatchlist.js      stav seznamu + čtení/zápis do Supabase (RLS = jen vlastní řádky)
-  hooks/useFriends.js        žádosti o přátelství, seznam přátel, hledání podle nicku
+  hooks/useFriends.js        žádosti o přátelství, seznam přátel, hledání podle nicku, doporučení (recommend_friends)
   hooks/useFriendWatchlist.js read-only watchlist konkrétního přítele
   lib/watchlist.js           datový model, řazení, merge, export/import (beze změny, nezávislé na úložišti)
   lib/watchlistRemote.js     mapování položky na/ze sloupců Supabase tabulky
