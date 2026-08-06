@@ -40,9 +40,13 @@ export function useWatchlist(userId) {
           setLoading(false)
           return
         }
+        // Merge, ne přepsat - mezi vysláním dotazu a jeho odpovědí mohl
+        // uživatel titul přidat (optimistický zápis do itemsRef); tvrdé
+        // přepsání by ho tiše smazalo.
         const loaded = data.map(rowToItem)
-        itemsRef.current = loaded
-        setItems(loaded)
+        const merged = mergeItems(itemsRef.current, loaded).items
+        itemsRef.current = merged
+        setItems(merged)
         setLoading(false)
       })
 
