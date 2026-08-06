@@ -3,8 +3,50 @@ import { KINDS, STATUSES, kindLabel, nextStatus, statusLabel } from '../lib/watc
 
 const RATINGS = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
 
-export function ItemRow({ item, onUpdate, onRemove }) {
+export function ItemRow({ item, onUpdate, onRemove, readOnly = false }) {
   const [open, setOpen] = useState(false)
+
+  if (readOnly) {
+    return (
+      <li className="row" data-status={item.status}>
+        <div className="row__strip" aria-hidden="true" />
+        <div className="row__main">
+          {item.poster ? (
+            <img className="row__poster" src={item.poster} alt="" />
+          ) : (
+            <span className="row__kind" data-kind={item.kind}>
+              {kindLabel(item.kind)}
+            </span>
+          )}
+          <span className="row__title">
+            {item.title}
+            {item.year && <span className="row__year"> ({item.year})</span>}
+          </span>
+
+          {item.progress && <span className="row__progress">{item.progress}</span>}
+          {item.rating != null && (
+            <span className="row__rating" title={`Hodnocení ${item.rating} z 10`}>
+              {item.rating}
+            </span>
+          )}
+          {item.hated && (
+            <span className="row__hated" title="Nesnášeno">
+              HATED
+            </span>
+          )}
+          {item.favorite && (
+            <span className="row__favorite row__favorite--static" data-active title="Oblíbené">
+              ★
+            </span>
+          )}
+
+          <span className="row__status row__status--static">{statusLabel(item.status)}</span>
+        </div>
+
+        {item.note && <p className="row__note">{item.note}</p>}
+      </li>
+    )
+  }
 
   return (
     <li className="row" data-status={item.status} data-open={open || undefined}>

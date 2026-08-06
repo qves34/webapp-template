@@ -14,6 +14,7 @@ Postavené na React + Vite, nasazuje se na Vercel přes `git push`. Účty a dat
 - Filtr podle stavu i podle typu (film/anime/seriál), hledání v názvech a poznámkách, řazení (stav/abecedně/hodnocení).
 - **Export** stáhne `watchlist-RRRR-MM-DD.json`, **Import** ho načte zpátky - nezávislá ruční záloha vedle cloud sync. Import slučuje: stejný titul (podle `id`) vyhrává ten s novější změnou, nic se nemaže.
 - Titulům, co zůstaly v `localStorage` z doby před účty, appka po prvním přihlášení nabídne jednorázové nahrání do účtu.
+- **Přátelé**: při prvním přihlášení si zvolíš nickname (3-20 znaků, unikátní). V sekci „Přátelé" podle nicku najdeš ostatní, pošleš žádost o přátelství - druhá strana ji musí přijmout. Po přijetí vidíš watchlist přítele (read-only, bez úprav). Odebrání z přátel/odmítnutí/zrušení žádosti jde jedním tlačítkem.
 
 Rozkoukané tituly jsou vždycky nahoře a hlavička ukazuje, co zrovna koukáš.
 
@@ -27,7 +28,7 @@ Pro našeptávač titulů potřebuješ zdarma TMDB API klíč (https://www.themo
 
 1. Založ projekt.
 2. **Authentication → Providers → Email** - vypni „Confirm email" (osobní appka, ať se po registraci rovnou přihlásíš bez klikání na odkaz v mailu).
-3. **SQL Editor** - vlož a spusť obsah `supabase/schema.sql` (vytvoří tabulku `watchlist_items` + RLS politiky, aby každý viděl jen svoje tituly).
+3. **SQL Editor** - vlož a spusť obsah `supabase/schema.sql` (vytvoří tabulky `watchlist_items`, `profiles`, `friendships` + RLS politiky - vlastní tituly vidí jen majitel, přátelé s přijatou žádostí navíc read-only cizí, nickname v `profiles` je hledatelný komukoli přihlášenému).
 4. **Settings → API** - zkopíruj Project URL a `anon` `public` klíč.
 
 Vše dej do `.env` (viz `.env.example`):
@@ -55,18 +56,23 @@ npm run build
 
 ```
 src/
-  App.jsx                gating na přihlášení, layout, filtry, export/import, jednorázová migrace z localStorage
-  components/            AddForm, AuthForm, Toolbar, ItemRow
-  hooks/useAuth.js       session ze Supabase Auth (signUp/signIn/signOut)
-  hooks/useWatchlist.js  stav seznamu + čtení/zápis do Supabase (RLS = jen vlastní řádky)
-  lib/watchlist.js       datový model, řazení, merge, export/import (beze změny, nezávislé na úložišti)
-  lib/watchlistRemote.js mapování položky na/ze sloupců Supabase tabulky
-  lib/supabaseClient.js  Supabase klient (singleton)
-  index.css              barvy, fonty, reset
-  App.css                vzhled komponent
-api/search.js            proxy na TMDB search/multi (klíč jen na serveru)
-supabase/schema.sql       tabulka + RLS politiky, spustit ručně v Supabase SQL editoru
-vercel.json              SPA routing
+  App.jsx                    gating na přihlášení a nickname, layout, filtry, export/import, migrace z localStorage, přepínání Moje/Přátelé
+  components/                AddForm, AuthForm, Toolbar, ItemRow, NicknameGate, FriendsPanel
+  hooks/useAuth.js           session ze Supabase Auth (signUp/signIn/signOut)
+  hooks/useProfile.js        vlastní nickname (načtení, nastavení, kontrola unikátnosti)
+  hooks/useWatchlist.js      stav seznamu + čtení/zápis do Supabase (RLS = jen vlastní řádky)
+  hooks/useFriends.js        žádosti o přátelství, seznam přátel, hledání podle nicku
+  hooks/useFriendWatchlist.js read-only watchlist konkrétního přítele
+  lib/watchlist.js           datový model, řazení, merge, export/import (beze změny, nezávislé na úložišti)
+  lib/watchlistRemote.js     mapování položky na/ze sloupců Supabase tabulky
+  lib/profile.js             validace formátu nicku
+  lib/friends.js             mapování friendships řádku vůči přihlášenému uživateli
+  lib/supabaseClient.js      Supabase klient (singleton)
+  index.css                  barvy, fonty, reset
+  App.css                    vzhled komponent
+api/search.js                proxy na TMDB search/multi (klíč jen na serveru)
+supabase/schema.sql           tabulky + RLS politiky, spustit ručně v Supabase SQL editoru
+vercel.json                  SPA routing
 ```
 
 Titulům z doby před účty (localStorage klíč `watchlist.v1`) appka po prvním přihlášení nabídne nahrání do účtu; ať uživatel zvolí cokoli, `localStorage` se nemaže a zůstává jako tichá lokální rezerva.

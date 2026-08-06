@@ -91,6 +91,13 @@
   margin-top: -6px;
 }
 
+.auth__hint {
+  font-size: 12px;
+  color: var(--dim-2);
+  text-align: center;
+  margin-top: -6px;
+}
+
 .auth__card .field input {
   background: var(--can);
   border: 1px solid var(--edge);
@@ -641,6 +648,11 @@ li:last-child > .add__result {
   white-space: nowrap;
 }
 
+.row__status--static,
+.row__favorite--static {
+  cursor: default;
+}
+
 .row[data-status='divam'] .row__status {
   color: var(--tape);
   border-color: rgba(228, 87, 46, 0.45);
@@ -813,6 +825,117 @@ li:last-child > .add__result {
 .foot__tally {
   font-family: var(--mono);
   font-size: 12px;
+}
+
+/* ---------- přátelé ---------- */
+
+.head__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  margin-left: 6px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--tape);
+  color: #fff;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.friends {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.friends__search {
+  position: relative;
+}
+
+.friends__results {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--can-2);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.friends__section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.friends__heading {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dim-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.friends__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.friends__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  background: var(--can-2);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+}
+
+.friends__nickname {
+  font-size: 14px;
+  color: var(--label);
+}
+
+.friends__nickname--link {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--label);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-align: left;
+}
+
+.friends__nickname--link:hover {
+  color: var(--gold);
+}
+
+.friends__state {
+  font-size: 12px;
+  color: var(--dim-2);
+}
+
+.friends__actions {
+  display: flex;
+  gap: 8px;
+  flex: none;
 }
 
 /* ---------- mobil ---------- */

@@ -2,9 +2,14 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { AddForm } from './components/AddForm'
 import { AuthForm } from './components/AuthForm'
+import { FriendsPanel } from './components/FriendsPanel'
 import { ItemRow } from './components/ItemRow'
+import { NicknameGate } from './components/NicknameGate'
 import { Toolbar } from './components/Toolbar'
 import { useAuth } from './hooks/useAuth'
+import { useFriends } from './hooks/useFriends'
+import { useFriendWatchlist } from './hooks/useFriendWatchlist'
+import { useProfile } from './hooks/useProfile'
 import { useTheme } from './hooks/useTheme'
 import { useWatchlist } from './hooks/useWatchlist'
 import { STATUSES, downloadExport, loadItems, readExport, sortItems } from './lib/watchlist'
@@ -41,20 +46,42 @@ function App() {
       ) : !session ? (
         <AuthForm onSignIn={signIn} onSignUp={signUp} />
       ) : (
-        <Watchlist user={user} onSignOut={signOut} />
+        <Gate user={user} onSignOut={signOut} />
       )}
     </>
   )
 }
 
+/** Nickname je potřeba dřív, než appku vůbec uvidíš - jinak by tě přátelé nenašli. */
+function Gate({ user, onSignOut }) {
+  const { nickname, loading, setNickname } = useProfile(user.id)
+
+  if (loading) return <p className="app-loading">Načítám…</p>
+  if (!nickname) return <NicknameGate onSetNickname={setNickname} />
+  return <Watchlist user={user} onSignOut={onSignOut} />
+}
+
 function Watchlist({ user, onSignOut }) {
   const { items, add, update, remove, merge, storageError, loading } = useWatchlist(user.id)
+  const {
+    friends,
+    incoming,
+    outgoing,
+    nicknames: friendNicknames,
+    searchNickname,
+    sendRequest,
+    acceptRequest,
+    removeFriendship,
+  } = useFriends(user.id)
   const [filter, setFilter] = useState('vse')
   const [kindFilter, setKindFilter] = useState('vse')
   const [sort, setSort] = useState('stav')
   const [query, setQuery] = useState('')
   const [notice, setNotice] = useState(null)
   const [migration, setMigration] = useState(null)
+  const [view, setView] = useState('mine')
+  const [viewingFriend, setViewingFriend] = useState(null)
+  const friendWatchlist = useFriendWatchlist(viewingFriend?.id)
   const fileInput = useRef(null)
   const noticeId = useRef(0)
   const migrationChecked = useRef(false)
@@ -144,8 +171,8 @@ function Watchlist({ user, onSignOut }) {
     if (!file) return
 
     try {
-      const incoming = readExport(await file.text())
-      const { added, updated } = merge(incoming)
+      const incomingItems = readExport(await file.text())
+      const { added, updated } = merge(incomingItems)
       showNotice(
         'ok',
         added + updated === 0
@@ -157,12 +184,94 @@ function Watchlist({ user, onSignOut }) {
     }
   }
 
+  function openFriends() {
+    setViewingFriend(null)
+    setView('friends')
+  }
+
+  function viewFriendWatchlist(id, nickname) {
+    setViewingFriend({ id, nickname })
+  }
+
+  if (viewingFriend) {
+    return (
+      <main className="app">
+        <header className="head">
+          <div className="head__bar">
+            <h1 className="head__mark">Watchlist</h1>
+            <div className="head__backup">
+              <button type="button" className="ghost" onClick={() => setViewingFriend(null)}>
+                ← Přátelé
+              </button>
+              <button type="button" className="ghost" onClick={onSignOut}>
+                Odhlásit se
+              </button>
+            </div>
+          </div>
+          <p className="head__now">
+            <span className="head__now-label">Watchlist uživatele</span>
+            <span className="head__now-titles">{viewingFriend.nickname}</span>
+          </p>
+        </header>
+
+        {friendWatchlist.loading ? (
+          <p className="empty">Načítám…</p>
+        ) : friendWatchlist.error ? (
+          <p className="empty">Seznam se nepodařilo načíst.</p>
+        ) : friendWatchlist.items.length > 0 ? (
+          <ul className="list">
+            {friendWatchlist.items.map((item) => (
+              <ItemRow key={item.id} item={item} readOnly />
+            ))}
+          </ul>
+        ) : (
+          <p className="empty">{viewingFriend.nickname} má zatím prázdný seznam.</p>
+        )}
+      </main>
+    )
+  }
+
+  if (view === 'friends') {
+    return (
+      <main className="app">
+        <header className="head">
+          <div className="head__bar">
+            <h1 className="head__mark">Watchlist</h1>
+            <div className="head__backup">
+              <button type="button" className="ghost" onClick={() => setView('mine')}>
+                ← Moje
+              </button>
+              <button type="button" className="ghost" onClick={onSignOut}>
+                Odhlásit se
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <FriendsPanel
+          friends={friends}
+          incoming={incoming}
+          outgoing={outgoing}
+          nicknames={friendNicknames}
+          searchNickname={searchNickname}
+          sendRequest={sendRequest}
+          acceptRequest={acceptRequest}
+          removeFriendship={removeFriendship}
+          onViewFriend={viewFriendWatchlist}
+        />
+      </main>
+    )
+  }
+
   return (
     <main className="app">
       <header className="head">
         <div className="head__bar">
           <h1 className="head__mark">Watchlist</h1>
           <div className="head__backup">
+            <button type="button" className="ghost" onClick={openFriends}>
+              Přátelé{incoming.length > 0 && <span className="head__badge">{incoming.length}</span>}
+            </button>
             <button type="button" className="ghost" onClick={handleExport}>
               Export
             </button>

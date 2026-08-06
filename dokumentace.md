@@ -1,6 +1,6 @@
 # Dokumentace - webapp-template
 
-## Stav (2026-08-05)
+## Stav (2026-08-06)
 
 Projekt je nasazený a live.
 
@@ -14,6 +14,7 @@ Projekt je nasazený a live.
 - **TMDB našeptávač**: `api/search.js` proxuje `search/multi` na TMDB (klíč `TMDB_API_KEY` jen na serveru), frontend (`AddForm.jsx`) při psaní debounced dotazem nabídne film/seriál s plakátkem a rokem; vybraný titul si nese `tmdbId`/`year`/`poster`, ruční zápis bez výběru pořád funguje (jediná cesta pro anime, TMDB ho zvlášť nerozlišuje)
 - **Účty + cloud sync (Supabase)**: `useAuth`/`AuthForm` (email+heslo), `useWatchlist` přepsaný na čtení/zápis do Supabase místo localStorage, RLS politiky (`supabase/schema.sql`) hlídají, že uživatel vidí/mění jen svoje řádky, jednorázová nabídka migrace starých `localStorage` dat po prvním přihlášení. Supabase projekt založený, schéma spuštěné, **end-to-end ověřeno** (viz "Poznámka k testování").
 - **5 stavů titulu**: přidány Dočasně přerušeno (zlatý akcent) a Přerušeno (ztlumené) vedle původních tří; DB `CHECK` constraint na sloupci `status` rozšířený, migrace spuštěná přímo na produkční databázi (viz "Poznámka k testování")
+- **Přátelé**: nickname (povinný při prvním přihlášení, `useProfile`/`NicknameGate`, case-insensitive unikátní v `profiles`), hledání podle nicku, žádost o přátelství s potvrzením (`friendships`, stavy `pending`/`accepted`), po přijetí vidíš watchlist přítele read-only (`useFriendWatchlist`, nová RLS policy "select friends items" na `watchlist_items`). Odmítnutí/zrušení/odebrání z přátel = smazání řádku, žádný zvláštní stav "declined". `FriendsPanel.jsx` řeší vyhledávání i správu žádostí/přátel, přepínání mezi "Moje" a "Přátelé" je v `App.jsx` (`view` state), badge u tlačítka Přátelé ukazuje počet čekajících žádostí.
 - **Vercel deploy**: `vercel.json` s SPA routing pravidlem, framework preset "Vite" rozpoznán automaticky
 - **Git**: napojeno na GitHub (`qves34/webapp-template`), `main` nasazen na produkci
 - **Lint**: oxlint (`.oxlintrc.json`)
@@ -24,6 +25,13 @@ Projekt je nasazený a live.
 - Realtime sync mezi otevřenými zařízeními (dnes jen při přihlášení/refreshi) a offline zápis - vědomě mimo scope, appka teď vyžaduje spojení pro každou akci
 - Bez routingu (React Router), testů a CI
 - Skutečná vlastní doména (mimo `*.vercel.app`) zatím nenastavena - produkce běží na zdarma přejmenované `wwatchlist.vercel.app`
+- Přátelé: notifikace o nové žádosti se projeví jen po refreshi/přepnutí na "Přátelé" (žádný realtime/badge push), nickname jde nastavit jen jednou při onboardingu (změna později by šla přidat, dnes UI pro to není)
+
+## Bugfix: race condition v `useWatchlist` (2026-08-06)
+
+Počáteční `select` z `watchlist_items` po přihlášení mohl dorazit AŽ po tom, co uživatel mezitím titul přidal (optimistický zápis do `itemsRef`) - `.then` callback dřívějšího dotazu pak tvrdě přepsal `itemsRef`/`items` starým (prázdným) stavem ze serveru a tiše smazal čerstvě přidaný titul z UI (do DB titul reálně zapsaný zůstal, jen zmizel z obrazovky, dokud se stránka znovu nenačetla). Objeveno při e2e testu funkce přátel (rychlý automatizovaný klik hned po načtení stránky race spolehlivě trefil, ruční používání je pomalejší, takže šlo dřív přehlédnout).
+
+Oprava: initial load teď dělá `mergeItems(itemsRef.current, loaded)` místo přímého přepsání - stejná funkce, co už appka používala pro Export/Import merge.
 
 ## Poznámka k testování
 
@@ -39,6 +47,15 @@ Supabase auth + sync ověřeno end-to-end proti reálnému projektu uživatele (
 - smazání titulu (`remove`) ověřeno samostatně, self-cleaning testem (titul po smazání zmizí, žádná data nezůstala)
 
 Jediná zádrhel cestou: `schema.sql` se napoprvé nespustil (tabulka v DB chyběla, REST vracel `PGRST205`) - po doplnění fungovalo vše na první pokus.
+
+**Přátelé** ověřeno end-to-end přes Playwright (chromium-headless-shell, stejný `apt-get download` + `dpkg-deb -x` trik na `libnspr4`/`libnss3`/`libasound2t64` jako u předchozích testů) proti produkční databázi, 2 skutečné testovací účty (Supabase Auth signup, "Confirm email" vypnuté):
+- registrace → NicknameGate → nastavení nicku (unikátnost vynucená DB indexem, appka na `23505` hlásí "Tenhle nickname už je zabraný")
+- účet B najde účet A podle nicku, pošle žádost, účet A ji uvidí v "Přátelé" a přijme
+- účet B po přijetí vidí watchlist účtu A read-only (RLS "select friends items" funguje) - ověřeno i že se needitovatelné položce nezobrazí tlačítko "Upravit"
+- self-cleaning: zrušení přátelství (delete řádku `friendships`) a smazání testovacího titulu po testu
+- testovací `auth.users` účty (email `@example.com`) smazané přímo přes `SUPABASE_DB_URL`/`pg` (cascade smazal i navázané `profiles`/`watchlist_items`/`friendships`) - Admin API/service_role klíč nebyl potřeba, stačilo přímé DB spojení popsané níže
+
+Cestou odhalen a opravený race condition v `useWatchlist` (viz "Bugfix" výše) - bez zpoždění mezi načtením stránky a přidáním titulu se ztrácel čerstvě přidaný titul z UI.
 
 ## Přímý přístup k databázi
 
