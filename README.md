@@ -17,7 +17,7 @@ Postavené na React + Vite, nasazuje se na Vercel přes `git push`. Účty a dat
 - **Přátelé**: při prvním přihlášení si zvolíš nickname (3-20 znaků, unikátní). V sekci „Přátelé" podle nicku najdeš ostatní, pošleš žádost o přátelství - druhá strana ji musí přijmout. Po přijetí vidíš watchlist přítele (read-only, bez úprav). Odebrání z přátel/odmítnutí/zrušení žádosti jde jedním tlačítkem.
 - **Možná znáš**: appka sama navrhne lidi s podobným vkusem - podle shodných titulů v seznamu (a ještě víc podle shodných oblíbených) doporučí uživatele, se kterými se dost překrýváš, aniž bys musel znát jejich nickname.
 
-- **Čeština a angličtina**: tlačítko `CS`/`EN` vpravo nahoře přepne jazyk celého UI. Napoprvé se jazyk vybere podle prohlížeče (`navigator.languages`), volba se pak pamatuje per prohlížeč. Přepíná se i jazyk TMDB našeptávače a řazení podle abecedy (čeština řadí Č/Ř/Š jinak než angličtina).
+- **Čeština a angličtina**: tlačítko `CS`/`EN` vpravo nahoře přepne jazyk celého UI. Napoprvé se jazyk vybere podle prohlížeče (`navigator.languages`), volba se pak pamatuje per prohlížeč. Přepíná se i řazení podle abecedy (čeština řadí Č/Ř/Š jinak než angličtina). **Názvy titulů se nepřekládají** - drží se anglicky v obou jazycích UI, viz sekce Jazyky.
 
 Rozkoukané tituly jsou vždycky nahoře a hlavička ukazuje, co zrovna koukáš.
 
@@ -79,7 +79,7 @@ src/
   lib/supabaseClient.js      Supabase klient (singleton)
   index.css                  barvy, fonty, reset
   App.css                    vzhled komponent
-api/search.js                proxy na TMDB search/multi (klíč jen na serveru), jazyk podle `?lang=`
+api/search.js                proxy na TMDB search/multi (klíč jen na serveru), názvy vždy `en-US`
 scripts/check-i18n.mjs       kontrola slovníků, pouští se přes `npm run check:i18n`
 supabase/schema.sql           tabulky + RLS politiky, spustit ručně v Supabase SQL editoru
 vercel.json                  SPA routing
@@ -110,6 +110,14 @@ Přidání dalšího jazyka:
 Přepínač jazyků prochází `LOCALES` dokola, takže se o nový jazyk nemusí starat.
 
 Identifikátory typů a stavů (`film`, `divam`, …) jsou zároveň hodnoty v databázi - **nepřekládají se**, překládají se až přes klíče `kind.<id>`, `status.<id>` a `sort.<id>`. Proto `lib/watchlist.js` drží jen holá pole identifikátorů a žádné popisky.
+
+### Názvy titulů zůstávají anglicky
+
+Vědomé rozhodnutí: `api/search.js` se ptá TMDB vždycky s `language=en-US`, takže se uloží anglický název bez ohledu na to, v jakém jazyce appku zrovna používáš.
+
+Důvod: anglický název existuje vždycky, kdežto český na TMDB u spousty anime a méně známých seriálů chybí - polovina seznamu by pak stejně zůstala anglicky a vypadalo by to jako rozbitá funkce. Anglický název je navíc jednoznačný (jeden titul = jedno jméno), takže hledání v seznamu má co hledat a stejný titul se nepřidá dvakrát pod dvěma jmény.
+
+Jazyk UI to neovlivňuje - dotaz se na TMDB matchuje i proti přeloženým názvům, takže „Duna" najde *Dune*. Ruční zápis bez výběru z našeptávače si samozřejmě uloží přesně to, co napíšeš.
 
 Známé omezení: `index.html` má natvrdo `lang="cs"` a českou `<meta name="description">`. Provider obojí po načtení přepíše podle zvoleného jazyka, ale náhledy sdíleného odkazu (Slack, Facebook) JS nespouštějí, takže popisek uvidí vždycky česky. Opravit by to šlo až prerenderem, což by kvůli jedné větě byla velká cena.
 

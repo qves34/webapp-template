@@ -5,7 +5,7 @@ import { KINDS } from '../lib/watchlist'
 const DEBOUNCE_MS = 350
 
 export function AddForm({ onAdd }) {
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
   const [title, setTitle] = useState('')
   const [kind, setKind] = useState('film')
   const [results, setResults] = useState([])
@@ -26,10 +26,10 @@ export function AddForm({ onAdd }) {
       const controller = new AbortController()
       abortRef.current = controller
       try {
-        // `lang` posílá TMDB jazyk UI, ať našeptávač nabízí názvy v tom jazyce,
-        // který má uživatel zapnutý.
+        // Našeptávač schválně nedostává jazyk UI - názvy titulů se drží
+        // anglicky bez ohledu na jazyk appky (viz README, sekce Jazyky).
         const response = await fetch(
-          `/api/search?q=${encodeURIComponent(needle)}&kind=${kind}&lang=${locale}`,
+          `/api/search?q=${encodeURIComponent(needle)}&kind=${kind}`,
           { signal: controller.signal },
         )
         const data = await response.json()
@@ -40,7 +40,7 @@ export function AddForm({ onAdd }) {
     }, DEBOUNCE_MS)
 
     return () => clearTimeout(timer)
-  }, [title, kind, picked, locale])
+  }, [title, kind, picked])
 
   function handleTitleChange(value) {
     setTitle(value)
