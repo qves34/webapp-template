@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { authErrorKey } from '../lib/authErrors'
 import { useI18n } from '../lib/i18n/context'
+import { BIO_MAX_LENGTH } from '../lib/profile'
 import { ItemRow } from './ItemRow'
 
 export function ProfilePanel({
   email,
   nickname,
   onSetNickname,
+  bio,
+  onSetBio,
   onUpdatePassword,
   favorites,
   onUpdateItem,
@@ -16,6 +19,10 @@ export function ProfilePanel({
   const [nicknameValue, setNicknameValue] = useState(nickname)
   const [nicknameBusy, setNicknameBusy] = useState(false)
   const [nicknameNotice, setNicknameNotice] = useState(null)
+
+  const [bioValue, setBioValue] = useState(bio)
+  const [bioBusy, setBioBusy] = useState(false)
+  const [bioNotice, setBioNotice] = useState(null)
 
   const [password, setPassword] = useState('')
   const [passwordBusy, setPasswordBusy] = useState(false)
@@ -28,6 +35,16 @@ export function ProfilePanel({
     setNicknameBusy(false)
     setNicknameNotice(
       error ? { kind: 'warn', key: error.key ?? 'nickname.errGeneric' } : { kind: 'ok', key: 'profile.nicknameUpdated' },
+    )
+  }
+
+  async function handleBioSubmit(event) {
+    event.preventDefault()
+    setBioBusy(true)
+    const { error } = await onSetBio(bioValue)
+    setBioBusy(false)
+    setBioNotice(
+      error ? { kind: 'warn', key: error.key ?? 'profile.bioErrGeneric' } : { kind: 'ok', key: 'profile.bioUpdated' },
     )
   }
 
@@ -75,6 +92,31 @@ export function ProfilePanel({
           )}
           <button type="submit" className="ghost" disabled={nicknameBusy || !nicknameValue.trim()}>
             {t('profile.saveNickname')}
+          </button>
+        </form>
+
+        <form className="profile__form" onSubmit={handleBioSubmit}>
+          <label className="field field--wide">
+            <span className="field__label">{t('profile.bioLabel')}</span>
+            <textarea
+              rows={3}
+              value={bioValue}
+              onChange={(event) => setBioValue(event.target.value)}
+              maxLength={BIO_MAX_LENGTH}
+              placeholder={t('profile.bioPlaceholder')}
+            />
+          </label>
+          <p className="profile__hint">{t('profile.bioHint')}</p>
+          {bioNotice && (
+            <p
+              className={`notice notice--${bioNotice.kind}`}
+              onAnimationEnd={() => setBioNotice(null)}
+            >
+              {t(bioNotice.key)}
+            </p>
+          )}
+          <button type="submit" className="ghost" disabled={bioBusy}>
+            {t('profile.saveBio')}
           </button>
         </form>
 

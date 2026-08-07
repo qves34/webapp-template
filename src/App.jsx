@@ -9,6 +9,7 @@ import { ProfilePanel } from './components/ProfilePanel'
 import { Toolbar } from './components/Toolbar'
 import { useAuth } from './hooks/useAuth'
 import { useFriends } from './hooks/useFriends'
+import { useFriendProfile } from './hooks/useFriendProfile'
 import { useFriendWatchlist } from './hooks/useFriendWatchlist'
 import { useProfile } from './hooks/useProfile'
 import { useTheme } from './hooks/useTheme'
@@ -84,7 +85,7 @@ function LocaleToggle() {
 
 /** Nickname je potřeba dřív, než appku vůbec uvidíš - jinak by tě přátelé nenašli. */
 function Gate({ user, onSignOut, onUpdatePassword }) {
-  const { nickname, loading, setNickname } = useProfile(user.id)
+  const { nickname, bio, loading, setNickname, setBio } = useProfile(user.id)
   const { t } = useI18n()
 
   if (loading) return <p className="app-loading">{t('app.loading')}</p>
@@ -95,12 +96,14 @@ function Gate({ user, onSignOut, onUpdatePassword }) {
       onSignOut={onSignOut}
       nickname={nickname}
       onSetNickname={setNickname}
+      bio={bio}
+      onSetBio={setBio}
       onUpdatePassword={onUpdatePassword}
     />
   )
 }
 
-function Watchlist({ user, onSignOut, nickname, onSetNickname, onUpdatePassword }) {
+function Watchlist({ user, onSignOut, nickname, onSetNickname, bio, onSetBio, onUpdatePassword }) {
   const { t, locale } = useI18n()
   const { items, add, update, remove, merge, storageError, loading } = useWatchlist(user.id)
   const {
@@ -123,6 +126,7 @@ function Watchlist({ user, onSignOut, nickname, onSetNickname, onUpdatePassword 
   const [view, setView] = useState('mine')
   const [viewingFriend, setViewingFriend] = useState(null)
   const friendWatchlist = useFriendWatchlist(viewingFriend?.id)
+  const friendProfile = useFriendProfile(viewingFriend?.id)
   const fileInput = useRef(null)
   const noticeId = useRef(0)
   const migrationChecked = useRef(false)
@@ -280,6 +284,7 @@ function Watchlist({ user, onSignOut, nickname, onSetNickname, onUpdatePassword 
             <span className="head__now-label">{t('friends.watchlistOf')}</span>
             <span className="head__now-titles">{viewingFriend.nickname}</span>
           </p>
+          {friendProfile.bio && <p className="head__bio">{friendProfile.bio}</p>}
         </header>
 
         {friendWatchlist.loading ? (
@@ -381,6 +386,8 @@ function Watchlist({ user, onSignOut, nickname, onSetNickname, onUpdatePassword 
           email={user.email}
           nickname={nickname}
           onSetNickname={onSetNickname}
+          bio={bio}
+          onSetBio={onSetBio}
           onUpdatePassword={onUpdatePassword}
           favorites={items.filter((item) => item.favorite)}
           onUpdateItem={update}

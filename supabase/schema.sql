@@ -213,3 +213,51 @@ $$;
 -- zavřít, i když funkce s auth.uid() = null (anon) vrátí prázdný výsledek.
 revoke all on function public.recommend_friends(integer) from public, anon;
 grant execute on function public.recommend_friends(integer) to authenticated;
+
+-- Krátký popisek k profilu. Zvlášť od `profiles`, protože viditelnost je jiná:
+-- nickname vidí kdokoli přihlášený (kvůli hledání), bio jen vlastník a jeho
+-- přátelé - RLS řeší různou viditelnost různým sloupcům jen přes oddělené
+-- tabulky/policy, ne přes jednu řádkovou policy.
+create table public.profile_bios (
+  user_id uuid primary key references auth.users (id) on delete cascade,
+  bio text not null default '',
+  updated_at timestamptz not null default now(),
+  constraint bio_length check (char_length(bio) <= 200)
+);
+
+alter table public.profile_bios enable row level security;
+
+create policy "select own bio"
+  on public.profile_bios for select
+  to authenticated
+  using (auth.uid() = user_id);
+
+-- Stejný vzor jako "select friends items" výše (permissive policies pro
+-- stejný příkaz se OR-ují).
+create policy "select friends bio"
+  on public.profile_bios for select
+  to authenticated
+  using (
+    exists (
+      select 1
+      from public.friendships f
+      where f.status = 'accepted'
+        and (
+          (f.requester_id = auth.uid() and f.addressee_id = profile_bios.user_id)
+          or (f.addressee_id = auth.uid() and f.requester_id = profile_bios.user_id)
+        )
+    )
+  );
+
+create policy "insert own bio"
+  on public.profile_bios for insert
+  to authenticated
+  with check (auth.uid() = user_id);
+
+create policy "update own bio"
+  on public.profile_bios for update
+  to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+grant select, insert, update on public.profile_bios to authenticated;
