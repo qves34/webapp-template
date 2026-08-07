@@ -30,7 +30,7 @@ Pro našeptávač titulů potřebuješ zdarma TMDB API klíč (https://www.themo
 
 1. Založ projekt.
 2. **Authentication → Providers → Email** - vypni „Confirm email" (osobní appka, ať se po registraci rovnou přihlásíš bez klikání na odkaz v mailu).
-3. **SQL Editor** - vlož a spusť obsah `supabase/schema.sql` (vytvoří tabulky `watchlist_items`, `profiles`, `friendships` + RLS politiky - vlastní tituly vidí jen majitel, přátelé s přijatou žádostí navíc read-only cizí, nickname v `profiles` je hledatelný komukoli přihlášenému - a funkci `recommend_friends` pro doporučení podle shodných titulů).
+3. **SQL Editor** - vlož a spusť obsah `supabase/schema.sql` (vytvoří tabulky `watchlist_items`, `profiles`, `friendships`, `profile_bios` + RLS politiky - vlastní tituly a bio vidí jen majitel, přátelé s přijatou žádostí navíc read-only cizí watchlist i bio, nickname v `profiles` je na rozdíl od bia hledatelný komukoli přihlášenému - a funkci `recommend_friends` pro doporučení podle shodných titulů).
 4. **Settings → API** - zkopíruj Project URL a `anon` `public` klíč.
 
 Vše dej do `.env` (viz `.env.example`):
@@ -63,13 +63,14 @@ npm run build
 src/
   main.jsx                   vstupní bod, obaluje appku do <I18nProvider>
   App.jsx                    gating na přihlášení a nickname, layout, filtry, migrace z localStorage, přepínání Moje/Přátelé/Profil
-  components/                AddForm, AuthForm, Toolbar, ItemRow, NicknameGate, FriendsPanel
+  components/                AddForm, AuthForm, Toolbar, ItemRow, NicknameGate, FriendsPanel, ProfilePanel
   hooks/useAuth.js           session ze Supabase Auth (signUp/signIn/signOut)
   hooks/useTheme.js          světlý/tmavý motiv, uložený per prohlížeč (jinak podle systému)
-  hooks/useProfile.js        vlastní nickname (načtení, nastavení, kontrola unikátnosti)
+  hooks/useProfile.js        vlastní nickname a bio (načtení, nastavení, kontrola unikátnosti nicku)
   hooks/useWatchlist.js      stav seznamu + čtení/zápis do Supabase (RLS = jen vlastní řádky)
   hooks/useFriends.js        žádosti o přátelství, seznam přátel, hledání podle nicku, doporučení (recommend_friends)
   hooks/useFriendWatchlist.js read-only watchlist konkrétního přítele
+  hooks/useFriendProfile.js  read-only bio konkrétního přítele
   lib/i18n/cs.js, en.js      slovníky (klíč → text, u počitatelných textů plurálové tvary)
   lib/i18n/core.js           překladová funkce, plurály, interpolace, výběr jazyka - čistý JS bez Reactu
   lib/i18n/context.js        React kontext + hook `useI18n()`, přes který si komponenty berou `t()`
@@ -77,7 +78,7 @@ src/
   lib/authErrors.js          mapování chybových kódů Supabase Auth na klíče do slovníku
   lib/watchlist.js           datový model, řazení, merge (beze změny, nezávislé na úložišti)
   lib/watchlistRemote.js     mapování položky na/ze sloupců Supabase tabulky
-  lib/profile.js             validace formátu nicku
+  lib/profile.js             validace formátu nicku a délky bia
   lib/friends.js             mapování friendships řádku vůči přihlášenému uživateli
   lib/supabaseClient.js      Supabase klient (singleton)
   index.css                  barvy, fonty, reset
