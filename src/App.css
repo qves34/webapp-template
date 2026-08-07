@@ -976,6 +976,13 @@ li:last-child > .add__result {
   flex: none;
 }
 
+.profile__form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
 /* ---------- mobil ---------- */
 
 @media (max-width: 640px) {

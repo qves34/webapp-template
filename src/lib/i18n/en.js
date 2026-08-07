@@ -61,6 +61,7 @@ export const en = {
 
   // ---------- header ----------
   'nav.friends': 'Friends',
+  'nav.profile': 'Profile',
   'nav.backFriends': '← Friends',
   'nav.backMine': '← Mine',
   'action.export': 'Export',
@@ -173,4 +174,14 @@ export const en = {
   'friends.watchlistOf': 'Watchlist of',
   'friends.loadFailed': 'Could not load the list.',
   'friends.watchlistEmpty': '{nickname} has an empty list so far.',
+
+  // ---------- profile ----------
+  'profile.accountHeading': 'Account',
+  'profile.saveNickname': 'Save nickname',
+  'profile.nicknameUpdated': 'Nickname saved.',
+  'profile.newPassword': 'New password',
+  'profile.savePassword': 'Change password',
+  'profile.passwordUpdated': 'Password changed.',
+  'profile.favorites': 'Favorites',
+  'profile.favoritesEmpty': 'No favorites yet.',
 }

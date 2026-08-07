@@ -5,6 +5,7 @@ import { AuthForm } from './components/AuthForm'
 import { FriendsPanel } from './components/FriendsPanel'
 import { ItemRow } from './components/ItemRow'
 import { NicknameGate } from './components/NicknameGate'
+import { ProfilePanel } from './components/ProfilePanel'
 import { Toolbar } from './components/Toolbar'
 import { useAuth } from './hooks/useAuth'
 import { useFriends } from './hooks/useFriends'
@@ -24,7 +25,7 @@ const IMPORT_ERROR_KEYS = {
 }
 
 function App() {
-  const { session, user, loading, signIn, signUp, signOut } = useAuth()
+  const { session, user, loading, signIn, signUp, signOut, updatePassword } = useAuth()
   const { t } = useI18n()
 
   return (
@@ -39,7 +40,7 @@ function App() {
       ) : !session ? (
         <AuthForm onSignIn={signIn} onSignUp={signUp} />
       ) : (
-        <Gate user={user} onSignOut={signOut} />
+        <Gate user={user} onSignOut={signOut} onUpdatePassword={updatePassword} />
       )}
     </>
   )
@@ -82,16 +83,24 @@ function LocaleToggle() {
 }
 
 /** Nickname je potřeba dřív, než appku vůbec uvidíš - jinak by tě přátelé nenašli. */
-function Gate({ user, onSignOut }) {
+function Gate({ user, onSignOut, onUpdatePassword }) {
   const { nickname, loading, setNickname } = useProfile(user.id)
   const { t } = useI18n()
 
   if (loading) return <p className="app-loading">{t('app.loading')}</p>
   if (!nickname) return <NicknameGate onSetNickname={setNickname} />
-  return <Watchlist user={user} onSignOut={onSignOut} />
+  return (
+    <Watchlist
+      user={user}
+      onSignOut={onSignOut}
+      nickname={nickname}
+      onSetNickname={setNickname}
+      onUpdatePassword={onUpdatePassword}
+    />
+  )
 }
 
-function Watchlist({ user, onSignOut }) {
+function Watchlist({ user, onSignOut, nickname, onSetNickname, onUpdatePassword }) {
   const { t, locale } = useI18n()
   const { items, add, update, remove, merge, storageError, loading } = useWatchlist(user.id)
   const {
@@ -230,6 +239,11 @@ function Watchlist({ user, onSignOut }) {
     setView('friends')
   }
 
+  function openProfile() {
+    setViewingFriend(null)
+    setView('profile')
+  }
+
   function viewFriendWatchlist(id, nickname) {
     setViewingFriend({ id, nickname })
   }
@@ -333,15 +347,74 @@ function Watchlist({ user, onSignOut }) {
     )
   }
 
+  if (view === 'profile') {
+    return (
+      <main className="app">
+        <header className="head">
+          <div className="head__bar">
+            <h1
+              className="head__mark head__mark--link"
+              role="button"
+              tabIndex={0}
+              onClick={goHome}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  goHome()
+                }
+              }}
+            >
+              {t('app.mark')}
+            </h1>
+            <div className="head__backup">
+              <button type="button" className="ghost" onClick={() => setView('mine')}>
+                {t('nav.backMine')}
+              </button>
+              <button type="button" className="ghost" onClick={onSignOut}>
+                {t('auth.signOut')}
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <ProfilePanel
+          email={user.email}
+          nickname={nickname}
+          onSetNickname={onSetNickname}
+          onUpdatePassword={onUpdatePassword}
+          favorites={items.filter((item) => item.favorite)}
+          onUpdateItem={update}
+          onRemoveItem={handleRemove}
+        />
+      </main>
+    )
+  }
+
   return (
     <main className="app">
       <header className="head">
         <div className="head__bar">
-          <h1 className="head__mark">{t('app.mark')}</h1>
+          <h1
+            className="head__mark head__mark--link"
+            role="button"
+            tabIndex={0}
+            onClick={goHome}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                goHome()
+              }
+            }}
+          >
+            {t('app.mark')}
+          </h1>
           <div className="head__backup">
             <button type="button" className="ghost" onClick={openFriends}>
               {t('nav.friends')}
               {incoming.length > 0 && <span className="head__badge">{incoming.length}</span>}
+            </button>
+            <button type="button" className="ghost" onClick={openProfile}>
+              {t('nav.profile')}
             </button>
             <button type="button" className="ghost" onClick={handleExport}>
               {t('action.export')}

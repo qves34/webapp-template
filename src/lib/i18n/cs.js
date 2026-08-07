@@ -63,6 +63,7 @@ export const cs = {
 
   // ---------- hlavička ----------
   'nav.friends': 'Přátelé',
+  'nav.profile': 'Profil',
   'nav.backFriends': '← Přátelé',
   'nav.backMine': '← Moje',
   'action.export': 'Export',
@@ -180,4 +181,14 @@ export const cs = {
   'friends.watchlistOf': 'Watchlist uživatele',
   'friends.loadFailed': 'Seznam se nepodařilo načíst.',
   'friends.watchlistEmpty': '{nickname} má zatím prázdný seznam.',
+
+  // ---------- profil ----------
+  'profile.accountHeading': 'Účet',
+  'profile.saveNickname': 'Uložit nickname',
+  'profile.nicknameUpdated': 'Nickname uložen.',
+  'profile.newPassword': 'Nové heslo',
+  'profile.savePassword': 'Změnit heslo',
+  'profile.passwordUpdated': 'Heslo změněno.',
+  'profile.favorites': 'Oblíbené',
+  'profile.favoritesEmpty': 'Zatím žádné oblíbené položky.',
 }
