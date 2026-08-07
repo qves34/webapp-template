@@ -10,7 +10,8 @@ Projekt je nasazený a live.
 
 ## Co je hotové
 
-- **Watchlist appka**: seznam filmů/anime/seriálů, stavy Chci vidět → Dívám se → Dočasně přerušeno → Přerušeno → Dokoukáno, filtr podle stavu i typu (film/anime/seriál), hledání, Export/Import JSON s merge podle `updatedAt`
+- **Watchlist appka**: seznam filmů/anime/seriálů, stavy Chci vidět → Dívám se → Dočasně přerušeno → Přerušeno → Dokoukáno, filtr podle stavu i typu (film/anime/seriál), hledání
+- **Profil** (`ProfilePanel.jsx`): email (jen náhled), změna nicknamu a hesla, krátké bio (`profile_bios`, max 200 znaků, viditelné jen vlastníkovi a přijatým přátelům - RLS "select friends bio" ve stejném stylu jako u watchlistu), přehled oblíbených titulů
 - **TMDB našeptávač**: `api/search.js` proxuje `search/multi` na TMDB (klíč `TMDB_API_KEY` jen na serveru), frontend (`AddForm.jsx`) při psaní debounced dotazem nabídne titul s plakátkem a rokem; vybraný titul si nese `tmdbId`/`year`/`poster`. Zvolený typ zužuje i výsledky hledání (`KIND_FILTERS`) - film/seriál podle `media_type`, anime přiblížené přes žánr Animace (16) + `original_language = 'ja'`, protože TMDB kategorii "anime" nemá. Ta aproximace nesedí vždycky, takže ruční zápis bez výběru zůstává záchranou. Názvy se ukládají vždycky anglicky (viz Lokalizace).
 - **Účty + cloud sync (Supabase)**: `useAuth`/`AuthForm` (email+heslo), `useWatchlist` přepsaný na čtení/zápis do Supabase místo localStorage, RLS politiky (`supabase/schema.sql`) hlídají, že uživatel vidí/mění jen svoje řádky, jednorázová nabídka migrace starých `localStorage` dat po prvním přihlášení. Supabase projekt založený, schéma spuštěné, **end-to-end ověřeno** (viz "Poznámka k testování").
 - **5 stavů titulu**: přidány Dočasně přerušeno (zlatý akcent) a Přerušeno (ztlumené) vedle původních tří; DB `CHECK` constraint na sloupci `status` rozšířený, migrace spuštěná přímo na produkční databázi (viz "Poznámka k testování")

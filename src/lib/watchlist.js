@@ -1,5 +1,4 @@
 export const STORAGE_KEY = 'watchlist.v1'
-export const EXPORT_VERSION = 1
 
 // Jen identifikátory - ty jsou i v databázi. Zobrazované názvy drží slovníky
 // v `lib/i18n` pod klíči `kind.<id>`, `status.<id>` a `sort.<id>`.
@@ -120,8 +119,9 @@ export function saveItems(items) {
 }
 
 /**
- * Sloučí zálohu do aktuálního seznamu. Stejné id = vyhrává novější updatedAt,
- * takže import nikdy nepřepíše čerstvější změnu ani nesmaže, co v záloze není.
+ * Sloučí příchozí položky (migrace ze starého localStorage) do aktuálního
+ * seznamu. Stejné id = vyhrává novější updatedAt, takže se nikdy nepřepíše
+ * čerstvější změna ani nesmaže, co v příchozích datech není.
  */
 export function mergeItems(current, incoming) {
   const byId = new Map(current.map((item) => [item.id, item]))
@@ -140,45 +140,4 @@ export function mergeItems(current, incoming) {
   }
 
   return { items: [...byId.values()], added, updated }
-}
-
-export function buildExport(items) {
-  return {
-    version: EXPORT_VERSION,
-    exportedAt: new Date().toISOString(),
-    items,
-  }
-}
-
-/** Nese `code`, ne hotovou hlášku - text si podle jazyka doplní až UI. */
-export class ImportError extends Error {
-  constructor(code) {
-    super(code)
-    this.name = 'ImportError'
-    this.code = code
-  }
-}
-
-/** Přijme jak náš export ({items:[…]}), tak holé pole titulů. */
-export function readExport(text) {
-  const parsed = JSON.parse(text)
-  const list = Array.isArray(parsed) ? parsed : parsed?.items
-  if (!Array.isArray(list)) throw new ImportError('noList')
-  const items = list.map(normalizeItem).filter(Boolean)
-  if (items.length === 0) throw new ImportError('noTitles')
-  return items
-}
-
-export function downloadExport(items) {
-  const stamp = new Date().toISOString().slice(0, 10)
-  const blob = new Blob([JSON.stringify(buildExport(items), null, 2)], {
-    type: 'application/json',
-  })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `watchlist-${stamp}.json`
-  link.click()
-  // Okamžité revokeObjectURL některým prohlížečům stahování utne.
-  setTimeout(() => URL.revokeObjectURL(url), 5000)
 }

@@ -1,6 +1,6 @@
 # Watchlist
 
-Osobní seznam filmů, anime a seriálů, vázaný na účet - přihlásíš se z libovolného zařízení a máš svá data. Export / Import JSON zůstává jako ruční záloha navrch.
+Osobní seznam filmů, anime a seriálů, vázaný na účet - přihlásíš se z libovolného zařízení a máš svá data.
 
 Postavené na React + Vite, nasazuje se na Vercel přes `git push`. Účty a data drží Supabase (Postgres + Auth).
 
@@ -12,9 +12,9 @@ Postavené na React + Vite, nasazuje se na Vercel přes `git push`. Účty a dat
 - U každého titulu navíc: kde jsi (`S2E5`), hodnocení 1-10, poznámka a zaškrtávátko **HATED** (viditelný červený štítek u titulu). Rozbalíš tlačítkem „Upravit".
 - **Oblíbené**: hvězdička přímo na řádku, přepíná se jedním klikem bez otevření Upravit.
 - Filtr podle stavu i podle typu (film/anime/seriál), hledání v názvech a poznámkách, řazení (stav/abecedně/hodnocení).
-- **Export** stáhne `watchlist-RRRR-MM-DD.json`, **Import** ho načte zpátky - nezávislá ruční záloha vedle cloud sync. Import slučuje: stejný titul (podle `id`) vyhrává ten s novější změnou, nic se nemaže.
 - Titulům, co zůstaly v `localStorage` z doby před účty, appka po prvním přihlášení nabídne jednorázové nahrání do účtu.
 - **Přátelé**: při prvním přihlášení si zvolíš nickname (3-20 znaků, unikátní). V sekci „Přátelé" podle nicku najdeš ostatní, pošleš žádost o přátelství - druhá strana ji musí přijmout. Po přijetí vidíš watchlist přítele (read-only, bez úprav). Odebrání z přátel/odmítnutí/zrušení žádosti jde jedním tlačítkem.
+- **Profil**: email (jen náhled), změna nicknamu a hesla, krátké bio (max 200 znaků) a přehled oblíbených titulů. Bio vidí jen tví přijatí přátelé, ne kdokoli přihlášený.
 - **Možná znáš**: appka sama navrhne lidi s podobným vkusem - podle shodných titulů v seznamu (a ještě víc podle shodných oblíbených) doporučí uživatele, se kterými se dost překrýváš, aniž bys musel znát jejich nickname.
 - **Čeština a angličtina**: tlačítko `CS`/`EN` vpravo nahoře přepne jazyk celého UI. Napoprvé se jazyk vybere podle prohlížeče (`navigator.languages`), volba se pak pamatuje per prohlížeč. Přepíná se i řazení podle abecedy (čeština řadí Č/Ř/Š jinak než angličtina). **Názvy titulů se nepřekládají** - drží se anglicky v obou jazycích UI, viz sekce Jazyky.
 
@@ -62,7 +62,7 @@ npm run build
 ```
 src/
   main.jsx                   vstupní bod, obaluje appku do <I18nProvider>
-  App.jsx                    gating na přihlášení a nickname, layout, filtry, export/import, migrace z localStorage, přepínání Moje/Přátelé
+  App.jsx                    gating na přihlášení a nickname, layout, filtry, migrace z localStorage, přepínání Moje/Přátelé/Profil
   components/                AddForm, AuthForm, Toolbar, ItemRow, NicknameGate, FriendsPanel
   hooks/useAuth.js           session ze Supabase Auth (signUp/signIn/signOut)
   hooks/useTheme.js          světlý/tmavý motiv, uložený per prohlížeč (jinak podle systému)
@@ -75,7 +75,7 @@ src/
   lib/i18n/context.js        React kontext + hook `useI18n()`, přes který si komponenty berou `t()`
   lib/i18n/index.jsx         `<I18nProvider>` - drží zvolený jazyk, ukládá ho a nastavuje `<html lang>`
   lib/authErrors.js          mapování chybových kódů Supabase Auth na klíče do slovníku
-  lib/watchlist.js           datový model, řazení, merge, export/import (beze změny, nezávislé na úložišti)
+  lib/watchlist.js           datový model, řazení, merge (beze změny, nezávislé na úložišti)
   lib/watchlistRemote.js     mapování položky na/ze sloupců Supabase tabulky
   lib/profile.js             validace formátu nicku
   lib/friends.js             mapování friendships řádku vůči přihlášenému uživateli
@@ -98,10 +98,10 @@ V UI nejsou žádné natvrdo psané texty - komponenta si vezme `const { t } = u
 Ve slovníku je hodnota buď text, nebo objekt s plurálovými tvary. Který tvar se použije, rozhoduje `Intl.PluralRules` podle `count` - plurály se tedy nepočítají ručně a každý jazyk dostane ty tvary, které opravdu má (čeština 1 / 2-4 / 5+, angličtina 1 / ostatní):
 
 ```js
-'export.done': {
-  one: 'Stažen {count} titul.',
-  few: 'Staženy {count} tituly.',
-  other: 'Staženo {count} titulů.',
+'migration.prompt': {
+  one: 'Našli jsme {count} titul uložený v tomhle prohlížeči. Nahrát ho do účtu?',
+  few: 'Našli jsme {count} tituly uložené v tomhle prohlížeči. Nahrát je do účtu?',
+  other: 'Našli jsme {count} titulů uložených v tomhle prohlížeči. Nahrát je do účtu?',
 },
 ```
 

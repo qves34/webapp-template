@@ -20,15 +20,7 @@ const FILTERS = ['vse', ...STATUSES]
 
 // Texty, které jsou v obou jazycích shodné záměrně - u zbytku shoda znamená
 // zapomenutý překlad.
-const SAME_ON_PURPOSE = new Set([
-  'app.mark',
-  'kind.anime',
-  'kind.anime.short',
-  'action.export',
-  'action.import',
-  'auth.email',
-  'nickname.label',
-])
+const SAME_ON_PURPOSE = new Set(['app.mark', 'kind.anime', 'kind.anime.short', 'auth.email', 'nickname.label'])
 
 const DICTS = { cs, en }
 
@@ -110,20 +102,38 @@ check('klíče skládané za běhu existují v obou jazycích', () => {
 check('interpolace dosadí proměnné a neznámý symbol nechá být', () => {
   assert.equal(t('cs', 'list.noMatch', { query: 'Dune' }), 'Na „Dune“ nic nesedí.')
   assert.equal(t('en', 'list.noMatch', { query: 'Dune' }), 'Nothing matches “Dune”.')
-  assert.equal(t('cs', 'import.merged', { added: 3, updated: 2 }), 'Přidáno 3, aktualizováno 2.')
+  assert.equal(t('cs', 'migration.done', { count: 3, total: 5 }), 'Uloženo do účtu: 3 z 5.')
   assert.equal(t('cs', 'list.noMatch', { jine: 'x' }), 'Na „{query}“ nic nesedí.')
 })
 
 check('české plurály berou tvary 1 / 2-4 / 5+', () => {
-  assert.equal(t('cs', 'export.done', { count: 1 }), 'Stažen 1 titul.')
-  assert.equal(t('cs', 'export.done', { count: 3 }), 'Staženy 3 tituly.')
-  assert.equal(t('cs', 'export.done', { count: 7 }), 'Staženo 7 titulů.')
-  assert.equal(t('cs', 'export.done', { count: 0 }), 'Staženo 0 titulů.')
+  assert.equal(
+    t('cs', 'migration.prompt', { count: 1 }),
+    'Našli jsme 1 titul uložený v tomhle prohlížeči. Nahrát ho do účtu?',
+  )
+  assert.equal(
+    t('cs', 'migration.prompt', { count: 3 }),
+    'Našli jsme 3 tituly uložené v tomhle prohlížeči. Nahrát je do účtu?',
+  )
+  assert.equal(
+    t('cs', 'migration.prompt', { count: 7 }),
+    'Našli jsme 7 titulů uložených v tomhle prohlížeči. Nahrát je do účtu?',
+  )
+  assert.equal(
+    t('cs', 'migration.prompt', { count: 0 }),
+    'Našli jsme 0 titulů uložených v tomhle prohlížeči. Nahrát je do účtu?',
+  )
 })
 
 check('anglické plurály berou tvary 1 / ostatní', () => {
-  assert.equal(t('en', 'export.done', { count: 1 }), 'Downloaded 1 title.')
-  assert.equal(t('en', 'export.done', { count: 5 }), 'Downloaded 5 titles.')
+  assert.equal(
+    t('en', 'migration.prompt', { count: 1 }),
+    'We found 1 title saved in this browser. Upload it to your account?',
+  )
+  assert.equal(
+    t('en', 'migration.prompt', { count: 5 }),
+    'We found 5 titles saved in this browser. Upload them to your account?',
+  )
 })
 
 check('neznámý klíč vrátí sám sebe', () => {
@@ -133,7 +143,10 @@ check('neznámý klíč vrátí sám sebe', () => {
 
 check('neznámý jazyk spadne na češtinu včetně českých plurálů', () => {
   assert.equal(t('de', 'app.loading'), 'Načítám…')
-  assert.equal(t('de', 'export.done', { count: 3 }), 'Staženy 3 tituly.')
+  assert.equal(
+    t('de', 'migration.prompt', { count: 3 }),
+    'Našli jsme 3 tituly uložené v tomhle prohlížeči. Nahrát je do účtu?',
+  )
 })
 
 check('přepínání jazyků cyklí a metadata sedí', () => {

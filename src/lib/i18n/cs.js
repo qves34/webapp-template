@@ -66,8 +66,6 @@ export const cs = {
   'nav.profile': 'Profil',
   'nav.backFriends': '← Přátelé',
   'nav.backMine': '← Moje',
-  'action.export': 'Export',
-  'action.import': 'Import',
 
   'head.watchingNow': 'Právě koukám',
   'head.watching': 'Rozkoukané',
@@ -124,22 +122,9 @@ export const cs = {
   'list.loading': 'Načítám tvůj seznam…',
   'list.noMatch': 'Na „{query}“ nic nesedí.',
 
-  // ---------- záloha a sync ----------
-  'export.empty': 'Není co zálohovat, seznam je prázdný.',
-  'export.done': {
-    one: 'Stažen {count} titul.',
-    few: 'Staženy {count} tituly.',
-    other: 'Staženo {count} titulů.',
-  },
-  'import.nothingNew': 'Záloha nepřinesla nic nového.',
-  'import.merged': 'Přidáno {added}, aktualizováno {updated}.',
-  'import.failed': 'Import se nepovedl: {reason}',
-  'import.errNoList': 'Soubor neobsahuje seznam titulů.',
-  'import.errNoTitles': 'V souboru není žádný titul s názvem.',
-  'import.errBadFile': 'Soubor nejde přečíst jako JSON.',
-
-  'sync.failed': 'Synchronizace s účtem selhala. Zkus to znovu, mezitím si radši udělej Export.',
-  'foot.data': 'Data jsou u tvého účtu, dostupná odkudkoli. Zálohu si navíc uděláš přes Export.',
+  // ---------- sync ----------
+  'sync.failed': 'Synchronizace s účtem selhala. Zkus to prosím znovu.',
+  'foot.data': 'Data jsou u tvého účtu, dostupná odkudkoli.',
 
   'migration.prompt': {
     one: 'Našli jsme {count} titul uložený v tomhle prohlížeči. Nahrát ho do účtu?',

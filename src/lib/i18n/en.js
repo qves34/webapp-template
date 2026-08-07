@@ -64,8 +64,6 @@ export const en = {
   'nav.profile': 'Profile',
   'nav.backFriends': '← Friends',
   'nav.backMine': '← Mine',
-  'action.export': 'Export',
-  'action.import': 'Import',
 
   'head.watchingNow': 'Watching now',
   'head.watching': 'In progress',
@@ -121,21 +119,9 @@ export const en = {
   'list.loading': 'Loading your list…',
   'list.noMatch': 'Nothing matches “{query}”.',
 
-  // ---------- backup and sync ----------
-  'export.empty': 'Nothing to back up, the list is empty.',
-  'export.done': {
-    one: 'Downloaded {count} title.',
-    other: 'Downloaded {count} titles.',
-  },
-  'import.nothingNew': 'The backup brought nothing new.',
-  'import.merged': 'Added {added}, updated {updated}.',
-  'import.failed': 'Import failed: {reason}',
-  'import.errNoList': 'The file does not contain a list of titles.',
-  'import.errNoTitles': 'The file has no title with a name.',
-  'import.errBadFile': 'The file cannot be read as JSON.',
-
-  'sync.failed': 'Syncing with your account failed. Try again, and export a backup meanwhile.',
-  'foot.data': 'Your data lives with your account, available anywhere. Export gives you a backup.',
+  // ---------- sync ----------
+  'sync.failed': 'Syncing with your account failed. Please try again.',
+  'foot.data': 'Your data lives with your account, available anywhere.',
 
   'migration.prompt': {
     one: 'We found {count} title saved in this browser. Upload it to your account?',

@@ -16,14 +16,9 @@ import { useTheme } from './hooks/useTheme'
 import { useWatchlist } from './hooks/useWatchlist'
 import { useI18n } from './lib/i18n/context'
 import { localeMeta, nextLocale } from './lib/i18n/core'
-import { STATUSES, downloadExport, loadItems, readExport, sortItems } from './lib/watchlist'
+import { STATUSES, loadItems, sortItems } from './lib/watchlist'
 
 const MIGRATION_FLAG = 'watchlist.migrated.v1'
-
-const IMPORT_ERROR_KEYS = {
-  noList: 'import.errNoList',
-  noTitles: 'import.errNoTitles',
-}
 
 function App() {
   const { session, user, loading, signIn, signUp, signOut, updatePassword } = useAuth()
@@ -127,7 +122,6 @@ function Watchlist({ user, onSignOut, nickname, onSetNickname, bio, onSetBio, on
   const [viewingFriend, setViewingFriend] = useState(null)
   const friendWatchlist = useFriendWatchlist(viewingFriend?.id)
   const friendProfile = useFriendProfile(viewingFriend?.id)
-  const fileInput = useRef(null)
   const noticeId = useRef(0)
   const migrationChecked = useRef(false)
 
@@ -202,35 +196,6 @@ function Watchlist({ user, onSignOut, nickname, onSetNickname, bio, onSetBio, on
 
   function handleRemove(item) {
     if (window.confirm(t('row.confirmDelete', { title: item.title }))) remove(item.id)
-  }
-
-  function handleExport() {
-    if (items.length === 0) {
-      showNotice('warn', 'export.empty')
-      return
-    }
-    downloadExport(items)
-    showNotice('ok', 'export.done', { count: items.length })
-  }
-
-  async function handleImport(event) {
-    const file = event.target.files?.[0]
-    event.target.value = ''
-    if (!file) return
-
-    try {
-      const incomingItems = readExport(await file.text())
-      const { added, updated } = merge(incomingItems)
-      if (added + updated === 0) {
-        showNotice('ok', 'import.nothingNew')
-      } else {
-        showNotice('ok', 'import.merged', { added, updated })
-      }
-    } catch (error) {
-      // Neznámý pád (rozbitý JSON) spadne na obecnou hlášku o nečitelném souboru.
-      const reasonKey = IMPORT_ERROR_KEYS[error.code] ?? 'import.errBadFile'
-      showNotice('warn', 'import.failed', { reason: t(reasonKey) })
-    }
   }
 
   function goHome() {
@@ -423,19 +388,6 @@ function Watchlist({ user, onSignOut, nickname, onSetNickname, bio, onSetBio, on
             <button type="button" className="ghost" onClick={openProfile}>
               {t('nav.profile')}
             </button>
-            <button type="button" className="ghost" onClick={handleExport}>
-              {t('action.export')}
-            </button>
-            <button type="button" className="ghost" onClick={() => fileInput.current?.click()}>
-              {t('action.import')}
-            </button>
-            <input
-              ref={fileInput}
-              type="file"
-              accept="application/json,.json"
-              onChange={handleImport}
-              hidden
-            />
             <button type="button" className="ghost" onClick={onSignOut}>
               {t('auth.signOut')}
             </button>
