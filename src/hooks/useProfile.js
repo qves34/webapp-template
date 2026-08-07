@@ -38,15 +38,17 @@ export function useProfile(userId) {
   const setNickname = useCallback(
     async (value) => {
       const trimmed = value.trim()
+      // Vracíme klíč do slovníku, ne hotovou větu - hlášku složí až komponenta
+      // podle zvoleného jazyka (a Supabase hlášky jsou navíc vždycky anglicky).
       if (!isValidNickname(trimmed)) {
-        return { error: { message: '3-20 znaků, jen písmena, čísla a podtržítko.' } }
+        return { error: { key: 'nickname.errFormat' } }
       }
 
       const { error } = await supabase.from('profiles').upsert({ id: userId, nickname: trimmed })
 
       if (error) {
-        const message = error.code === '23505' ? 'Tenhle nickname už je zabraný.' : error.message
-        return { error: { message } }
+        if (error.code !== '23505') console.warn('Uložení nicknamu selhalo:', error)
+        return { error: { key: error.code === '23505' ? 'nickname.errTaken' : 'nickname.errGeneric' } }
       }
 
       setNicknameState(trimmed)

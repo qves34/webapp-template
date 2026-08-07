@@ -1,6 +1,11 @@
 const TMDB_BASE = 'https://api.themoviedb.org/3'
 const IMAGE_BASE = 'https://image.tmdb.org/t/p/w185'
 
+// Jazyk UI -> jazyk TMDB. Neznámá hodnota spadne na češtinu, ať se sem
+// nedostane nic, co by TMDB odmítlo.
+const TMDB_LANGUAGES = { cs: 'cs-CZ', en: 'en-US' }
+const DEFAULT_LANGUAGE = 'cs-CZ'
+
 const KIND_FILTERS = {
   film: (item) => item.media_type === 'movie',
   serial: (item) => item.media_type === 'tv',
@@ -31,7 +36,7 @@ export default async function handler(req, res) {
   url.searchParams.set('api_key', apiKey)
   url.searchParams.set('query', query)
   url.searchParams.set('include_adult', 'false')
-  url.searchParams.set('language', 'cs-CZ')
+  url.searchParams.set('language', TMDB_LANGUAGES[req.query.lang] ?? DEFAULT_LANGUAGE)
 
   try {
     const response = await fetch(url)

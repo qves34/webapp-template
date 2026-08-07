@@ -17,6 +17,8 @@ Postavené na React + Vite, nasazuje se na Vercel přes `git push`. Účty a dat
 - **Přátelé**: při prvním přihlášení si zvolíš nickname (3-20 znaků, unikátní). V sekci „Přátelé" podle nicku najdeš ostatní, pošleš žádost o přátelství - druhá strana ji musí přijmout. Po přijetí vidíš watchlist přítele (read-only, bez úprav). Odebrání z přátel/odmítnutí/zrušení žádosti jde jedním tlačítkem.
 - **Možná znáš**: appka sama navrhne lidi s podobným vkusem - podle shodných titulů v seznamu (a ještě víc podle shodných oblíbených) doporučí uživatele, se kterými se dost překrýváš, aniž bys musel znát jejich nickname.
 
+- **Čeština a angličtina**: tlačítko `CS`/`EN` vpravo nahoře přepne jazyk celého UI. Napoprvé se jazyk vybere podle prohlížeče (`navigator.languages`), volba se pak pamatuje per prohlížeč. Přepíná se i jazyk TMDB našeptávače a řazení podle abecedy (čeština řadí Č/Ř/Š jinak než angličtina).
+
 Rozkoukané tituly jsou vždycky nahoře a hlavička ukazuje, co zrovna koukáš.
 
 Vzhled: tlačítko vpravo nahoře (☀️/🌙) přepíná světlý/tmavý motiv, uložený per prohlížeč (jinak podle systému).
@@ -46,8 +48,9 @@ VITE_SUPABASE_ANON_KEY=tvůj_anon_klíč
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173 - jen frontend, /api neběží
+npm run dev         # http://localhost:5173 - jen frontend, /api neběží
 npm run lint
+npm run check:i18n  # kontrola slovníků (parita klíčů, plurály, proměnné)
 npm run build
 ```
 
@@ -64,6 +67,11 @@ src/
   hooks/useWatchlist.js      stav seznamu + čtení/zápis do Supabase (RLS = jen vlastní řádky)
   hooks/useFriends.js        žádosti o přátelství, seznam přátel, hledání podle nicku, doporučení (recommend_friends)
   hooks/useFriendWatchlist.js read-only watchlist konkrétního přítele
+  lib/i18n/cs.js, en.js      slovníky (klíč → text, u počitatelných textů plurálové tvary)
+  lib/i18n/core.js           překladová funkce, plurály, interpolace, výběr jazyka - čistý JS bez Reactu
+  lib/i18n/context.js        React kontext + hook `useI18n()`, přes který si komponenty berou `t()`
+  lib/i18n/index.jsx         `<I18nProvider>` - drží zvolený jazyk, ukládá ho a nastavuje `<html lang>`
+  lib/authErrors.js          mapování chybových kódů Supabase Auth na klíče do slovníku
   lib/watchlist.js           datový model, řazení, merge, export/import (beze změny, nezávislé na úložišti)
   lib/watchlistRemote.js     mapování položky na/ze sloupců Supabase tabulky
   lib/profile.js             validace formátu nicku
@@ -71,12 +79,39 @@ src/
   lib/supabaseClient.js      Supabase klient (singleton)
   index.css                  barvy, fonty, reset
   App.css                    vzhled komponent
-api/search.js                proxy na TMDB search/multi (klíč jen na serveru)
+api/search.js                proxy na TMDB search/multi (klíč jen na serveru), jazyk podle `?lang=`
+scripts/check-i18n.mjs       kontrola slovníků, pouští se přes `npm run check:i18n`
 supabase/schema.sql           tabulky + RLS politiky, spustit ručně v Supabase SQL editoru
 vercel.json                  SPA routing
 ```
 
 Titulům z doby před účty (localStorage klíč `watchlist.v1`) appka po prvním přihlášení nabídne nahrání do účtu; ať uživatel zvolí cokoli, `localStorage` se nemaže a zůstává jako tichá lokální rezerva.
+
+## Jazyky
+
+V UI nejsou žádné natvrdo psané texty - komponenta si vezme `const { t } = useI18n()` a píše `t('klic')`, případně `t('klic', { count: 3 })`.
+
+Ve slovníku je hodnota buď text, nebo objekt s plurálovými tvary. Který tvar se použije, rozhoduje `Intl.PluralRules` podle `count` - plurály se tedy nepočítají ručně a každý jazyk dostane ty tvary, které opravdu má (čeština 1 / 2-4 / 5+, angličtina 1 / ostatní):
+
+```js
+'export.done': {
+  one: 'Stažen {count} titul.',
+  few: 'Staženy {count} tituly.',
+  other: 'Staženo {count} titulů.',
+},
+```
+
+Přidání dalšího jazyka:
+
+1. Zkopíruj `src/lib/i18n/cs.js` do `xx.js` a přelož hodnoty (klíče nech být).
+2. V `src/lib/i18n/core.js` přidej jazyk do `LOCALES` (`tmdb` je jazyk pro TMDB našeptávač, `name` název jazyka v něm samotném) a do `DICTS`.
+3. `npm run check:i18n` - ohlásí chybějící klíče, chybějící plurálové tvary i texty, co zůstaly nepřeložené.
+
+Přepínač jazyků prochází `LOCALES` dokola, takže se o nový jazyk nemusí starat.
+
+Identifikátory typů a stavů (`film`, `divam`, …) jsou zároveň hodnoty v databázi - **nepřekládají se**, překládají se až přes klíče `kind.<id>`, `status.<id>` a `sort.<id>`. Proto `lib/watchlist.js` drží jen holá pole identifikátorů a žádné popisky.
+
+Známé omezení: `index.html` má natvrdo `lang="cs"` a českou `<meta name="description">`. Provider obojí po načtení přepíše podle zvoleného jazyka, ale náhledy sdíleného odkazu (Slack, Facebook) JS nespouštějí, takže popisek uvidí vždycky česky. Opravit by to šlo až prerenderem, což by kvůli jedné větě byla velká cena.
 
 ## Nasazení (GitHub → Vercel)
 

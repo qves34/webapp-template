@@ -1,38 +1,18 @@
 export const STORAGE_KEY = 'watchlist.v1'
 export const EXPORT_VERSION = 1
 
-export const KINDS = [
-  { id: 'film', label: 'Film', short: 'FILM' },
-  { id: 'anime', label: 'Anime', short: 'ANIME' },
-  { id: 'serial', label: 'Seriál', short: 'SERIÁL' },
-]
-
-export const STATUSES = [
-  { id: 'chci', label: 'Chci vidět' },
-  { id: 'divam', label: 'Dívám se' },
-  { id: 'pauza', label: 'Dočasně přerušeno' },
-  { id: 'preruseno', label: 'Přerušeno' },
-  { id: 'hotovo', label: 'Dokoukáno' },
-]
-
-export const SORT_MODES = [
-  { id: 'stav', label: 'Stav' },
-  { id: 'abeceda', label: 'Abecedně' },
-  { id: 'hodnoceni', label: 'Hodnocení' },
-]
-
-const KIND_IDS = KINDS.map((k) => k.id)
-const STATUS_IDS = STATUSES.map((s) => s.id)
+// Jen identifikátory - ty jsou i v databázi. Zobrazované názvy drží slovníky
+// v `lib/i18n` pod klíči `kind.<id>`, `status.<id>` a `sort.<id>`.
+export const KINDS = ['film', 'anime', 'serial']
+export const STATUSES = ['chci', 'divam', 'pauza', 'preruseno', 'hotovo']
+export const SORT_MODES = ['stav', 'abeceda', 'hodnoceni']
 
 // Pořadí ve výpisu (mode 'stav'): rozkoukané nahoru, dokoukané a přerušené dolů.
 const SORT_RANK = { divam: 0, pauza: 1, chci: 2, preruseno: 3, hotovo: 4 }
 
-export const kindLabel = (id) => KINDS.find((k) => k.id === id)?.short ?? id
-export const statusLabel = (id) => STATUSES.find((s) => s.id === id)?.label ?? id
-
 export function nextStatus(id) {
-  const i = STATUS_IDS.indexOf(id)
-  return STATUS_IDS[(i + 1) % STATUS_IDS.length]
+  const i = STATUSES.indexOf(id)
+  return STATUSES[(i + 1) % STATUSES.length]
 }
 
 function newId() {
@@ -45,7 +25,7 @@ export function createItem(title, kind = 'film', extra = {}) {
   return {
     id: newId(),
     title: title.trim(),
-    kind: KIND_IDS.includes(kind) ? kind : 'film',
+    kind: KINDS.includes(kind) ? kind : 'film',
     status: 'chci',
     progress: '',
     rating: null,
@@ -72,8 +52,8 @@ export function normalizeItem(raw) {
   return {
     id: typeof raw.id === 'string' && raw.id ? raw.id : newId(),
     title,
-    kind: KIND_IDS.includes(raw.kind) ? raw.kind : 'film',
-    status: STATUS_IDS.includes(raw.status) ? raw.status : 'chci',
+    kind: KINDS.includes(raw.kind) ? raw.kind : 'film',
+    status: STATUSES.includes(raw.status) ? raw.status : 'chci',
     progress: typeof raw.progress === 'string' ? raw.progress : '',
     rating: Number.isFinite(rating) && rating >= 1 && rating <= 10 ? Math.round(rating) : null,
     hated: raw.hated === true,
@@ -96,8 +76,10 @@ function sortByStav(items) {
   })
 }
 
-function sortByAbeceda(items) {
-  return [...items].sort((a, b) => a.title.localeCompare(b.title, 'cs'))
+/** Abecedu určuje jazyk UI - čeština řadí Č/Ř/Š jinak než angličtina. */
+function sortByAbeceda(items, locale) {
+  const collator = new Intl.Collator(locale, { sensitivity: 'base', numeric: true })
+  return [...items].sort((a, b) => collator.compare(a.title, b.title))
 }
 
 /** Bez hodnocení jdou vždycky na konec, ne namíchané mezi ohodnocené. */
@@ -112,8 +94,8 @@ function sortByHodnoceni(items) {
 
 const SORTERS = { stav: sortByStav, abeceda: sortByAbeceda, hodnoceni: sortByHodnoceni }
 
-export function sortItems(items, mode = 'stav') {
-  return (SORTERS[mode] ?? sortByStav)(items)
+export function sortItems(items, mode = 'stav', locale = 'cs') {
+  return (SORTERS[mode] ?? sortByStav)(items, locale)
 }
 
 export function loadItems() {
@@ -168,13 +150,22 @@ export function buildExport(items) {
   }
 }
 
+/** Nese `code`, ne hotovou hlášku - text si podle jazyka doplní až UI. */
+export class ImportError extends Error {
+  constructor(code) {
+    super(code)
+    this.name = 'ImportError'
+    this.code = code
+  }
+}
+
 /** Přijme jak náš export ({items:[…]}), tak holé pole titulů. */
 export function readExport(text) {
   const parsed = JSON.parse(text)
   const list = Array.isArray(parsed) ? parsed : parsed?.items
-  if (!Array.isArray(list)) throw new Error('Soubor neobsahuje seznam titulů.')
+  if (!Array.isArray(list)) throw new ImportError('noList')
   const items = list.map(normalizeItem).filter(Boolean)
-  if (items.length === 0) throw new Error('V souboru není žádný titul s názvem.')
+  if (items.length === 0) throw new ImportError('noTitles')
   return items
 }
 

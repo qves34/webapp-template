@@ -92,15 +92,24 @@ export function useFriends(userId) {
           .from('friendships')
           .update({ status: 'accepted', updated_at: new Date().toISOString() })
           .eq('id', reverse.id)
-        if (!error) await load()
-        return { error }
+        if (!error) {
+          await load()
+          return { error: null }
+        }
+        console.warn('Přijetí protižádosti selhalo:', error)
+        return { error: { key: 'friends.errGeneric' } }
       }
 
       const { error } = await supabase
         .from('friendships')
         .insert({ requester_id: userId, addressee_id: targetId })
-      if (!error) await load()
-      return { error: error && (error.code === '23505' ? { message: 'Žádost už existuje.' } : error) }
+      if (!error) {
+        await load()
+        return { error: null }
+      }
+      // Klíč do slovníku místo anglické hlášky ze Supabase.
+      if (error.code !== '23505') console.warn('Odeslání žádosti selhalo:', error)
+      return { error: { key: error.code === '23505' ? 'friends.errDuplicate' : 'friends.errGeneric' } }
     },
     [userId, load],
   )

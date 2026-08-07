@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useI18n } from '../lib/i18n/context'
 
 const DEBOUNCE_MS = 350
 
@@ -14,9 +15,10 @@ export function FriendsPanel({
   removeFriendship,
   onViewFriend,
 }) {
+  const { t } = useI18n()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
-  const [notice, setNotice] = useState(null)
+  const [noticeKey, setNoticeKey] = useState(null)
 
   const friendIds = new Set(friends.map((f) => f.otherId))
   const outgoingIds = new Set(outgoing.map((f) => f.otherId))
@@ -39,7 +41,7 @@ export function FriendsPanel({
 
   async function handleSend(id) {
     const { error } = await sendRequest(id)
-    setNotice(error ? error.message : 'Žádost odeslána.')
+    setNoticeKey(error ? (error.key ?? 'friends.errGeneric') : 'friends.requestSent')
   }
 
   async function handleAccept(friendshipId) {
@@ -58,8 +60,8 @@ export function FriendsPanel({
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Hledat podle nicku"
-          aria-label="Hledat podle nicku"
+          placeholder={t('friends.searchPlaceholder')}
+          aria-label={t('friends.searchPlaceholder')}
         />
         {results.length > 0 && (
           <ul className="friends__results">
@@ -67,14 +69,14 @@ export function FriendsPanel({
               <li key={result.id} className="friends__row">
                 <span className="friends__nickname">{result.nickname}</span>
                 {friendIds.has(result.id) ? (
-                  <span className="friends__state">Přátelé</span>
+                  <span className="friends__state">{t('friends.stateFriends')}</span>
                 ) : outgoingIds.has(result.id) ? (
-                  <span className="friends__state">Žádost čeká</span>
+                  <span className="friends__state">{t('friends.statePending')}</span>
                 ) : incomingIds.has(result.id) ? (
-                  <span className="friends__state">Čeká na tebe</span>
+                  <span className="friends__state">{t('friends.stateIncoming')}</span>
                 ) : (
                   <button type="button" className="ghost" onClick={() => handleSend(result.id)}>
-                    Přidat
+                    {t('friends.add')}
                   </button>
                 )}
               </li>
@@ -83,25 +85,28 @@ export function FriendsPanel({
         )}
       </div>
 
-      {notice && (
-        <p className="notice notice--ok" onAnimationEnd={() => setNotice(null)}>
-          {notice}
+      {noticeKey && (
+        <p
+          className={`notice notice--${noticeKey === 'friends.requestSent' ? 'ok' : 'warn'}`}
+          onAnimationEnd={() => setNoticeKey(null)}
+        >
+          {t(noticeKey)}
         </p>
       )}
 
       {incoming.length > 0 && (
         <section className="friends__section">
-          <h3 className="friends__heading">Žádosti o přátelství</h3>
+          <h3 className="friends__heading">{t('friends.incomingHeading')}</h3>
           <ul className="friends__list">
             {incoming.map((f) => (
               <li key={f.id} className="friends__row">
                 <span className="friends__nickname">{nicknames[f.otherId] ?? '…'}</span>
                 <span className="friends__actions">
                   <button type="button" className="ghost" onClick={() => handleAccept(f.id)}>
-                    Přijmout
+                    {t('friends.accept')}
                   </button>
                   <button type="button" className="ghost" onClick={() => handleRemove(f.id)}>
-                    Odmítnout
+                    {t('friends.decline')}
                   </button>
                 </span>
               </li>
@@ -111,9 +116,9 @@ export function FriendsPanel({
       )}
 
       <section className="friends__section">
-        <h3 className="friends__heading">Přátelé</h3>
+        <h3 className="friends__heading">{t('friends.heading')}</h3>
         {friends.length === 0 ? (
-          <p className="empty">Zatím žádní přátelé. Najdi je výše podle nicku.</p>
+          <p className="empty">{t('friends.empty')}</p>
         ) : (
           <ul className="friends__list">
             {friends.map((f) => (
@@ -126,7 +131,7 @@ export function FriendsPanel({
                   {nicknames[f.otherId] ?? '…'}
                 </button>
                 <button type="button" className="ghost" onClick={() => handleRemove(f.id)}>
-                  Odebrat
+                  {t('friends.remove')}
                 </button>
               </li>
             ))}
@@ -136,18 +141,24 @@ export function FriendsPanel({
 
       {recommendations.length > 0 && (
         <section className="friends__section">
-          <h3 className="friends__heading">Možná znáš</h3>
+          <h3 className="friends__heading">{t('friends.recommendations')}</h3>
           <ul className="friends__list">
             {recommendations.map((rec) => (
               <li key={rec.candidate_id} className="friends__row">
                 <span className="friends__nickname">{rec.nickname}</span>
                 <span className="friends__actions">
                   <span className="friends__state">
-                    {rec.shared_count} společných titulů
-                    {rec.shared_favorite_count > 0 ? ` (${rec.shared_favorite_count} oblíbených)` : ''}
+                    {t('friends.shared', { count: rec.shared_count })}
+                    {rec.shared_favorite_count > 0
+                      ? t('friends.sharedFavorites', { count: rec.shared_favorite_count })
+                      : ''}
                   </span>
-                  <button type="button" className="ghost" onClick={() => handleSend(rec.candidate_id)}>
-                    Přidat
+                  <button
+                    type="button"
+                    className="ghost"
+                    onClick={() => handleSend(rec.candidate_id)}
+                  >
+                    {t('friends.add')}
                   </button>
                 </span>
               </li>
@@ -158,13 +169,13 @@ export function FriendsPanel({
 
       {outgoing.length > 0 && (
         <section className="friends__section">
-          <h3 className="friends__heading">Odeslané žádosti</h3>
+          <h3 className="friends__heading">{t('friends.outgoingHeading')}</h3>
           <ul className="friends__list">
             {outgoing.map((f) => (
               <li key={f.id} className="friends__row">
                 <span className="friends__nickname">{nicknames[f.otherId] ?? '…'}</span>
                 <button type="button" className="ghost" onClick={() => handleRemove(f.id)}>
-                  Zrušit
+                  {t('friends.cancel')}
                 </button>
               </li>
             ))}

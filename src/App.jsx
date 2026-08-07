@@ -12,37 +12,30 @@ import { useFriendWatchlist } from './hooks/useFriendWatchlist'
 import { useProfile } from './hooks/useProfile'
 import { useTheme } from './hooks/useTheme'
 import { useWatchlist } from './hooks/useWatchlist'
+import { useI18n } from './lib/i18n/context'
+import { localeMeta, nextLocale } from './lib/i18n/core'
 import { STATUSES, downloadExport, loadItems, readExport, sortItems } from './lib/watchlist'
-
-const EMPTY_TEXT = {
-  vse: 'Zatím prázdno. Napiš nahoru název a přidej první titul.',
-  chci: 'Nic tu nečeká. Co přidáš, začíná tady.',
-  divam: 'Nic rozkoukaného. U titulu přepni stav na „Dívám se“.',
-  pauza: 'Nic v pauze. Titul, ke kterému se chceš vrátit, sem přepneš přes „Upravit“.',
-  preruseno: 'Nic přerušeného. Klidně tu ale zůstane, kdyby ses k tomu vrátil.',
-  hotovo: 'Zatím nic dokoukaného.',
-}
 
 const MIGRATION_FLAG = 'watchlist.migrated.v1'
 
+const IMPORT_ERROR_KEYS = {
+  noList: 'import.errNoList',
+  noTitles: 'import.errNoTitles',
+}
+
 function App() {
   const { session, user, loading, signIn, signUp, signOut } = useAuth()
-  const { theme, toggleTheme } = useTheme()
+  const { t } = useI18n()
 
   return (
     <>
-      <button
-        type="button"
-        className="theme-toggle"
-        onClick={toggleTheme}
-        aria-label={theme === 'dark' ? 'Přepnout na světlý režim' : 'Přepnout na tmavý režim'}
-        title={theme === 'dark' ? 'Světlý režim' : 'Tmavý režim'}
-      >
-        {theme === 'dark' ? '☀️' : '🌙'}
-      </button>
+      <div className="controls">
+        <LocaleToggle />
+        <ThemeToggle />
+      </div>
 
       {loading ? (
-        <p className="app-loading">Načítám…</p>
+        <p className="app-loading">{t('app.loading')}</p>
       ) : !session ? (
         <AuthForm onSignIn={signIn} onSignUp={signUp} />
       ) : (
@@ -52,16 +45,54 @@ function App() {
   )
 }
 
+function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme()
+  const { t } = useI18n()
+
+  return (
+    <button
+      type="button"
+      className="theme-toggle"
+      onClick={toggleTheme}
+      aria-label={theme === 'dark' ? t('theme.toLight') : t('theme.toDark')}
+      title={theme === 'dark' ? t('theme.light') : t('theme.dark')}
+    >
+      {theme === 'dark' ? '☀️' : '🌙'}
+    </button>
+  )
+}
+
+/** Ukazuje jazyk, na který se přepne - ne ten, co je zapnutý. */
+function LocaleToggle() {
+  const { locale, toggleLocale, t } = useI18n()
+  const next = localeMeta(nextLocale(locale))
+
+  return (
+    <button
+      type="button"
+      className="lang-toggle"
+      onClick={toggleLocale}
+      aria-label={t('lang.switchTo', { lang: next.name })}
+      title={t('lang.switchTo', { lang: next.name })}
+      lang={next.htmlLang}
+    >
+      {next.short}
+    </button>
+  )
+}
+
 /** Nickname je potřeba dřív, než appku vůbec uvidíš - jinak by tě přátelé nenašli. */
 function Gate({ user, onSignOut }) {
   const { nickname, loading, setNickname } = useProfile(user.id)
+  const { t } = useI18n()
 
-  if (loading) return <p className="app-loading">Načítám…</p>
+  if (loading) return <p className="app-loading">{t('app.loading')}</p>
   if (!nickname) return <NicknameGate onSetNickname={setNickname} />
   return <Watchlist user={user} onSignOut={onSignOut} />
 }
 
 function Watchlist({ user, onSignOut }) {
+  const { t, locale } = useI18n()
   const { items, add, update, remove, merge, storageError, loading } = useWatchlist(user.id)
   const {
     friends,
@@ -88,9 +119,11 @@ function Watchlist({ user, onSignOut }) {
   const migrationChecked = useRef(false)
 
   // Nový klíč při každé hlášce, aby se odpočet do zmizení spustil znovu.
-  function showNotice(kind, text) {
+  // Držíme klíč do slovníku a proměnné, ne hotový text - hláška se tak přeloží
+  // i zpětně, když uživatel mezitím přepne jazyk.
+  function showNotice(kind, key, vars) {
     noticeId.current += 1
-    setNotice({ id: noticeId.current, kind, text })
+    setNotice({ id: noticeId.current, kind, key, vars })
   }
 
   // Jednou za přihlášení do tohoto prohlížeče nabídne nahrání dat, co tu
@@ -113,8 +146,9 @@ function Watchlist({ user, onSignOut }) {
   function acceptMigration() {
     const { added, updated } = merge(migration)
     localStorage.setItem(MIGRATION_FLAG, '1')
+    const total = migration.length
     setMigration(null)
-    showNotice('ok', `Nahráno ${added + updated} z ${migration.length} titulů z tohoto prohlížeče.`)
+    showNotice('ok', 'migration.done', { count: added + updated, total })
   }
 
   function declineMigration() {
@@ -142,8 +176,8 @@ function Watchlist({ user, onSignOut }) {
       if (!needle) return true
       return `${item.title} ${item.note}`.toLowerCase().includes(needle)
     })
-    return sortItems(filtered, sort)
-  }, [items, filter, kindFilter, query, sort])
+    return sortItems(filtered, sort, locale)
+  }, [items, filter, kindFilter, query, sort, locale])
 
   const watching = items.filter((item) => item.status === 'divam')
 
@@ -154,16 +188,16 @@ function Watchlist({ user, onSignOut }) {
   }
 
   function handleRemove(item) {
-    if (window.confirm(`Smazat „${item.title}“?`)) remove(item.id)
+    if (window.confirm(t('row.confirmDelete', { title: item.title }))) remove(item.id)
   }
 
   function handleExport() {
     if (items.length === 0) {
-      showNotice('warn', 'Není co zálohovat, seznam je prázdný.')
+      showNotice('warn', 'export.empty')
       return
     }
     downloadExport(items)
-    showNotice('ok', `Staženo ${items.length} titulů.`)
+    showNotice('ok', 'export.done', { count: items.length })
   }
 
   async function handleImport(event) {
@@ -174,14 +208,15 @@ function Watchlist({ user, onSignOut }) {
     try {
       const incomingItems = readExport(await file.text())
       const { added, updated } = merge(incomingItems)
-      showNotice(
-        'ok',
-        added + updated === 0
-          ? 'Záloha nepřinesla nic nového.'
-          : `Přidáno ${added}, aktualizováno ${updated}.`,
-      )
+      if (added + updated === 0) {
+        showNotice('ok', 'import.nothingNew')
+      } else {
+        showNotice('ok', 'import.merged', { added, updated })
+      }
     } catch (error) {
-      showNotice('warn', `Import se nepovedl: ${error.message}`)
+      // Neznámý pád (rozbitý JSON) spadne na obecnou hlášku o nečitelném souboru.
+      const reasonKey = IMPORT_ERROR_KEYS[error.code] ?? 'import.errBadFile'
+      showNotice('warn', 'import.failed', { reason: t(reasonKey) })
     }
   }
 
@@ -199,26 +234,26 @@ function Watchlist({ user, onSignOut }) {
       <main className="app">
         <header className="head">
           <div className="head__bar">
-            <h1 className="head__mark">Watchlist</h1>
+            <h1 className="head__mark">{t('app.mark')}</h1>
             <div className="head__backup">
               <button type="button" className="ghost" onClick={() => setViewingFriend(null)}>
-                ← Přátelé
+                {t('nav.backFriends')}
               </button>
               <button type="button" className="ghost" onClick={onSignOut}>
-                Odhlásit se
+                {t('auth.signOut')}
               </button>
             </div>
           </div>
           <p className="head__now">
-            <span className="head__now-label">Watchlist uživatele</span>
+            <span className="head__now-label">{t('friends.watchlistOf')}</span>
             <span className="head__now-titles">{viewingFriend.nickname}</span>
           </p>
         </header>
 
         {friendWatchlist.loading ? (
-          <p className="empty">Načítám…</p>
+          <p className="empty">{t('app.loading')}</p>
         ) : friendWatchlist.error ? (
-          <p className="empty">Seznam se nepodařilo načíst.</p>
+          <p className="empty">{t('friends.loadFailed')}</p>
         ) : friendWatchlist.items.length > 0 ? (
           <ul className="list">
             {friendWatchlist.items.map((item) => (
@@ -226,7 +261,9 @@ function Watchlist({ user, onSignOut }) {
             ))}
           </ul>
         ) : (
-          <p className="empty">{viewingFriend.nickname} má zatím prázdný seznam.</p>
+          <p className="empty">
+            {t('friends.watchlistEmpty', { nickname: viewingFriend.nickname })}
+          </p>
         )}
       </main>
     )
@@ -237,13 +274,13 @@ function Watchlist({ user, onSignOut }) {
       <main className="app">
         <header className="head">
           <div className="head__bar">
-            <h1 className="head__mark">Watchlist</h1>
+            <h1 className="head__mark">{t('app.mark')}</h1>
             <div className="head__backup">
               <button type="button" className="ghost" onClick={() => setView('mine')}>
-                ← Moje
+                {t('nav.backMine')}
               </button>
               <button type="button" className="ghost" onClick={onSignOut}>
-                Odhlásit se
+                {t('auth.signOut')}
               </button>
             </div>
           </div>
@@ -269,16 +306,17 @@ function Watchlist({ user, onSignOut }) {
     <main className="app">
       <header className="head">
         <div className="head__bar">
-          <h1 className="head__mark">Watchlist</h1>
+          <h1 className="head__mark">{t('app.mark')}</h1>
           <div className="head__backup">
             <button type="button" className="ghost" onClick={openFriends}>
-              Přátelé{incoming.length > 0 && <span className="head__badge">{incoming.length}</span>}
+              {t('nav.friends')}
+              {incoming.length > 0 && <span className="head__badge">{incoming.length}</span>}
             </button>
             <button type="button" className="ghost" onClick={handleExport}>
-              Export
+              {t('action.export')}
             </button>
             <button type="button" className="ghost" onClick={() => fileInput.current?.click()}>
-              Import
+              {t('action.import')}
             </button>
             <input
               ref={fileInput}
@@ -288,14 +326,14 @@ function Watchlist({ user, onSignOut }) {
               hidden
             />
             <button type="button" className="ghost" onClick={onSignOut}>
-              Odhlásit se
+              {t('auth.signOut')}
             </button>
           </div>
         </div>
 
         <p className="head__now">
           <span className="head__now-label">
-            {watching.length > 0 ? 'Právě koukám' : 'Rozkoukané'}
+            {watching.length > 0 ? t('head.watchingNow') : t('head.watching')}
           </span>
           {watching.length > 0 ? (
             <span className="head__now-titles">
@@ -303,7 +341,9 @@ function Watchlist({ user, onSignOut }) {
             </span>
           ) : (
             <span className="head__now-titles head__now-titles--quiet">
-              {items.length > 0 ? `Nic. Ve frontě čeká ${counts.chci ?? 0}.` : 'Nic. Zatím.'}
+              {items.length > 0
+                ? t('head.queued', { count: counts.chci ?? 0 })
+                : t('head.nothing')}
             </span>
           )}
         </p>
@@ -327,23 +367,19 @@ function Watchlist({ user, onSignOut }) {
 
       {migration && (
         <p className="notice notice--warn notice--sticky migration">
-          Našli jsme {migration.length} titulů uložených v tomhle prohlížeči. Nahrát je do účtu?
+          {t('migration.prompt', { count: migration.length })}
           <span className="migration__actions">
             <button type="button" className="ghost" onClick={acceptMigration}>
-              Nahrát
+              {t('migration.upload')}
             </button>
             <button type="button" className="ghost" onClick={declineMigration}>
-              Nechat být
+              {t('migration.dismiss')}
             </button>
           </span>
         </p>
       )}
 
-      {storageError && (
-        <p className="notice notice--warn notice--sticky">
-          Synchronizace s účtem selhala. Zkus to znovu, mezitím si radši udělej Export.
-        </p>
-      )}
+      {storageError && <p className="notice notice--warn notice--sticky">{t('sync.failed')}</p>}
 
       {notice && (
         <p
@@ -351,12 +387,12 @@ function Watchlist({ user, onSignOut }) {
           className={`notice notice--${notice.kind}`}
           onAnimationEnd={() => setNotice(null)}
         >
-          {notice.text}
+          {t(notice.key, notice.vars)}
         </p>
       )}
 
       {loading ? (
-        <p className="empty">Načítám tvůj seznam…</p>
+        <p className="empty">{t('list.loading')}</p>
       ) : visible.length > 0 ? (
         <ul className="list">
           {visible.map((item) => (
@@ -365,19 +401,17 @@ function Watchlist({ user, onSignOut }) {
         </ul>
       ) : (
         <p className="empty">
-          {query.trim()
-            ? `Na „${query.trim()}“ nic nesedí.`
-            : (EMPTY_TEXT[filter] ?? EMPTY_TEXT.vse)}
+          {query.trim() ? t('list.noMatch', { query: query.trim() }) : t(`empty.${filter}`)}
         </p>
       )}
 
       <footer className="foot">
-        <span>Data jsou u tvého účtu, dostupná odkudkoli. Zálohu si navíc uděláš přes Export.</span>
+        <span>{t('foot.data')}</span>
         {items.length > 0 && (
           <span className="foot__tally">
-            {STATUSES.map((status) => `${status.label.toLowerCase()} ${counts[status.id] ?? 0}`).join(
-              ' · ',
-            )}
+            {STATUSES.map(
+              (status) => `${t(`status.${status}`).toLowerCase()} ${counts[status] ?? 0}`,
+            ).join(' · ')}
           </span>
         )}
       </footer>

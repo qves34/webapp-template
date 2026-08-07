@@ -1,3 +1,4 @@
+import { useI18n } from '../lib/i18n/context'
 import { KINDS, SORT_MODES, STATUSES } from '../lib/watchlist'
 
 export function Toolbar({
@@ -13,10 +14,12 @@ export function Toolbar({
   kindCounts,
   total,
 }) {
+  const { t } = useI18n()
+
   return (
     <div className="toolbar">
       <div className="toolbar__tabs">
-        <div className="tabs" role="tablist" aria-label="Filtr podle stavu">
+        <div className="tabs" role="tablist" aria-label={t('toolbar.filterStatus')}>
           <button
             type="button"
             role="tab"
@@ -24,24 +27,24 @@ export function Toolbar({
             className="tab"
             onClick={() => onFilter('vse')}
           >
-            Vše <span className="tab__count">{total}</span>
+            {t('toolbar.all')} <span className="tab__count">{total}</span>
           </button>
           {STATUSES.map((status) => (
             <button
-              key={status.id}
+              key={status}
               type="button"
               role="tab"
-              aria-selected={filter === status.id}
+              aria-selected={filter === status}
               className="tab"
-              data-status={status.id}
-              onClick={() => onFilter(status.id)}
+              data-status={status}
+              onClick={() => onFilter(status)}
             >
-              {status.label} <span className="tab__count">{counts[status.id] ?? 0}</span>
+              {t(`status.${status}`)} <span className="tab__count">{counts[status] ?? 0}</span>
             </button>
           ))}
         </div>
 
-        <div className="tabs" role="tablist" aria-label="Filtr podle typu">
+        <div className="tabs" role="tablist" aria-label={t('toolbar.filterKind')}>
           <button
             type="button"
             role="tab"
@@ -49,19 +52,19 @@ export function Toolbar({
             className="tab"
             onClick={() => onKindFilter('vse')}
           >
-            Vše
+            {t('toolbar.all')}
           </button>
           {KINDS.map((kind) => (
             <button
-              key={kind.id}
+              key={kind}
               type="button"
               role="tab"
-              aria-selected={kindFilter === kind.id}
+              aria-selected={kindFilter === kind}
               className="tab"
-              data-kind={kind.id}
-              onClick={() => onKindFilter(kind.id)}
+              data-kind={kind}
+              onClick={() => onKindFilter(kind)}
             >
-              {kind.label} <span className="tab__count">{kindCounts[kind.id] ?? 0}</span>
+              {t(`kind.${kind}`)} <span className="tab__count">{kindCounts[kind] ?? 0}</span>
             </button>
           ))}
         </div>
@@ -72,11 +75,11 @@ export function Toolbar({
           className="sort"
           value={sort}
           onChange={(event) => onSort(event.target.value)}
-          aria-label="Řadit"
+          aria-label={t('toolbar.sort')}
         >
           {SORT_MODES.map((mode) => (
-            <option key={mode.id} value={mode.id}>
-              Řadit: {mode.label}
+            <option key={mode} value={mode}>
+              {t('toolbar.sortOption', { label: t(`sort.${mode}`) })}
             </option>
           ))}
         </select>
@@ -86,8 +89,8 @@ export function Toolbar({
           type="search"
           value={query}
           onChange={(event) => onQuery(event.target.value)}
-          placeholder="Hledat"
-          aria-label="Hledat v seznamu"
+          placeholder={t('toolbar.search')}
+          aria-label={t('toolbar.searchAria')}
         />
       </div>
     </div>

@@ -1,39 +1,42 @@
 import { useState } from 'react'
+import { authErrorKey } from '../lib/authErrors'
+import { useI18n } from '../lib/i18n/context'
 
 const COPY = {
-  signin: { title: 'Přihlásit se', switchTo: 'signup', switchLabel: 'Nemáš účet? Zaregistruj se' },
-  signup: { title: 'Vytvořit účet', switchTo: 'signin', switchLabel: 'Už máš účet? Přihlas se' },
+  signin: { titleKey: 'auth.signIn', switchTo: 'signup', switchKey: 'auth.toSignUp' },
+  signup: { titleKey: 'auth.signUp', switchTo: 'signin', switchKey: 'auth.toSignIn' },
 }
 
 export function AuthForm({ onSignIn, onSignUp }) {
+  const { t } = useI18n()
   const [mode, setMode] = useState('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
+  const [errorKey, setErrorKey] = useState(null)
   const [busy, setBusy] = useState(false)
 
   const copy = COPY[mode]
 
   async function handleSubmit(event) {
     event.preventDefault()
-    setError(null)
+    setErrorKey(null)
     setBusy(true)
 
     const action = mode === 'signin' ? onSignIn : onSignUp
     const { error: authError } = await action(email.trim(), password)
 
     setBusy(false)
-    if (authError) setError(authError.message)
+    setErrorKey(authErrorKey(authError))
   }
 
   return (
     <main className="auth">
       <form className="auth__card" onSubmit={handleSubmit}>
-        <h1 className="auth__mark">Watchlist</h1>
-        <h2 className="auth__title">{copy.title}</h2>
+        <h1 className="auth__mark">{t('app.mark')}</h1>
+        <h2 className="auth__title">{t(copy.titleKey)}</h2>
 
         <label className="field field--wide">
-          <span className="field__label">Email</span>
+          <span className="field__label">{t('auth.email')}</span>
           <input
             type="email"
             value={email}
@@ -44,7 +47,7 @@ export function AuthForm({ onSignIn, onSignUp }) {
         </label>
 
         <label className="field field--wide">
-          <span className="field__label">Heslo</span>
+          <span className="field__label">{t('auth.password')}</span>
           <input
             type="password"
             value={password}
@@ -55,21 +58,21 @@ export function AuthForm({ onSignIn, onSignUp }) {
           />
         </label>
 
-        {error && <p className="notice notice--warn notice--sticky">{error}</p>}
+        {errorKey && <p className="notice notice--warn notice--sticky">{t(errorKey)}</p>}
 
         <button className="add__submit auth__submit" type="submit" disabled={busy}>
-          {copy.title}
+          {t(copy.titleKey)}
         </button>
 
         <button
           type="button"
           className="auth__switch"
           onClick={() => {
-            setError(null)
+            setErrorKey(null)
             setMode(copy.switchTo)
           }}
         >
-          {copy.switchLabel}
+          {t(copy.switchKey)}
         </button>
       </form>
     </main>

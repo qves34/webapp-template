@@ -1,32 +1,32 @@
 import { useState } from 'react'
+import { useI18n } from '../lib/i18n/context'
 
 export function NicknameGate({ onSetNickname }) {
+  const { t } = useI18n()
   const [value, setValue] = useState('')
-  const [error, setError] = useState(null)
+  const [errorKey, setErrorKey] = useState(null)
   const [busy, setBusy] = useState(false)
 
   async function handleSubmit(event) {
     event.preventDefault()
-    setError(null)
+    setErrorKey(null)
     setBusy(true)
 
     const { error: nicknameError } = await onSetNickname(value)
 
     setBusy(false)
-    if (nicknameError) setError(nicknameError.message)
+    if (nicknameError) setErrorKey(nicknameError.key ?? 'nickname.errGeneric')
   }
 
   return (
     <main className="auth">
       <form className="auth__card" onSubmit={handleSubmit}>
-        <h1 className="auth__mark">Watchlist</h1>
-        <h2 className="auth__title">Zvol si nickname</h2>
-        <p className="auth__hint">
-          Podle něj tě budou hledat přátelé. 3-20 znaků, jen písmena, čísla a podtržítko.
-        </p>
+        <h1 className="auth__mark">{t('app.mark')}</h1>
+        <h2 className="auth__title">{t('nickname.title')}</h2>
+        <p className="auth__hint">{t('nickname.hint')}</p>
 
         <label className="field field--wide">
-          <span className="field__label">Nickname</span>
+          <span className="field__label">{t('nickname.label')}</span>
           <input
             value={value}
             onChange={(event) => setValue(event.target.value)}
@@ -37,10 +37,10 @@ export function NicknameGate({ onSetNickname }) {
           />
         </label>
 
-        {error && <p className="notice notice--warn notice--sticky">{error}</p>}
+        {errorKey && <p className="notice notice--warn notice--sticky">{t(errorKey)}</p>}
 
         <button className="add__submit auth__submit" type="submit" disabled={busy}>
-          Pokračovat
+          {t('nickname.submit')}
         </button>
       </form>
     </main>

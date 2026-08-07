@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { KINDS, STATUSES, kindLabel, nextStatus, statusLabel } from '../lib/watchlist'
+import { useI18n } from '../lib/i18n/context'
+import { KINDS, STATUSES, nextStatus } from '../lib/watchlist'
 
 const RATINGS = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
 
 export function ItemRow({ item, onUpdate, onRemove, readOnly = false }) {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
 
   if (readOnly) {
@@ -15,7 +17,7 @@ export function ItemRow({ item, onUpdate, onRemove, readOnly = false }) {
             <img className="row__poster" src={item.poster} alt="" />
           ) : (
             <span className="row__kind" data-kind={item.kind}>
-              {kindLabel(item.kind)}
+              {t(`kind.${item.kind}.short`)}
             </span>
           )}
           <span className="row__title">
@@ -25,22 +27,26 @@ export function ItemRow({ item, onUpdate, onRemove, readOnly = false }) {
 
           {item.progress && <span className="row__progress">{item.progress}</span>}
           {item.rating != null && (
-            <span className="row__rating" title={`Hodnocení ${item.rating} z 10`}>
+            <span className="row__rating" title={t('row.ratingTitle', { rating: item.rating })}>
               {item.rating}
             </span>
           )}
           {item.hated && (
-            <span className="row__hated" title="Nesnášeno">
+            <span className="row__hated" title={t('row.hated')}>
               HATED
             </span>
           )}
           {item.favorite && (
-            <span className="row__favorite row__favorite--static" data-active title="Oblíbené">
+            <span
+              className="row__favorite row__favorite--static"
+              data-active
+              title={t('row.favorite')}
+            >
               ★
             </span>
           )}
 
-          <span className="row__status row__status--static">{statusLabel(item.status)}</span>
+          <span className="row__status row__status--static">{t(`status.${item.status}`)}</span>
         </div>
 
         {item.note && <p className="row__note">{item.note}</p>}
@@ -57,7 +63,7 @@ export function ItemRow({ item, onUpdate, onRemove, readOnly = false }) {
           <img className="row__poster" src={item.poster} alt="" />
         ) : (
           <span className="row__kind" data-kind={item.kind}>
-            {kindLabel(item.kind)}
+            {t(`kind.${item.kind}.short`)}
           </span>
         )}
         <span className="row__title">
@@ -67,12 +73,12 @@ export function ItemRow({ item, onUpdate, onRemove, readOnly = false }) {
 
         {item.progress && <span className="row__progress">{item.progress}</span>}
         {item.rating != null && (
-          <span className="row__rating" title={`Hodnocení ${item.rating} z 10`}>
+          <span className="row__rating" title={t('row.ratingTitle', { rating: item.rating })}>
             {item.rating}
           </span>
         )}
         {item.hated && (
-          <span className="row__hated" title="Nesnášeno">
+          <span className="row__hated" title={t('row.hated')}>
             HATED
           </span>
         )}
@@ -83,7 +89,7 @@ export function ItemRow({ item, onUpdate, onRemove, readOnly = false }) {
           data-active={item.favorite || undefined}
           aria-pressed={item.favorite}
           onClick={() => onUpdate(item.id, { favorite: !item.favorite })}
-          title={item.favorite ? 'Odebrat z oblíbených' : 'Přidat do oblíbených'}
+          title={item.favorite ? t('row.favoriteRemove') : t('row.favoriteAdd')}
         >
           {item.favorite ? '★' : '☆'}
         </button>
@@ -92,9 +98,9 @@ export function ItemRow({ item, onUpdate, onRemove, readOnly = false }) {
           type="button"
           className="row__status"
           onClick={() => onUpdate(item.id, { status: nextStatus(item.status) })}
-          title={`Přepnout na „${statusLabel(nextStatus(item.status))}“`}
+          title={t('row.statusSwitch', { label: t(`status.${nextStatus(item.status)}`) })}
         >
-          {statusLabel(item.status)}
+          {t(`status.${item.status}`)}
         </button>
 
         <button
@@ -103,14 +109,14 @@ export function ItemRow({ item, onUpdate, onRemove, readOnly = false }) {
           onClick={() => setOpen((value) => !value)}
           aria-expanded={open}
         >
-          {open ? 'Hotovo' : 'Upravit'}
+          {open ? t('row.editDone') : t('row.edit')}
         </button>
       </div>
 
       {open && (
         <div className="detail">
           <label className="field field--wide">
-            <span className="field__label">Název</span>
+            <span className="field__label">{t('field.title')}</span>
             <input
               value={item.title}
               onChange={(event) => onUpdate(item.id, { title: event.target.value })}
@@ -118,35 +124,35 @@ export function ItemRow({ item, onUpdate, onRemove, readOnly = false }) {
           </label>
 
           <label className="field">
-            <span className="field__label">Typ</span>
+            <span className="field__label">{t('field.kind')}</span>
             <select
               value={item.kind}
               onChange={(event) => onUpdate(item.id, { kind: event.target.value })}
             >
               {KINDS.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
+                <option key={option} value={option}>
+                  {t(`kind.${option}`)}
                 </option>
               ))}
             </select>
           </label>
 
           <label className="field">
-            <span className="field__label">Stav</span>
+            <span className="field__label">{t('field.status')}</span>
             <select
               value={item.status}
               onChange={(event) => onUpdate(item.id, { status: event.target.value })}
             >
               {STATUSES.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
+                <option key={option} value={option}>
+                  {t(`status.${option}`)}
                 </option>
               ))}
             </select>
           </label>
 
           <label className="field">
-            <span className="field__label">Kde jsi</span>
+            <span className="field__label">{t('field.progress')}</span>
             <input
               value={item.progress}
               onChange={(event) => onUpdate(item.id, { progress: event.target.value })}
@@ -155,7 +161,7 @@ export function ItemRow({ item, onUpdate, onRemove, readOnly = false }) {
           </label>
 
           <label className="field">
-            <span className="field__label">Hodnocení</span>
+            <span className="field__label">{t('field.rating')}</span>
             <select
               value={item.rating ?? ''}
               onChange={(event) =>
@@ -164,7 +170,7 @@ export function ItemRow({ item, onUpdate, onRemove, readOnly = false }) {
                 })
               }
             >
-              <option value="">Zatím nic</option>
+              <option value="">{t('field.ratingNone')}</option>
               {RATINGS.map((value) => (
                 <option key={value} value={value}>
                   {value} / 10
@@ -183,17 +189,17 @@ export function ItemRow({ item, onUpdate, onRemove, readOnly = false }) {
           </label>
 
           <label className="field field--wide">
-            <span className="field__label">Poznámka</span>
+            <span className="field__label">{t('field.note')}</span>
             <textarea
               rows={2}
               value={item.note}
               onChange={(event) => onUpdate(item.id, { note: event.target.value })}
-              placeholder="Kdo to doporučil, kde to běží, co dál…"
+              placeholder={t('field.notePlaceholder')}
             />
           </label>
 
           <button type="button" className="detail__remove" onClick={() => onRemove(item)}>
-            Smazat titul
+            {t('row.delete')}
           </button>
         </div>
       )}

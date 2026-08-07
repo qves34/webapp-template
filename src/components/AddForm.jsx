@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from '../lib/i18n/context'
 import { KINDS } from '../lib/watchlist'
-
-const KIND_LABEL = Object.fromEntries(KINDS.map((k) => [k.id, k.label]))
 
 const DEBOUNCE_MS = 350
 
 export function AddForm({ onAdd }) {
+  const { t, locale } = useI18n()
   const [title, setTitle] = useState('')
   const [kind, setKind] = useState('film')
   const [results, setResults] = useState([])
@@ -26,8 +26,10 @@ export function AddForm({ onAdd }) {
       const controller = new AbortController()
       abortRef.current = controller
       try {
+        // `lang` posílá TMDB jazyk UI, ať našeptávač nabízí názvy v tom jazyce,
+        // který má uživatel zapnutý.
         const response = await fetch(
-          `/api/search?q=${encodeURIComponent(needle)}&kind=${kind}`,
+          `/api/search?q=${encodeURIComponent(needle)}&kind=${kind}&lang=${locale}`,
           { signal: controller.signal },
         )
         const data = await response.json()
@@ -38,7 +40,7 @@ export function AddForm({ onAdd }) {
     }, DEBOUNCE_MS)
 
     return () => clearTimeout(timer)
-  }, [title, kind, picked])
+  }, [title, kind, picked, locale])
 
   function handleTitleChange(value) {
     setTitle(value)
@@ -77,8 +79,8 @@ export function AddForm({ onAdd }) {
           onBlur={() => {
             blurTimerRef.current = setTimeout(() => setOpen(false), 150)
           }}
-          placeholder="Název titulu"
-          aria-label="Název titulu"
+          placeholder={t('add.titlePlaceholder')}
+          aria-label={t('add.titlePlaceholder')}
           autoComplete="off"
         />
 
@@ -95,7 +97,7 @@ export function AddForm({ onAdd }) {
                   <span className="add__result-text">
                     <span className="add__result-title">{result.title}</span>
                     <span className="add__result-meta">
-                      {KIND_LABEL[result.kind] ?? result.kind}
+                      {t(`kind.${result.kind}`)}
                       {result.year ? ` · ${result.year}` : ''}
                     </span>
                   </span>
@@ -106,28 +108,28 @@ export function AddForm({ onAdd }) {
         )}
       </div>
 
-      <div className="add__kinds" role="radiogroup" aria-label="Typ">
+      <div className="add__kinds" role="radiogroup" aria-label={t('add.kindAria')}>
         {KINDS.map((option) => (
           <button
-            key={option.id}
+            key={option}
             type="button"
             role="radio"
-            aria-checked={kind === option.id}
+            aria-checked={kind === option}
             className="add__kind"
-            data-kind={option.id}
+            data-kind={option}
             onClick={() => {
               clearTimeout(blurTimerRef.current)
-              setKind(option.id)
+              setKind(option)
               setPicked(null)
               setOpen(true)
             }}
           >
-            {option.label}
+            {t(`kind.${option}`)}
           </button>
         ))}
       </div>
       <button className="add__submit" type="submit" disabled={!title.trim()}>
-        Přidat
+        {t('add.submit')}
       </button>
     </form>
   )

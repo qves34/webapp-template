@@ -1,6 +1,6 @@
 # Dokumentace - webapp-template
 
-## Stav (2026-08-06)
+## Stav (2026-08-07)
 
 Projekt je nasazený a live.
 
@@ -16,6 +16,8 @@ Projekt je nasazený a live.
 - **5 stavů titulu**: přidány Dočasně přerušeno (zlatý akcent) a Přerušeno (ztlumené) vedle původních tří; DB `CHECK` constraint na sloupci `status` rozšířený, migrace spuštěná přímo na produkční databázi (viz "Poznámka k testování")
 - **Přátelé**: nickname (povinný při prvním přihlášení, `useProfile`/`NicknameGate`, case-insensitive unikátní v `profiles`), hledání podle nicku, žádost o přátelství s potvrzením (`friendships`, stavy `pending`/`accepted`), po přijetí vidíš watchlist přítele read-only (`useFriendWatchlist`, nová RLS policy "select friends items" na `watchlist_items`). Odmítnutí/zrušení/odebrání z přátel = smazání řádku, žádný zvláštní stav "declined". `FriendsPanel.jsx` řeší vyhledávání i správu žádostí/přátel, přepínání mezi "Moje" a "Přátelé" je v `App.jsx` (`view` state), badge u tlačítka Přátelé ukazuje počet čekajících žádostí.
 - **Doporučení přátel ("Možná znáš")**: DB funkce `recommend_friends(p_limit)` (`SECURITY DEFINER`, `supabase/schema.sql`) spočítá pro přihlášeného uživatele překryv s každým ostatním - shoda titulu podle `tmdb_id`, u manuálních záznamů bez něj podle normalizovaného názvu. Skóre = počet shodných titulů + 2× počet shodných oblíbených, zobrazí se od 3 shodných titulů výš, vyloučení lidí, se kterými už žádost/přátelství existuje. Ven jde jen agregát (nickname + počty), nikdy konkrétní názvy z cizího seznamu - funkce běží s vyššími právy (obchází RLS interně), ale `EXECUTE` je omezené jen na `authenticated` (explicitně odebráno `anon`, které Supabase defaultně přidává novým funkcím). Počítá se při načtení Friends panelu, ne živě - stejné omezení jako zbytek přátel (viz "Co chybí").
+- **Lokalizace CS/EN (2026-08-07)**: celé UI přes slovníky v `src/lib/i18n/` (126 klíčů), přepínač `CS`/`EN` vedle přepínače motivu. Napoprvé se jazyk vybere podle `navigator.languages`, pak se drží v `localStorage` (`watchlist.locale`). Plurály řeší `Intl.PluralRules` (čeština 1 / 2-4 / 5+), řazení podle abecedy `Intl.Collator` s aktuálním jazykem, našeptávač posílá jazyk do TMDB přes `?lang=` (`api/search.js` ho mapuje na `cs-CZ`/`en-US`). Chybové hlášky ze Supabase se do UI nepouštějí - jsou natvrdo anglicky, takže se `error.code` mapuje na vlastní klíč (`lib/authErrors.js`, `useProfile`, `useFriends`); neznámý kód spadne na obecnou hlášku a skutečný důvod jde do konzole. Identifikátory typů/stavů zůstávají nepřeložené (jsou to hodnoty v DB), popisky drží slovník - `lib/watchlist.js` proto nese jen holá pole `KINDS`/`STATUSES`/`SORT_MODES` bez labelů.
+- **Kontrola slovníků**: `npm run check:i18n` (`scripts/check-i18n.mjs`) hlídá paritu klíčů mezi jazyky, plurálové tvary, shodné zástupné symboly a nepřeložené texty. Bez testovacího frameworku - `lib/i18n/core.js` je čistý JS bez Reactu, takže ho Node načte přímo. První permanentní kontrola v projektu.
 - **Vercel deploy**: `vercel.json` s SPA routing pravidlem, framework preset "Vite" rozpoznán automaticky
 - **Git**: napojeno na GitHub (`qves34/webapp-template`), `main` nasazen na produkci
 - **Lint**: oxlint (`.oxlintrc.json`)
@@ -24,7 +26,8 @@ Projekt je nasazený a live.
 ## Co chybí / další kroky
 
 - Realtime sync mezi otevřenými zařízeními (dnes jen při přihlášení/refreshi) a offline zápis - vědomě mimo scope, appka teď vyžaduje spojení pro každou akci
-- Bez routingu (React Router), testů a CI
+- Bez routingu (React Router) a CI. Testy jen `npm run check:i18n` (slovníky), zbytek appky testy nemá.
+- Lokalizace: `index.html` má natvrdo `lang="cs"` a českou `<meta name="description">` - provider je po načtení přepíše, ale náhledy sdíleného odkazu JS nespouštějí, takže popisek zůstane vždycky český (šlo by až prerenderem, vědomě neřešeno)
 - Skutečná vlastní doména (mimo `*.vercel.app`) zatím nenastavena - produkce běží na zdarma přejmenované `wwatchlist.vercel.app`
 - Přátelé: notifikace o nové žádosti se projeví jen po refreshi/přepnutí na "Přátelé" (žádný realtime/badge push), nickname jde nastavit jen jednou při onboardingu (změna později by šla přidat, dnes UI pro to není)
 
@@ -65,6 +68,13 @@ Cestou odhalen a opravený race condition v `useWatchlist` (viz "Bugfix" výše)
 - self-cleaning: zrušení přátelství + smazání testovacích titulů po testu, testovací účty smazané stejně jako u předchozích testů
 
 **Zjištění a dodatečný úklid mimo scope tohoto testu**: v produkční DB bylo objeveno ~15 starých testovacích `auth.users` účtů (`test-a-*`, `test-status-*`, `test-sort-*`, `test-kindsearch-*`, `test-hated-*`, `test-theme-*`, `test-favorite-*@yopmail.com` aj.) z předchozích testovacích session, které tehdy nebyly uklizené. Po potvrzení uživatelem smazané (`delete from auth.users where email like 'test-%@yopmail.com'`, cascade smazal i navázaná `watchlist_items`/`profiles`). V DB zůstaly 3 skutečné účty: `t34ar001@gmail.com` (hlavní účet, 12 položek), `2222@gmail.com` a `dedsakldsa@gmail.com` (uživatel potvrdil - jeho a kamarádův). Dřívější tvrzení v konverzaci, že "35 zbylých watchlist_items" po dřívějším úklidu byla uživatelova reálná data, bylo nesprávné - ve skutečnosti šlo o součet napříč všemi těmito starými testovacími účty; teď opraveno a DB odpovídá jen reálným účtům.
+
+**Lokalizace CS/EN** ověřena bez přihlášení - Supabase účet k tomu není potřeba:
+- `npm run check:i18n` - 12 kontrol slovníků. Ověřeno i to, že kontrola opravdu chytá chyby: do `en.js` byly dočasně vneseny čtyři vady (chybějící klíč, chybějící plurálový tvar, nepřeložený text, přejmenovaná proměnná) a každou nahlásila právě jedna kontrola; slovník pak vrácen do původního stavu.
+- Vizuálně přes headless Chrome (v tomhle prostředí Windows Chrome z WSL přes `/mnt/c/...`, `--headless=new --screenshot`). Přihlašovací obrazovka česky i anglicky; jazyk vybraný podle prohlížeče ověřen přes `--lang=en-US` (bez uložené volby appka správně naběhla anglicky).
+- Vnitřní obrazovky jsou za přihlášením, takže byly vykresleny přes dočasný demo vstup (`__demo.html` + `src/__demo.jsx`) s falešnými daty - `Toolbar`, `ItemRow`, `FriendsPanel`, hlavička, hlášky a patička v obou jazycích. Ověřeny hlavně plurály na reálném layoutu ("1 společný titul (1 oblíbený)" / "3 společné tituly (2 oblíbené)" / "7 společných titulů" a jejich anglické protějšky) a to, že delší české texty layout nerozbíjejí. Demo soubory po ověření smazané, v repu nejsou.
+
+**Prostředí**: lokálně běžel Node 18, na kterém Vite 8 ani oxlint nenaběhnou (`npm run build` padal na `styleText` z `node:util`, oxlint na chybějícím nativním binárku). Doinstalován Node 22 LTS přes nvm (`~/.nvm`, `nvm alias default 22`) a `node_modules` přeinstalovány přes `npm ci` - tím se doplnil i chybějící `@oxlint/binding-linux-x64-gnu`. Systémový `/usr/bin/node` zůstal nedotčený. Požadavek Node 20.19+/22.12+ byl v README popsaný správně už předtím, jen lokální prostředí bylo pozadu.
 
 ## Přímý přístup k databázi
 
