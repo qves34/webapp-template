@@ -140,7 +140,7 @@ check('přepínání jazyků cyklí a metadata sedí', () => {
   assert.equal(nextLocale('cs'), 'en')
   assert.equal(nextLocale('en'), 'cs')
   assert.equal(nextLocale('neznamy'), LOCALES[0].id)
-  assert.equal(localeMeta('en').tmdb, 'en-US')
+  assert.equal(localeMeta('en').htmlLang, 'en')
   assert.equal(localeMeta('neznamy').id, 'cs')
 })
 

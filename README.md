@@ -16,7 +16,6 @@ Postavené na React + Vite, nasazuje se na Vercel přes `git push`. Účty a dat
 - Titulům, co zůstaly v `localStorage` z doby před účty, appka po prvním přihlášení nabídne jednorázové nahrání do účtu.
 - **Přátelé**: při prvním přihlášení si zvolíš nickname (3-20 znaků, unikátní). V sekci „Přátelé" podle nicku najdeš ostatní, pošleš žádost o přátelství - druhá strana ji musí přijmout. Po přijetí vidíš watchlist přítele (read-only, bez úprav). Odebrání z přátel/odmítnutí/zrušení žádosti jde jedním tlačítkem.
 - **Možná znáš**: appka sama navrhne lidi s podobným vkusem - podle shodných titulů v seznamu (a ještě víc podle shodných oblíbených) doporučí uživatele, se kterými se dost překrýváš, aniž bys musel znát jejich nickname.
-
 - **Čeština a angličtina**: tlačítko `CS`/`EN` vpravo nahoře přepne jazyk celého UI. Napoprvé se jazyk vybere podle prohlížeče (`navigator.languages`), volba se pak pamatuje per prohlížeč. Přepíná se i řazení podle abecedy (čeština řadí Č/Ř/Š jinak než angličtina). **Názvy titulů se nepřekládají** - drží se anglicky v obou jazycích UI, viz sekce Jazyky.
 
 Rozkoukané tituly jsou vždycky nahoře a hlavička ukazuje, co zrovna koukáš.
@@ -44,6 +43,8 @@ VITE_SUPABASE_ANON_KEY=tvůj_anon_klíč
 
 `VITE_`-prefixované proměnné skončí (jako čitelný text) v JS balíčku, co jde do prohlížeče - proto smí být jen `anon`/`public` klíč, nikdy `service_role` klíč (ten by obešel RLS a musí zůstat jen na serveru, kdyby ho appka někdy potřebovala).
 
+`.env.example` zná ještě nepovinné `SUPABASE_DB_URL` - to appka k běhu nepotřebuje, je jen pro ruční změny schématu z příkazové řádky (viz `dokumentace.md`).
+
 ## Lokální vývoj
 
 ```bash
@@ -60,9 +61,11 @@ npm run build
 
 ```
 src/
+  main.jsx                   vstupní bod, obaluje appku do <I18nProvider>
   App.jsx                    gating na přihlášení a nickname, layout, filtry, export/import, migrace z localStorage, přepínání Moje/Přátelé
   components/                AddForm, AuthForm, Toolbar, ItemRow, NicknameGate, FriendsPanel
   hooks/useAuth.js           session ze Supabase Auth (signUp/signIn/signOut)
+  hooks/useTheme.js          světlý/tmavý motiv, uložený per prohlížeč (jinak podle systému)
   hooks/useProfile.js        vlastní nickname (načtení, nastavení, kontrola unikátnosti)
   hooks/useWatchlist.js      stav seznamu + čtení/zápis do Supabase (RLS = jen vlastní řádky)
   hooks/useFriends.js        žádosti o přátelství, seznam přátel, hledání podle nicku, doporučení (recommend_friends)
@@ -80,6 +83,7 @@ src/
   index.css                  barvy, fonty, reset
   App.css                    vzhled komponent
 api/search.js                proxy na TMDB search/multi (klíč jen na serveru), názvy vždy `en-US`
+api/hello.js                 pozůstatek ze šablony, appka ho nepoužívá - na produkci ale běží jako `/api/hello`
 scripts/check-i18n.mjs       kontrola slovníků, pouští se přes `npm run check:i18n`
 supabase/schema.sql           tabulky + RLS politiky, spustit ručně v Supabase SQL editoru
 vercel.json                  SPA routing
@@ -104,7 +108,7 @@ Ve slovníku je hodnota buď text, nebo objekt s plurálovými tvary. Který tva
 Přidání dalšího jazyka:
 
 1. Zkopíruj `src/lib/i18n/cs.js` do `xx.js` a přelož hodnoty (klíče nech být).
-2. V `src/lib/i18n/core.js` přidej jazyk do `LOCALES` (`tmdb` je jazyk pro TMDB našeptávač, `name` název jazyka v něm samotném) a do `DICTS`.
+2. V `src/lib/i18n/core.js` přidej jazyk do `LOCALES` (`htmlLang` jde do `<html lang>`, `short` na přepínač, `name` je název jazyka v něm samotném) a do `DICTS`.
 3. `npm run check:i18n` - ohlásí chybějící klíče, chybějící plurálové tvary i texty, co zůstaly nepřeložené.
 
 Přepínač jazyků prochází `LOCALES` dokola, takže se o nový jazyk nemusí starat.

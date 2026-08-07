@@ -11,7 +11,7 @@ Projekt je nasazený a live.
 ## Co je hotové
 
 - **Watchlist appka**: seznam filmů/anime/seriálů, stavy Chci vidět → Dívám se → Dočasně přerušeno → Přerušeno → Dokoukáno, filtr podle stavu i typu (film/anime/seriál), hledání, Export/Import JSON s merge podle `updatedAt`
-- **TMDB našeptávač**: `api/search.js` proxuje `search/multi` na TMDB (klíč `TMDB_API_KEY` jen na serveru), frontend (`AddForm.jsx`) při psaní debounced dotazem nabídne film/seriál s plakátkem a rokem; vybraný titul si nese `tmdbId`/`year`/`poster`, ruční zápis bez výběru pořád funguje (jediná cesta pro anime, TMDB ho zvlášť nerozlišuje)
+- **TMDB našeptávač**: `api/search.js` proxuje `search/multi` na TMDB (klíč `TMDB_API_KEY` jen na serveru), frontend (`AddForm.jsx`) při psaní debounced dotazem nabídne titul s plakátkem a rokem; vybraný titul si nese `tmdbId`/`year`/`poster`. Zvolený typ zužuje i výsledky hledání (`KIND_FILTERS`) - film/seriál podle `media_type`, anime přiblížené přes žánr Animace (16) + `original_language = 'ja'`, protože TMDB kategorii "anime" nemá. Ta aproximace nesedí vždycky, takže ruční zápis bez výběru zůstává záchranou. Názvy se ukládají vždycky anglicky (viz Lokalizace).
 - **Účty + cloud sync (Supabase)**: `useAuth`/`AuthForm` (email+heslo), `useWatchlist` přepsaný na čtení/zápis do Supabase místo localStorage, RLS politiky (`supabase/schema.sql`) hlídají, že uživatel vidí/mění jen svoje řádky, jednorázová nabídka migrace starých `localStorage` dat po prvním přihlášení. Supabase projekt založený, schéma spuštěné, **end-to-end ověřeno** (viz "Poznámka k testování").
 - **5 stavů titulu**: přidány Dočasně přerušeno (zlatý akcent) a Přerušeno (ztlumené) vedle původních tří; DB `CHECK` constraint na sloupci `status` rozšířený, migrace spuštěná přímo na produkční databázi (viz "Poznámka k testování")
 - **Přátelé**: nickname (povinný při prvním přihlášení, `useProfile`/`NicknameGate`, case-insensitive unikátní v `profiles`), hledání podle nicku, žádost o přátelství s potvrzením (`friendships`, stavy `pending`/`accepted`), po přijetí vidíš watchlist přítele read-only (`useFriendWatchlist`, nová RLS policy "select friends items" na `watchlist_items`). Odmítnutí/zrušení/odebrání z přátel = smazání řádku, žádný zvláštní stav "declined". `FriendsPanel.jsx` řeší vyhledávání i správu žádostí/přátel, přepínání mezi "Moje" a "Přátelé" je v `App.jsx` (`view` state), badge u tlačítka Přátelé ukazuje počet čekajících žádostí.
@@ -62,7 +62,7 @@ Jediná zádrhel cestou: `schema.sql` se napoprvé nespustil (tabulka v DB chyb�
 Cestou odhalen a opravený race condition v `useWatchlist` (viz "Bugfix" výše) - bez zpoždění mezi načtením stránky a přidáním titulu se ztrácel čerstvě přidaný titul z UI.
 
 **Doporučení přátel** ověřeno stejným způsobem, 2 testovací účty se 3 shodnými manuálně zapsanými tituly (bez `tmdb_id`, takže shoda přes normalizovaný název) + 1 shodný oblíbený:
-- účet B vidí účet A v "Možná znáš" s textem "3 společných titulů (1 oblíbených)" - přesně sedí s daty
+- účet B vidí účet A v "Možná znáš" s textem "3 společných titulů (1 oblíbených)" - počty přesně sedí s daty. (Ten text byl gramaticky špatně - správně je "3 společné tituly (1 oblíbený)". Skládal se tehdy natvrdo bez ohledu na číslo; lokalizace 2026-08-07 to opravila přes `Intl.PluralRules`.)
 - po odeslání žádosti z doporučení účet A z "Možná znáš" zmizí (vyloučení podle existující `friendships` funguje)
 - doporučení se počítají při načtení Friends panelu (`useFriends`), ne živě - po přidání titulu je potřeba reload, než se v doporučení projeví (konzistentní s tím, že appka obecně nemá realtime)
 - self-cleaning: zrušení přátelství + smazání testovacích titulů po testu, testovací účty smazané stejně jako u předchozích testů
@@ -78,7 +78,9 @@ Cestou odhalen a opravený race condition v `useWatchlist` (viz "Bugfix" výše)
 
 ## Přímý přístup k databázi
 
-Pro pozdější schema změny (např. rozšíření `CHECK` constraintu u nových stavů) je v lokálním `.env` `SUPABASE_DB_URL` - connection string na Postgres přes **Session pooler** (`aws-1-eu-west-1.pooler.supabase.com:6543`), ne přímé spojení (`db.<ref>.supabase.co:5432`), protože to je jen přes IPv6 a tohle prostředí IPv6 nemá. SQL se pak pouští přes Node balíček `pg` (`npm install pg`, `new pg.Client({connectionString, ssl:{rejectUnauthorized:false}})`), žádný `psql` binárka nebyla potřeba.
+> **Pozor (2026-08-07): lokální `.env` v pracovní kopii chybí** - je tam jen `.env.example`. Popis níž platí, ale connection string i klíče je potřeba nejdřív znovu doplnit (`.env` je v `.gitignore`, takže v repu nikdy nebyl a z jiného stroje se nepřenese). Kvůli tomu se lokálně nedá spustit ani přihlášení, ani nic proti produkční DB.
+
+Pro pozdější schema změny (např. rozšíření `CHECK` constraintu u nových stavů) patří do lokálního `.env` `SUPABASE_DB_URL` - connection string na Postgres přes **Session pooler** (`aws-1-eu-west-1.pooler.supabase.com:6543`), ne přímé spojení (`db.<ref>.supabase.co:5432`), protože to je jen přes IPv6 a tohle prostředí IPv6 nemá. SQL se pak pouští přes Node balíček `pg` (`npm install pg`, `new pg.Client({connectionString, ssl:{rejectUnauthorized:false}})`), žádný `psql` binárka nebyla potřeba.
 
 `SUPABASE_DB_URL` obsahuje heslo k databázi - zůstává jen v `.env`, nikdy jako `VITE_` proměnná ani ve Vercelu (appka za běhu Postgres přímo nepoužívá, jen Supabase klient přes REST).
 

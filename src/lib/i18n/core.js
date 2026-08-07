@@ -11,12 +11,15 @@ import { en } from './en.js'
 export const STORAGE_KEY = 'watchlist.locale'
 
 /**
- * `htmlLang` jde do <html lang>, `tmdb` do TMDB API (jazyk našeptávače),
- * `name` je název jazyka v něm samotném (tak se jazyky uvádějí v přepínačích).
+ * `htmlLang` jde do <html lang>, `short` na přepínač, `name` je název jazyka
+ * v něm samotném (tak se jazyky v přepínačích uvádějí).
+ *
+ * Jazyk pro TMDB tu schválně není - názvy titulů se drží anglicky bez ohledu
+ * na jazyk UI, takže si `api/search.js` `en-US` drží sám.
  */
 export const LOCALES = [
-  { id: 'cs', short: 'CS', name: 'Čeština', htmlLang: 'cs', tmdb: 'cs-CZ' },
-  { id: 'en', short: 'EN', name: 'English', htmlLang: 'en', tmdb: 'en-US' },
+  { id: 'cs', short: 'CS', name: 'Čeština', htmlLang: 'cs' },
+  { id: 'en', short: 'EN', name: 'English', htmlLang: 'en' },
 ]
 
 export const DEFAULT_LOCALE = 'cs'
