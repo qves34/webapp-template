@@ -220,6 +220,11 @@ function Watchlist({ user, onSignOut }) {
     }
   }
 
+  function goHome() {
+    setViewingFriend(null)
+    setView('mine')
+  }
+
   function openFriends() {
     setViewingFriend(null)
     setView('friends')
@@ -234,7 +239,20 @@ function Watchlist({ user, onSignOut }) {
       <main className="app">
         <header className="head">
           <div className="head__bar">
-            <h1 className="head__mark">{t('app.mark')}</h1>
+            <h1
+              className="head__mark head__mark--link"
+              role="button"
+              tabIndex={0}
+              onClick={goHome}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  goHome()
+                }
+              }}
+            >
+              {t('app.mark')}
+            </h1>
             <div className="head__backup">
               <button type="button" className="ghost" onClick={() => setViewingFriend(null)}>
                 {t('nav.backFriends')}
@@ -274,7 +292,20 @@ function Watchlist({ user, onSignOut }) {
       <main className="app">
         <header className="head">
           <div className="head__bar">
-            <h1 className="head__mark">{t('app.mark')}</h1>
+            <h1
+              className="head__mark head__mark--link"
+              role="button"
+              tabIndex={0}
+              onClick={goHome}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  goHome()
+                }
+              }}
+            >
+              {t('app.mark')}
+            </h1>
             <div className="head__backup">
               <button type="button" className="ghost" onClick={() => setView('mine')}>
                 {t('nav.backMine')}

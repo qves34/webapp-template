@@ -186,6 +186,16 @@
   line-height: 1;
 }
 
+.head__mark--link {
+  cursor: pointer;
+  width: fit-content;
+}
+
+.head__mark--link:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+}
+
 @keyframes title-shine {
   to {
     background-position: 300% center;

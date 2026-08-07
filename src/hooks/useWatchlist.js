@@ -33,6 +33,7 @@ export function useWatchlist(userId) {
     supabase
       .from('watchlist_items')
       .select('*')
+      .eq('user_id', userId)
       .then(({ data, error }) => {
         if (cancelled) return
         if (error) {
