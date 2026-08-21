@@ -26,11 +26,10 @@ Projekt je nasazený a live.
 
 ## Co chybí / další kroky
 
-- Realtime sync mezi otevřenými zařízeními (dnes jen při přihlášení/refreshi) a offline zápis - vědomě mimo scope, appka teď vyžaduje spojení pro každou akci
+- Realtime sync `watchlist_items` mezi otevřenými zařízeními (dnes jen při přihlášení/refreshi) a offline zápis - vědomě mimo scope, appka teď vyžaduje spojení pro každou akci. (Pozn. 2026-08-21: `friendships` už Realtime má, viz níž "2/4: Živé oznámení o žádosti o přátelství" - tohle se týká jen watchlistu samotného.)
 - Bez routingu (React Router) a CI. Testy jen `npm run check:i18n` (slovníky), zbytek appky testy nemá.
 - Lokalizace: `index.html` má natvrdo `lang="cs"` a českou `<meta name="description">` - provider je po načtení přepíše, ale náhledy sdíleného odkazu JS nespouštějí, takže popisek zůstane vždycky český (šlo by až prerenderem, vědomě neřešeno)
 - Skutečná vlastní doména (mimo `*.vercel.app`) zatím nenastavena - produkce běží na zdarma přejmenované `wwatchlist.vercel.app`
-- Přátelé: notifikace o nové žádosti se projeví jen po refreshi/přepnutí na "Přátelé" (žádný realtime/badge push)
 - Email jde na Profilu jen zobrazit, appka nemá UI na jeho změnu - Supabase to řeší přes potvrzovací email na starou i novou adresu, což by přineslo víc UI stavů a chybových hlášek navíc; při zavedení Profilu (2026-08-07) vědomě odloženo, uživatel zvolil jen nickname + heslo
 
 ## Bugfix: race condition v `useWatchlist` (2026-08-06)

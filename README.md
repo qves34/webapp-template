@@ -65,25 +65,39 @@ npm run build
 
 ```
 src/
-  main.jsx                   vstupní bod, obaluje appku do <I18nProvider>
-  App.jsx                    gating na přihlášení a nickname, layout, filtry, migrace z localStorage, přepínání Moje/Přátelé/Profil
-  components/                AddForm, AuthForm, Toolbar, ItemRow, NicknameGate, FriendsPanel, ProfilePanel
+  main.jsx                   vstupní bod, obaluje appku do <I18nProvider>, registruje public/sw.js (jen produkce)
+  App.jsx                    gating na přihlášení a nickname, layout, filtry, migrace z localStorage, přepínání Moje/Přátelé/Profil/Přehled
+  components/AddForm.jsx     TMDB našeptávač + přidání titulu
+  components/AuthForm.jsx    přihlášení/registrace
+  components/Toolbar.jsx     filtr/řazení/hledání/hromadné akce
+  components/ItemRow.jsx     řádek titulu - stavy, hodnocení, rewatch, vlastní banner (PosterPicker), přesun
+  components/NicknameGate.jsx first-login volba nicku
+  components/FriendsPanel.jsx hledání/žádosti/přátelé/doporučení
+  components/ProfilePanel.jsx nickname/heslo/bio/oblíbené
+  components/StatsPanel.jsx  stránka Přehled - dlaždice + CSS sloupcové grafy (viz lib/stats.js)
+  components/AppearancePanel.jsx karta "Vzhled" - motiv, barva tématu, postranní bannery
+  components/SideBanners.jsx postranní bannery (barevný vzor / vlastní plakát)
+  components/PosterPicker.jsx mřížka plakátů z TMDB pro vlastní banner
+  components/MarkdownRenderer.jsx bezpečné vykreslení Markdown v poznámce (viz lib/markdown.js)
   hooks/useAuth.js           session ze Supabase Auth (signUp/signIn/signOut)
-  hooks/useTheme.js          světlý/tmavý motiv, uložený per prohlížeč (jinak podle systému)
-  hooks/useProfile.js        vlastní nickname a bio (načtení, nastavení, kontrola unikátnosti nicku)
+  hooks/useTheme.js          světlý/tmavý motiv, barva tématu, auto režim podle času - uložené per prohlížeč
+  hooks/useProfile.js        vlastní nickname, bio a preference (banner styl/obrázky) - načtení, nastavení
   hooks/useWatchlist.js      stav seznamu + čtení/zápis do Supabase (RLS = jen vlastní řádky)
-  hooks/useFriends.js        žádosti o přátelství, seznam přátel, hledání podle nicku, doporučení (recommend_friends)
+  hooks/useFriends.js        žádosti o přátelství, seznam přátel, hledání podle nicku, doporučení (recommend_friends), Realtime subscription
   hooks/useFriendWatchlist.js read-only watchlist konkrétního přítele
   hooks/useFriendProfile.js  read-only bio konkrétního přítele
+  hooks/useTitlePosters.js   dostupné plakáty ke konkrétnímu titulu (pro vlastní banner)
+  hooks/useFamousBanners.js  trendující tituly (TMDB + AniList) - momentálně nikde nenapojené, viz "Kam dál"
   lib/i18n/cs.js, en.js      slovníky (klíč → text, u počitatelných textů plurálové tvary)
   lib/i18n/core.js           překladová funkce, plurály, interpolace, výběr jazyka - čistý JS bez Reactu
   lib/i18n/context.js        React kontext + hook `useI18n()`, přes který si komponenty berou `t()`
   lib/i18n/index.jsx         `<I18nProvider>` - drží zvolený jazyk, ukládá ho a nastavuje `<html lang>`
   lib/authErrors.js          mapování chybových kódů Supabase Auth na klíče do slovníku
-  lib/watchlist.js           datový model, řazení, merge (beze změny, nezávislé na úložišti)
+  lib/watchlist.js           datový model, řazení, merge, přesun titulu (beze změny, nezávislé na úložišti)
   lib/watchlistRemote.js     mapování položky na/ze sloupců Supabase tabulky
-  lib/profile.js             validace formátu nicku a délky bia
+  lib/profile.js             validace formátu nicku, délky bia a hodnot banner_style
   lib/stats.js               agregace pro stránku Přehled (počty, průměry, nejaktivnější měsíc) - čistá funkce nad seznamem
+  lib/markdown.js            jednoduchý Markdown parser s escapováním HTML (poznámku vidí i přátelé)
   lib/friends.js             mapování friendships řádku vůči přihlášenému uživateli
   lib/supabaseClient.js      Supabase klient (singleton)
   index.css                  barvy, fonty, reset
@@ -92,6 +106,8 @@ api/search.js                proxy na TMDB search/multi (klíč jen na serveru),
 api/banners.js                pár trendujících titulů (TMDB trending + AniList), cachované na edge - momentálně nepoužité (dřívější banner "Trendující" zrušen, plánovaná samostatná stránka "Kam dál")
 api/posters.js                dostupné plakáty ke konkrétnímu titulu z TMDB, pro banner "Vlastní"
 api/hello.js                 pozůstatek ze šablony, appka ho nepoužívá - na produkci ale běží jako `/api/hello`
+public/manifest.webmanifest  PWA manifest (viz "PWA" níž)
+public/sw.js                 service worker bez cachování, jen kvůli instalovatelnosti
 scripts/check-i18n.mjs       kontrola slovníků, pouští se přes `npm run check:i18n`
 supabase/schema.sql           tabulky + RLS politiky, spustit ručně v Supabase SQL editoru
 vercel.json                  SPA routing
@@ -151,7 +167,7 @@ Po přidání `TMDB_API_KEY`, `VITE_SUPABASE_URL` a `VITE_SUPABASE_ANON_KEY` do 
 
 ## Kam dál
 
-- **Realtime sync mezi otevřenými zařízeními** - dnes se data načtou při přihlášení/refreshi, ne živě přes Supabase Realtime (`postgres_changes`). Zatím netřeba, appka řeší jen „data mě následují", ne živé multi-device updaty.
+- **Realtime sync watchlistu mezi otevřenými zařízeními** - tituly (`watchlist_items`) se dnes načtou při přihlášení/refreshi, ne živě přes Supabase Realtime. Zatím netřeba, appka řeší jen „data mě následují", ne živé multi-device updaty. (Žádosti o přátelství živé jsou, viz níž.)
 - **Offline zápis** - appka teď vyžaduje spojení pro každou akci (přidání/úprava/smazání jde rovnou na Supabase). Offline fronta by šla dodělat, zatím to pro osobní použití nevadí.
 - **Skutečná vlastní doména** - zdarma přejmenovaná `*.vercel.app` adresa (Domains → Add Existing, název s příponou `.vercel.app`) už nastavená; opravdová vlastní TLD doména (mimo `*.vercel.app`) zatím ne.
 - **Samostatná stránka "Trendující"** - dřívější banner „Trendující" (rotující kolonka pár titulů po straně) byl zrušen, protože se ukázalo, že vlastní banner z konkrétního titulu je lepší hlavní vizuál. Plán: nová stránka/karta ukazující top 5 filmů/seriálů/anime právě teď - `api/banners.js` a `useFamousBanners.js` (TMDB trending + AniList, živý žebříček) na to už jsou připravené, jen zatím nikde napojené.
