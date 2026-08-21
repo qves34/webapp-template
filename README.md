@@ -10,6 +10,7 @@ Postavené na React + Vite, nasazuje se na Vercel přes `git push`. Účty a dat
 - Přidat titul: napiš název a našeptávač z TMDB nabídne tituly s plakátkem a rokem podle zvoleného typu (Film/Anime/Seriál) - tlačítko typu zúží i výsledky hledání, ne jen to, co se přidá. TMDB nemá "anime" jako vlastní kategorii, takže se přiblíží přes žánr Animace + japonský originál (nemusí sedět úplně vždy, ruční zápis bez výběru pořád funguje).
 - Stav titulu: **Chci vidět → Dívám se → Dočasně přerušeno → Přerušeno → Dokoukáno**. Klik na štítek stavu ho přepne na další.
 - U každého titulu navíc: kde jsi (`S2E5`), hodnocení 1-10, poznámka a zaškrtávátko **HATED** (viditelný červený štítek u titulu). Rozbalíš tlačítkem „Upravit".
+- **Rewatch**: u dokoukaného titulu (stav „Dokoukáno") jde tlačítkem „+ Zaznamenat rewatch" přidat další zhlédnutí (dnešní datum, volitelně vlastní hodnocení pro to konkrétní zhlédnutí) - historie zůstává, i když se hodnocení u titulu samotného časem změní.
 - **Oblíbené**: hvězdička přímo na řádku, přepíná se jedním klikem bez otevření Upravit.
 - Filtr podle stavu i podle typu (film/anime/seriál), hledání v názvech a poznámkách, řazení (stav/abecedně/hodnocení).
 - Titulům, co zůstaly v `localStorage` z doby před účty, appka po prvním přihlášení nabídne jednorázové nahrání do účtu.
@@ -146,5 +147,4 @@ Po přidání `TMDB_API_KEY`, `VITE_SUPABASE_URL` a `VITE_SUPABASE_ANON_KEY` do 
 - **Offline zápis** - appka teď vyžaduje spojení pro každou akci (přidání/úprava/smazání jde rovnou na Supabase). Offline fronta by šla dodělat, zatím to pro osobní použití nevadí.
 - **Skutečná vlastní doména** - zdarma přejmenovaná `*.vercel.app` adresa (Domains → Add Existing, název s příponou `.vercel.app`) už nastavená; opravdová vlastní TLD doména (mimo `*.vercel.app`) zatím ne.
 - **Samostatná stránka "Trendující"** - dřívější banner „Trendující" (rotující kolonka pár titulů po straně) byl zrušen, protože se ukázalo, že vlastní banner z konkrétního titulu je lepší hlavní vizuál. Plán: nová stránka/karta ukazující top 5 filmů/seriálů/anime právě teď - `api/banners.js` a `useFamousBanners.js` (TMDB trending + AniList, živý žebříček) na to už jsou připravené, jen zatím nikde napojené.
-- **Rewatch tracking** - u dokoukaných titulů zaznamenat, že byly zhlédnuté víckrát (datum, případně nové hodnocení), ne jen jeden stav.
 - **PWA** - appka je mobil-friendly, ale nejde nainstalovat na plochu (chybí manifest + service worker).

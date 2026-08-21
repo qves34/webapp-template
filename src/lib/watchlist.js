@@ -36,7 +36,21 @@ export function createItem(title, kind = 'film', extra = {}) {
     tmdbId: typeof extra.tmdbId === 'number' ? extra.tmdbId : null,
     year: typeof extra.year === 'string' ? extra.year : null,
     poster: typeof extra.poster === 'string' ? extra.poster : null,
+    rewatches: [],
   }
+}
+
+function normalizeRewatches(raw) {
+  if (!Array.isArray(raw)) return []
+  return raw
+    .filter((entry) => entry && typeof entry.date === 'string')
+    .map((entry) => {
+      const rating = Number(entry.rating)
+      return {
+        date: entry.date,
+        rating: Number.isFinite(rating) && rating >= 1 && rating <= 10 ? Math.round(rating) : null,
+      }
+    })
 }
 
 /** Ořeže cizí data do našeho tvaru. Vrací null, když z toho nejde udělat titul. */
@@ -63,6 +77,7 @@ export function normalizeItem(raw) {
     tmdbId: typeof raw.tmdbId === 'number' ? raw.tmdbId : null,
     year: typeof raw.year === 'string' ? raw.year : null,
     poster: typeof raw.poster === 'string' ? raw.poster : null,
+    rewatches: normalizeRewatches(raw.rewatches),
   }
 }
 

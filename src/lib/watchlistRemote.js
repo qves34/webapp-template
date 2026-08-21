@@ -16,6 +16,7 @@ export function rowToItem(row) {
     tmdbId: row.tmdb_id,
     year: row.year,
     poster: row.poster,
+    rewatches: row.rewatches,
   }
 }
 
@@ -41,5 +42,6 @@ export function itemToRow(item, userId) {
     tmdb_id: item.tmdbId,
     year: item.year,
     poster: item.poster,
+    rewatches: item.rewatches,
   }
 }

@@ -23,6 +23,22 @@ export function ItemRow({
   const [bannerPickerOpen, setBannerPickerOpen] = useState(false)
   const [bannerSide, setBannerSide] = useState('both')
 
+  function handleAddRewatch() {
+    const date = new Date().toISOString().slice(0, 10)
+    onUpdate(item.id, { rewatches: [...item.rewatches, { date, rating: null }] })
+  }
+
+  function handleRemoveRewatch(index) {
+    onUpdate(item.id, { rewatches: item.rewatches.filter((_, i) => i !== index) })
+  }
+
+  function handleRewatchRating(index, value) {
+    const rating = value === '' ? null : Number(value)
+    onUpdate(item.id, {
+      rewatches: item.rewatches.map((entry, i) => (i === index ? { ...entry, rating } : entry)),
+    })
+  }
+
   if (readOnly) {
     return (
       <li className="row" data-status={item.status}>
@@ -213,6 +229,44 @@ export function ItemRow({
             />
             <span className="field__label">HATED</span>
           </label>
+
+          {item.status === 'hotovo' && (
+            <div className="detail__rewatch">
+              <span className="field__label">{t('field.rewatches')}</span>
+              {item.rewatches.length > 0 && (
+                <ul className="rewatch-list">
+                  {item.rewatches.map((entry, index) => (
+                    <li key={index} className="rewatch-item">
+                      <span className="rewatch-item__date">{entry.date}</span>
+                      <select
+                        className="rewatch-item__rating"
+                        value={entry.rating ?? ''}
+                        onChange={(event) => handleRewatchRating(index, event.target.value)}
+                      >
+                        <option value="">{t('field.ratingNone')}</option>
+                        {RATINGS.map((value) => (
+                          <option key={value} value={value}>
+                            {value} / 10
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        className="rewatch-item__remove"
+                        onClick={() => handleRemoveRewatch(index)}
+                        aria-label={t('row.rewatchRemove')}
+                      >
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <button type="button" className="ghost" onClick={handleAddRewatch}>
+                {t('row.rewatchAdd')}
+              </button>
+            </div>
+          )}
 
           <label className="field field--wide">
             <span className="field__label">{t('field.note')}</span>

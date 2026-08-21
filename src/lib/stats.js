@@ -13,6 +13,7 @@ export function computeStats(items) {
   let hatedCount = 0
   let ratedCount = 0
   let ratingSum = 0
+  let rewatchCount = 0
 
   for (const item of items) {
     byKind[item.kind] += 1
@@ -23,6 +24,7 @@ export function computeStats(items) {
       ratedCount += 1
       ratingSum += item.rating
     }
+    rewatchCount += item.rewatches.length
 
     const month = item.addedAt.slice(0, 7) // "YYYY-MM"
     monthCounts.set(month, (monthCounts.get(month) ?? 0) + 1)
@@ -49,6 +51,7 @@ export function computeStats(items) {
     favoriteCount,
     hatedCount,
     ratedCount,
+    rewatchCount,
     averageRating: ratedCount > 0 ? ratingSum / ratedCount : null,
     busiestMonth,
     busiestMonthCount,

@@ -1080,6 +1080,61 @@ li:last-child > .add__result {
   margin-top: 8px;
 }
 
+.detail__rewatch {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.rewatch-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  list-style: none;
+}
+
+.rewatch-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--can-3);
+  border-radius: var(--radius);
+}
+
+.rewatch-item__date {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--dim);
+}
+
+.rewatch-item__rating {
+  margin-left: auto;
+  background: var(--can);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  padding: 4px 8px;
+  font-size: 13px;
+  color: var(--label);
+}
+
+.rewatch-item__remove {
+  background: none;
+  border: 0;
+  color: var(--dim-2);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.rewatch-item__remove:hover {
+  color: var(--tape);
+}
+
 .poster-picker {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));

@@ -153,6 +153,9 @@ export const cs = {
   'field.notePlaceholder': 'Kdo to doporučil, kde to běží, co dál… (Markdown: **bold**, *italic*, `code`, [link](url))',
   'field.posterUrl': 'URL vlastního plakátku',
   'field.posterUrlPlaceholder': 'https://example.com/poster.jpg',
+  'field.rewatches': 'Rewatch',
+  'row.rewatchAdd': '+ Zaznamenat rewatch',
+  'row.rewatchRemove': 'Smazat záznam rewatche',
 
   // ---------- prázdný seznam ----------
   'empty.vse': 'Zatím prázdno. Napiš nahoru název a přidej první titul.',

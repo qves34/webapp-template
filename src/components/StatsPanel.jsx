@@ -38,6 +38,7 @@ export function StatsPanel({ items, locale }) {
           label={t('stats.avgRating')}
           value={stats.averageRating != null ? stats.averageRating.toFixed(1) : '—'}
         />
+        <StatTile label={t('field.rewatches')} value={stats.rewatchCount} />
       </div>
 
       {busiestMonthLabel && (

@@ -16,7 +16,10 @@ create table public.watchlist_items (
   updated_at timestamptz not null default now(),
   tmdb_id integer,
   year text,
-  poster text
+  poster text,
+  -- Zhlédnutí navíc u dokoukaného titulu - pole objektů {date, rating}, rating
+  -- volitelný. Appka to čte/píše celé najednou, netřeba zvlášť tabulka/RLS.
+  rewatches jsonb not null default '[]'::jsonb
 );
 
 create index watchlist_items_user_id_idx on public.watchlist_items (user_id);

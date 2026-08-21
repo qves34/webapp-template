@@ -184,3 +184,13 @@ Badge u tlačítka "Přátelé" (počet čekajících žádostí) se dřív aktu
 - **`useFriends.js`**: nová subscription `supabase.channel(...).on('postgres_changes', { event: '*', schema: 'public', table: 'friendships' }, () => load())` - na jakoukoli změnu v `friendships` prostě znovu `load()` (stejná filosofie jako zbytek hooku - "objem dat je malý, netřeba optimistic patch/parsing konkrétní změny"). Žádný `filter` na `requester_id`/`addressee_id` v subscription - RLS politika "select own friendships" sama omezí, co Realtime vůbec pošle, takže klient dostane jen řádky, kde figuruje. Badge (`incoming.length`, odvozené z `friendships` state) se pak překreslí automaticky.
 - **`supabase/schema.sql`**: `friendships` přidaná do `supabase_realtime` publikace (`ALTER PUBLICATION supabase_realtime ADD TABLE public.friendships`, v `DO $$ ... IF NOT EXISTS ... $$` bloku, ať je to idempotentní) - bez týhle publikace by RLS-scoped subscription nic neposílala, i kdyby byl klientský kód správně. Aplikováno přímo na produkční DB (`pg`/`SUPABASE_DB_URL`, ověřeno dotazem do `pg_publication_tables`).
 - Žádná nová UI komponenta ani i18n klíč - jen se badge, co appka měla odjakživa, teď aktualizuje živě.
+
+### 3/4: Rewatch tracking
+
+U titulu se stavem "Dokoukáno" jde teď zaznamenat další zhlédnutí - datum (automaticky dnešní) + volitelné vlastní hodnocení pro to konkrétní zhlédnutí, nezávislé na hodnocení titulu samotného.
+
+- **`watchlist_items.rewatches`** (nový sloupec, `jsonb not null default '[]'::jsonb`) - pole objektů `{date, rating}`. Zvolený jsonb sloupec místo samostatné tabulky - appka ho čte/zapisuje vždycky celý najednou (žádné dotazy jen na část historie), takže netřeba řešit vlastní RLS politiky navíc; migrace na produkční DB.
+- **`lib/watchlist.js`**: `createItem` dává nové položce `rewatches: []`, `normalizeItem` (přes novou `normalizeRewatches()`) ořeže cizí/legacy data do platného tvaru (jen platná data, `rating` buď `null`, nebo 1-10) - stejný vzor jako u `rating`/`hated` výš v souboru.
+- **`lib/watchlistRemote.js`**: `rewatches` přidané do `rowToItem`/`itemToRow` mapování - bez validace při čtení z DB (na rozdíl od `normalizeItem`), protože jde o důvěryhodný round-trip přes appku samotnou, stejně jako zbytek polí v `rowToItem`.
+- **`ItemRow.jsx`**: v rozbaleném "Upravit" u dokoukaných titulů nová sekce - tlačítko "+ Zaznamenat rewatch" (přidá dnešní datum, žádné hodnocení), seznam existujících záznamů s selectem na hodnocení a tlačítkem na smazání. Řeší se rovnou přes `onUpdate(id, {rewatches: novéPole})`, žádné nové lib funkce navíc (jen pár řádků array logiky, nestálo za abstrakci jako `moveItem`).
+- **`stats.js`/`StatsPanel.jsx`**: nová dlaždice "Rewatch" - `rewatchCount` = součet délek `rewatches` polí napříč seznamem.
