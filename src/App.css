@@ -542,9 +542,11 @@ li:last-child > .add__result {
 
 .toolbar__controls {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 8px;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: flex-end;
   /* Vždy vlastní řádek pod taby - jinak se podle délky textu (CS vs EN)
      nekonzistentně vejde/nevejde vedle nich a layout při přepnutí jazyka poskočí. */
   flex-basis: 100%;
@@ -1193,7 +1195,9 @@ li:last-child > .add__result {
   }
 
   .toolbar__controls {
+    flex-direction: column;
     align-items: stretch;
+    justify-content: flex-start;
   }
 
   .sort,
