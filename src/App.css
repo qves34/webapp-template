@@ -1151,8 +1151,18 @@ li:last-child > .add__result {
 /* ---------- mobil ---------- */
 
 @media (max-width: 640px) {
+  /* Na mobilu je nahoře málo místa - fixní roh by se překrýval s tlačítky
+     v hlavičce (Přátelé/Profil/Odhlásit se), takže jde do běžného toku jako
+     vlastní řádek nad hlavičkou. */
+  .controls {
+    position: static;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    padding: 14px 14px 0;
+  }
+
   .app {
-    padding: 26px 14px 48px;
+    padding: 14px 14px 48px;
     --gutter: 20px;
   }
 
