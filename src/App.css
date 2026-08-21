@@ -1023,23 +1023,6 @@ li:last-child > .add__result {
   }
 }
 
-.foot {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 28px;
-  padding-top: 14px;
-  border-top: 1px solid var(--edge-soft);
-  font-size: 13px;
-  color: var(--dim-2);
-}
-
-.foot__tally {
-  font-family: var(--mono);
-  font-size: 12px;
-}
-
 /* ---------- přátelé ---------- */
 
 .head__badge {

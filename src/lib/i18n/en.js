@@ -143,7 +143,6 @@ export const en = {
 
   // ---------- sync ----------
   'sync.failed': 'Syncing with your account failed. Please try again.',
-  'foot.data': 'Your data lives with your account, available anywhere.',
 
   'migration.prompt': {
     one: 'We found {count} title saved in this browser. Upload it to your account?',

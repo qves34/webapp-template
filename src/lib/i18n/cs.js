@@ -148,7 +148,6 @@ export const cs = {
 
   // ---------- sync ----------
   'sync.failed': 'Synchronizace s účtem selhala. Zkus to prosím znovu.',
-  'foot.data': 'Data jsou u tvého účtu, dostupná odkudkoli.',
 
   'migration.prompt': {
     one: 'Našli jsme {count} titul uložený v tomhle prohlížeči. Nahrát ho do účtu?',

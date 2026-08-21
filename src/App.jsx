@@ -16,7 +16,7 @@ import { useTheme } from './hooks/useTheme'
 import { useWatchlist } from './hooks/useWatchlist'
 import { useI18n } from './lib/i18n/context'
 import { localeMeta, nextLocale } from './lib/i18n/core'
-import { STATUSES, loadItems, sortItems, moveItem } from './lib/watchlist'
+import { loadItems, sortItems, moveItem } from './lib/watchlist'
 
 const MIGRATION_FLAG = 'watchlist.migrated.v1'
 
@@ -561,17 +561,6 @@ function Watchlist({ user, onSignOut, nickname, onSetNickname, bio, onSetBio, on
           {query.trim() ? t('list.noMatch', { query: query.trim() }) : t(`empty.${filter}`)}
         </p>
       )}
-
-      <footer className="foot">
-        <span>{t('foot.data')}</span>
-        {items.length > 0 && (
-          <span className="foot__tally">
-            {STATUSES.map(
-              (status) => `${t(`status.${status}`).toLowerCase()} ${counts[status] ?? 0}`,
-            ).join(' · ')}
-          </span>
-        )}
-      </footer>
     </main>
   )
 }
