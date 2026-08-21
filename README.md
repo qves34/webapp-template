@@ -16,6 +16,7 @@ Postavené na React + Vite, nasazuje se na Vercel přes `git push`. Účty a dat
 - **Přátelé**: při prvním přihlášení si zvolíš nickname (3-20 znaků, unikátní). V sekci „Přátelé" podle nicku najdeš ostatní, pošleš žádost o přátelství - druhá strana ji musí přijmout. Po přijetí vidíš watchlist přítele (read-only, bez úprav). Odebrání z přátel/odmítnutí/zrušení žádosti jde jedním tlačítkem.
 - **Profil**: email (jen náhled), změna nicknamu a hesla, krátké bio (max 200 znaků) a přehled oblíbených titulů. Bio vidí jen tví přijatí přátelé, ne kdokoli přihlášený.
 - **Možná znáš**: appka sama navrhne lidi s podobným vkusem - podle shodných titulů v seznamu (a ještě víc podle shodných oblíbených) doporučí uživatele, se kterými se dost překrýváš, aniž bys musel znát jejich nickname.
+- **Přehled**: statistiky vlastního seznamu - počty podle typu a stavu (s grafy), průměrné hodnocení, počet oblíbených/nesnášených, nejaktivnější měsíc (kdy jsi přidal(a) nejvíc titulů) a žebříček nejlépe hodnocených.
 - **Čeština a angličtina**: tlačítko `CS`/`EN` vpravo nahoře přepne jazyk celého UI. Napoprvé se jazyk vybere podle prohlížeče (`navigator.languages`), volba se pak pamatuje per prohlížeč. Přepíná se i řazení podle abecedy (čeština řadí Č/Ř/Š jinak než angličtina). **Názvy titulů se nepřekládají** - drží se anglicky v obou jazycích UI, viz sekce Jazyky.
 
 Rozkoukané tituly jsou vždycky nahoře a hlavička ukazuje, co zrovna koukáš.
@@ -81,6 +82,7 @@ src/
   lib/watchlist.js           datový model, řazení, merge (beze změny, nezávislé na úložišti)
   lib/watchlistRemote.js     mapování položky na/ze sloupců Supabase tabulky
   lib/profile.js             validace formátu nicku a délky bia
+  lib/stats.js               agregace pro stránku Přehled (počty, průměry, nejaktivnější měsíc) - čistá funkce nad seznamem
   lib/friends.js             mapování friendships řádku vůči přihlášenému uživateli
   lib/supabaseClient.js      Supabase klient (singleton)
   index.css                  barvy, fonty, reset
@@ -144,7 +146,6 @@ Po přidání `TMDB_API_KEY`, `VITE_SUPABASE_URL` a `VITE_SUPABASE_ANON_KEY` do 
 - **Offline zápis** - appka teď vyžaduje spojení pro každou akci (přidání/úprava/smazání jde rovnou na Supabase). Offline fronta by šla dodělat, zatím to pro osobní použití nevadí.
 - **Skutečná vlastní doména** - zdarma přejmenovaná `*.vercel.app` adresa (Domains → Add Existing, název s příponou `.vercel.app`) už nastavená; opravdová vlastní TLD doména (mimo `*.vercel.app`) zatím ne.
 - **Samostatná stránka "Trendující"** - dřívější banner „Trendující" (rotující kolonka pár titulů po straně) byl zrušen, protože se ukázalo, že vlastní banner z konkrétního titulu je lepší hlavní vizuál. Plán: nová stránka/karta ukazující top 5 filmů/seriálů/anime právě teď - `api/banners.js` a `useFamousBanners.js` (TMDB trending + AniList, živý žebříček) na to už jsou připravené, jen zatím nikde napojené.
-- **Roční přehled ("wrapped")** - stránka se statistikami vlastního seznamu (počty podle typu/stavu, průměrné hodnocení, nejaktivnější měsíc).
 - **Živé oznámení o žádosti o přátelství** - badge u „Přátelé" se teď aktualizuje jen při refreshi/přepnutí na tu záložku, ne přes Supabase Realtime.
 - **Rewatch tracking** - u dokoukaných titulů zaznamenat, že byly zhlédnuté víckrát (datum, případně nové hodnocení), ne jen jeden stav.
 - **PWA** - appka je mobil-friendly, ale nejde nainstalovat na plochu (chybí manifest + service worker).

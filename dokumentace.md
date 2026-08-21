@@ -170,3 +170,9 @@ Uživatel se zeptal na nápady na nové funkce. Navrženo (a odsouhlaseno k post
 - `SideBanners.jsx`: odebraná větev `style === 'famous'` i import `useFamousBanners`. `AppearancePanel.jsx`: tab "Trendující" pryč, zůstaly jen Barevné/Vlastní (`STYLE_FOR_TAB` teď má jen 2 klíče).
 - `BANNER_STYLES` (`lib/profile.js`) a DB constraint `banner_style_values` zúžené na `'off'/'pattern'/'custom'` - migrace na produkční DB (existující `'famous'` řádky, pokud nějaké byly, převedené na `'pattern'`).
 - **`api/banners.js` a `useFamousBanners.js` záměrně nesmazané**, i když teď nikde nepoužité - podle uživatelova plánu je bude využívat budoucí stránka "Trendující" (stejný živý žebříček TMDB trending + AniList, jen jinde zobrazený). Okomentováno v `useFamousBanners.js`, ať je jasné, že jde o vědomě ponechaný kód, ne omylem nesmazaný mrtvý kód.
+
+### 1/4: Stránka Přehled (statistiky)
+
+Nová `lib/stats.js` (čistá funkce `computeStats(items)` - počty podle typu/stavu, počet oblíbených/nesnášených, průměrné hodnocení, nejaktivnější měsíc podle `addedAt`, top 5 nejlépe hodnocených) a `StatsPanel.jsx` (stat dlaždice + jednoduché sloupcové grafy přes CSS - `width: X%` divy, žádná chart knihovna, barvy sdílené s `.row[data-status]`/`--kind-*` proměnnými, ať to ladí se seznamem). Nový pohled `view === 'stats'` ve `Watchlist` (App.jsx), tlačítko "Přehled" v hlavičce vedle Přátelé/Profil. Bannery se zobrazují i tady (stejný vzor `<><SideBanners/><main>...` jako ostatní pohledy).
+
+Další v plánu: #2 živé oznámení o žádosti o přátelství (Realtime), #3 rewatch tracking, #4 PWA.

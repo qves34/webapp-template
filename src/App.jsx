@@ -8,6 +8,7 @@ import { ItemRow } from './components/ItemRow'
 import { NicknameGate } from './components/NicknameGate'
 import { ProfilePanel } from './components/ProfilePanel'
 import { SideBanners } from './components/SideBanners'
+import { StatsPanel } from './components/StatsPanel'
 import { Toolbar } from './components/Toolbar'
 import { useAuth } from './hooks/useAuth'
 import { useFriends } from './hooks/useFriends'
@@ -292,6 +293,11 @@ function Watchlist({
     setView('profile')
   }
 
+  function openStats() {
+    setViewingFriend(null)
+    setView('stats')
+  }
+
   function viewFriendWatchlist(id, nickname) {
     setViewingFriend({ id, nickname })
   }
@@ -451,6 +457,44 @@ function Watchlist({
     )
   }
 
+  if (view === 'stats') {
+    return (
+      <>
+        <SideBanners style={bannerStyle} imageLeft={bannerImageLeft} imageRight={bannerImageRight} />
+        <main className="app">
+        <header className="head">
+          <div className="head__bar">
+            <h1
+              className="head__mark head__mark--link"
+              role="button"
+              tabIndex={0}
+              onClick={goHome}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  goHome()
+                }
+              }}
+            >
+              {t('app.mark')}
+            </h1>
+            <div className="head__backup">
+              <button type="button" className="ghost" onClick={() => setView('mine')}>
+                {t('nav.backMine')}
+              </button>
+              <button type="button" className="ghost" onClick={onSignOut}>
+                {t('auth.signOut')}
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <StatsPanel items={items} locale={locale} />
+        </main>
+      </>
+    )
+  }
+
   return (
     <>
       <SideBanners style={bannerStyle} imageLeft={bannerImageLeft} imageRight={bannerImageRight} />
@@ -478,6 +522,9 @@ function Watchlist({
             </button>
             <button type="button" className="ghost" onClick={openProfile}>
               {t('nav.profile')}
+            </button>
+            <button type="button" className="ghost" onClick={openStats}>
+              {t('nav.stats')}
             </button>
             <button type="button" className="ghost" onClick={onSignOut}>
               {t('auth.signOut')}

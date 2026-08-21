@@ -77,6 +77,7 @@ export const en = {
   // ---------- header ----------
   'nav.friends': 'Friends',
   'nav.profile': 'Profile',
+  'nav.stats': 'Overview',
   'nav.backFriends': '← Friends',
   'nav.backMine': '← Mine',
 
@@ -217,4 +218,17 @@ export const en = {
   'profile.bannerErrGeneric': 'Could not save the banner setting. Please try again.',
   'profile.favorites': 'Favorites',
   'profile.favoritesEmpty': 'No favorites yet.',
+
+  // ---------- overview/stats ----------
+  'stats.empty': 'No data yet - add your first title.',
+  'stats.total': 'Total titles',
+  'stats.hated': 'Hated',
+  'stats.avgRating': 'Average rating',
+  'stats.busiestMonth': {
+    one: 'Busiest month: {month} ({count} title added)',
+    other: 'Busiest month: {month} ({count} titles added)',
+  },
+  'stats.byKindHeading': 'By type',
+  'stats.byStatusHeading': 'By status',
+  'stats.topRatedHeading': 'Top rated',
 }

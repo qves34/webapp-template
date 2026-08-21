@@ -79,6 +79,7 @@ export const cs = {
   // ---------- hlavička ----------
   'nav.friends': 'Přátelé',
   'nav.profile': 'Profil',
+  'nav.stats': 'Přehled',
   'nav.backFriends': '← Přátelé',
   'nav.backMine': '← Moje',
 
@@ -225,4 +226,18 @@ export const cs = {
   'profile.bannerErrGeneric': 'Nastavení banneru se nepodařilo uložit. Zkus to prosím znovu.',
   'profile.favorites': 'Oblíbené',
   'profile.favoritesEmpty': 'Zatím žádné oblíbené položky.',
+
+  // ---------- přehled/statistiky ----------
+  'stats.empty': 'Zatím žádná data - přidej první titul.',
+  'stats.total': 'Celkem titulů',
+  'stats.hated': 'Nesnášené',
+  'stats.avgRating': 'Průměrné hodnocení',
+  'stats.busiestMonth': {
+    one: 'Nejaktivnější měsíc: {month} ({count} přidaný titul)',
+    few: 'Nejaktivnější měsíc: {month} ({count} přidané tituly)',
+    other: 'Nejaktivnější měsíc: {month} ({count} přidaných titulů)',
+  },
+  'stats.byKindHeading': 'Podle typu',
+  'stats.byStatusHeading': 'Podle stavu',
+  'stats.topRatedHeading': 'Nejlépe hodnocené',
 }
