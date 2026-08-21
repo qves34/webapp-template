@@ -176,3 +176,11 @@ Uživatel se zeptal na nápady na nové funkce. Navrženo (a odsouhlaseno k post
 Nová `lib/stats.js` (čistá funkce `computeStats(items)` - počty podle typu/stavu, počet oblíbených/nesnášených, průměrné hodnocení, nejaktivnější měsíc podle `addedAt`, top 5 nejlépe hodnocených) a `StatsPanel.jsx` (stat dlaždice + jednoduché sloupcové grafy přes CSS - `width: X%` divy, žádná chart knihovna, barvy sdílené s `.row[data-status]`/`--kind-*` proměnnými, ať to ladí se seznamem). Nový pohled `view === 'stats'` ve `Watchlist` (App.jsx), tlačítko "Přehled" v hlavičce vedle Přátelé/Profil. Bannery se zobrazují i tady (stejný vzor `<><SideBanners/><main>...` jako ostatní pohledy).
 
 Další v plánu: #2 živé oznámení o žádosti o přátelství (Realtime), #3 rewatch tracking, #4 PWA.
+
+### 2/4: Živé oznámení o žádosti o přátelství (Supabase Realtime)
+
+Badge u tlačítka "Přátelé" (počet čekajících žádostí) se dřív aktualizoval jen po refreshi/přepnutí na tu záložku - `useFriends.js` volalo `load()` jen při mountu a po vlastních mutacích, ne když přítel pošle/přijme žádost, zatímco appka běží otevřená.
+
+- **`useFriends.js`**: nová subscription `supabase.channel(...).on('postgres_changes', { event: '*', schema: 'public', table: 'friendships' }, () => load())` - na jakoukoli změnu v `friendships` prostě znovu `load()` (stejná filosofie jako zbytek hooku - "objem dat je malý, netřeba optimistic patch/parsing konkrétní změny"). Žádný `filter` na `requester_id`/`addressee_id` v subscription - RLS politika "select own friendships" sama omezí, co Realtime vůbec pošle, takže klient dostane jen řádky, kde figuruje. Badge (`incoming.length`, odvozené z `friendships` state) se pak překreslí automaticky.
+- **`supabase/schema.sql`**: `friendships` přidaná do `supabase_realtime` publikace (`ALTER PUBLICATION supabase_realtime ADD TABLE public.friendships`, v `DO $$ ... IF NOT EXISTS ... $$` bloku, ať je to idempotentní) - bez týhle publikace by RLS-scoped subscription nic neposílala, i kdyby byl klientský kód správně. Aplikováno přímo na produkční DB (`pg`/`SUPABASE_DB_URL`, ověřeno dotazem do `pg_publication_tables`).
+- Žádná nová UI komponenta ani i18n klíč - jen se badge, co appka měla odjakživa, teď aktualizuje živě.

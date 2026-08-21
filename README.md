@@ -13,7 +13,7 @@ Postavené na React + Vite, nasazuje se na Vercel přes `git push`. Účty a dat
 - **Oblíbené**: hvězdička přímo na řádku, přepíná se jedním klikem bez otevření Upravit.
 - Filtr podle stavu i podle typu (film/anime/seriál), hledání v názvech a poznámkách, řazení (stav/abecedně/hodnocení).
 - Titulům, co zůstaly v `localStorage` z doby před účty, appka po prvním přihlášení nabídne jednorázové nahrání do účtu.
-- **Přátelé**: při prvním přihlášení si zvolíš nickname (3-20 znaků, unikátní). V sekci „Přátelé" podle nicku najdeš ostatní, pošleš žádost o přátelství - druhá strana ji musí přijmout. Po přijetí vidíš watchlist přítele (read-only, bez úprav). Odebrání z přátel/odmítnutí/zrušení žádosti jde jedním tlačítkem.
+- **Přátelé**: při prvním přihlášení si zvolíš nickname (3-20 znaků, unikátní). V sekci „Přátelé" podle nicku najdeš ostatní, pošleš žádost o přátelství - druhá strana ji musí přijmout. Po přijetí vidíš watchlist přítele (read-only, bez úprav). Odebrání z přátel/odmítnutí/zrušení žádosti jde jedním tlačítkem. Badge s počtem čekajících žádostí je živý přes Supabase Realtime (`useFriends.js`) - objeví se hned, ne až po refreshi/přepnutí na záložku.
 - **Profil**: email (jen náhled), změna nicknamu a hesla, krátké bio (max 200 znaků) a přehled oblíbených titulů. Bio vidí jen tví přijatí přátelé, ne kdokoli přihlášený.
 - **Možná znáš**: appka sama navrhne lidi s podobným vkusem - podle shodných titulů v seznamu (a ještě víc podle shodných oblíbených) doporučí uživatele, se kterými se dost překrýváš, aniž bys musel znát jejich nickname.
 - **Přehled**: statistiky vlastního seznamu - počty podle typu a stavu (s grafy), průměrné hodnocení, počet oblíbených/nesnášených, nejaktivnější měsíc (kdy jsi přidal(a) nejvíc titulů) a žebříček nejlépe hodnocených.
@@ -146,6 +146,5 @@ Po přidání `TMDB_API_KEY`, `VITE_SUPABASE_URL` a `VITE_SUPABASE_ANON_KEY` do 
 - **Offline zápis** - appka teď vyžaduje spojení pro každou akci (přidání/úprava/smazání jde rovnou na Supabase). Offline fronta by šla dodělat, zatím to pro osobní použití nevadí.
 - **Skutečná vlastní doména** - zdarma přejmenovaná `*.vercel.app` adresa (Domains → Add Existing, název s příponou `.vercel.app`) už nastavená; opravdová vlastní TLD doména (mimo `*.vercel.app`) zatím ne.
 - **Samostatná stránka "Trendující"** - dřívější banner „Trendující" (rotující kolonka pár titulů po straně) byl zrušen, protože se ukázalo, že vlastní banner z konkrétního titulu je lepší hlavní vizuál. Plán: nová stránka/karta ukazující top 5 filmů/seriálů/anime právě teď - `api/banners.js` a `useFamousBanners.js` (TMDB trending + AniList, živý žebříček) na to už jsou připravené, jen zatím nikde napojené.
-- **Živé oznámení o žádosti o přátelství** - badge u „Přátelé" se teď aktualizuje jen při refreshi/přepnutí na tu záložku, ne přes Supabase Realtime.
 - **Rewatch tracking** - u dokoukaných titulů zaznamenat, že byly zhlédnuté víckrát (datum, případně nové hodnocení), ne jen jeden stav.
 - **PWA** - appka je mobil-friendly, ale nejde nainstalovat na plochu (chybí manifest + service worker).

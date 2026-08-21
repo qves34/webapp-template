@@ -60,6 +60,25 @@ export function useFriends(userId) {
     load()
   }, [load])
 
+  // Živé oznámení o nové/přijaté žádosti - bez týhle subscription by se
+  // badge u "Přátelé" aktualizoval jen po refreshi/přepnutí na tu záložku.
+  // RLS ("select own friendships") sama omezí, co appka přes Realtime
+  // vůbec dostane, takže filtr na requester/addressee tady netřeba.
+  useEffect(() => {
+    if (!userId) return
+
+    const channel = supabase
+      .channel(`friendships-${userId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'friendships' }, () => {
+        load()
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [userId, load])
+
   const friendships = rows.map((row) => rowToFriendship(row, userId))
   const friends = friendships.filter((f) => f.status === 'accepted')
   const incoming = friendships.filter((f) => f.status === 'pending' && f.incoming)

@@ -131,6 +131,19 @@ create policy "delete own friendships"
 
 grant select, insert, update, delete on public.friendships to authenticated;
 
+-- Živé oznámení o žádosti o přátelství (useFriends.js) - bez tohohle appka
+-- vidí novou/přijatou žádost jen po refreshi. RLS výše sama omezí, co se
+-- přes Realtime pošle - klient dostane jen řádky, které smí SELECTovat.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'friendships'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.friendships;
+  END IF;
+END $$;
+
 -- Přátelé s accepted friendship smí číst (ne měnit) i cizí položky.
 -- Kombinuje se s "select own items" výše (permissive policies pro stejný
 -- příkaz se v Postgresu OR-ují).
