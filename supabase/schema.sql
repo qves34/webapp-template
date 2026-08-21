@@ -53,10 +53,10 @@ create table public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   nickname text not null,
   created_at timestamptz not null default now(),
-  -- Postranní bannery na širokém desktopu (viz README) - 'off'/'pattern'/'posters'.
+  -- Postranní bannery na širokém desktopu (viz README) - 'off'/'pattern'/'famous'.
   banner_style text not null default 'pattern',
   constraint nickname_format check (nickname ~ '^[a-zA-Z0-9_]{3,20}$'),
-  constraint banner_style_values check (banner_style in ('off', 'pattern', 'posters'))
+  constraint banner_style_values check (banner_style in ('off', 'pattern', 'famous'))
 );
 
 -- Case-insensitive unikátnost ("Franta" a "franta" je kolize).

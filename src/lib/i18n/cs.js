@@ -27,7 +27,7 @@ export const cs = {
   'appearance.bannerColorful': 'Barevné',
   'appearance.bannerMovies': 'Z filmů',
   'appearance.bannerColorfulHint': 'Používá barvu tématu zvolenou výše.',
-  'appearance.bannerMoviesPlaceholder': 'Připravujeme - výběr několika nejslavnějších titulů, zatím není k dispozici.',
+  'appearance.bannerMoviesHint': 'Pár aktuálně nejoblíbenějších titulů (TMDB, AniList pro anime).',
 
   // ---------- typy a stavy ----------
   'kind.film': 'Film',

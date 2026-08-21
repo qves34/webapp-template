@@ -145,6 +145,31 @@
   color: var(--label);
 }
 
+.color-swatches {
+  display: flex;
+  gap: 10px;
+}
+
+.color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 0;
+  background: var(--swatch-color);
+  cursor: pointer;
+  transition: transform 150ms ease, border-color 150ms ease;
+}
+
+.color-swatch:hover {
+  transform: scale(1.12);
+}
+
+.color-swatch[aria-checked='true'] {
+  border-color: var(--can-2);
+  box-shadow: 0 0 0 2px var(--swatch-color);
+}
+
 .migration {
   display: flex;
   align-items: center;
@@ -1280,7 +1305,7 @@ li:last-child > .add__result {
 
 .side-banner__poster {
   width: 100%;
-  aspect-ratio: 2 / 3;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
   border-radius: var(--radius);
   filter: saturate(0.85);

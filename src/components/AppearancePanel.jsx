@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useI18n } from '../lib/i18n/context'
 
-const COLOR_ICONS = { orange: '🟠', blue: '🔵', green: '🟢', purple: '🟣' }
+// Reprezentativní odstín pro švatch - nezávislé na tom, jaké téma/motiv je
+// zrovna aktivní, jinak by se u zvolené barvy nedalo poznat, jak vypadají ty ostatní.
+const COLOR_HEX = { orange: '#e4572e', blue: '#3b82f6', green: '#10b981', purple: '#8b5cf6' }
 
 /**
  * Jedno tlačítko "Vzhled" vedle přepínače jazyka, po kliku otevře kartu se
@@ -24,7 +26,7 @@ export function AppearancePanel({
   const [open, setOpen] = useState(false)
   // Barevné/Z filmů - jen který panel je vidět, netýká se toho, jestli jsou
   // bannery zapnuté (to řeší samostatný checkbox níž).
-  const [bannerTab, setBannerTab] = useState(bannerStyle === 'posters' ? 'movies' : 'colorful')
+  const [bannerTab, setBannerTab] = useState(bannerStyle === 'famous' ? 'movies' : 'colorful')
   const rootRef = useRef(null)
 
   useEffect(() => {
@@ -45,15 +47,13 @@ export function AppearancePanel({
     }
   }, [open])
 
-  // "Z filmů" je zatím jen placeholder (viz README) - jediný reálně
-  // aktivovatelný styl je 'pattern', tab jen přepíná náhled textu níž.
   function handleBannerEnable(enabled) {
-    onSetBannerStyle(enabled ? 'pattern' : 'off')
+    onSetBannerStyle(enabled ? (bannerTab === 'movies' ? 'famous' : 'pattern') : 'off')
   }
 
   function handleBannerTab(tab) {
     setBannerTab(tab)
-    if (tab === 'colorful' && bannerStyle !== 'off') onSetBannerStyle('pattern')
+    if (bannerStyle !== 'off') onSetBannerStyle(tab === 'movies' ? 'famous' : 'pattern')
   }
 
   return (
@@ -101,18 +101,19 @@ export function AppearancePanel({
 
           <section className="appearance-section">
             <h4 className="appearance-section__heading">{t('appearance.colorHeading')}</h4>
-            <div className="segmented" role="radiogroup" aria-label={t('appearance.colorHeading')}>
+            <div className="color-swatches" role="radiogroup" aria-label={t('appearance.colorHeading')}>
               {colorSchemes.map((option) => (
                 <button
                   key={option}
                   type="button"
                   role="radio"
                   aria-checked={colorScheme === option}
-                  className="segmented__option"
+                  aria-label={t(`theme.colorName.${option}`)}
+                  title={t(`theme.colorName.${option}`)}
+                  className="color-swatch"
+                  style={{ '--swatch-color': COLOR_HEX[option] }}
                   onClick={() => onSetColorScheme(option)}
-                >
-                  {COLOR_ICONS[option]} {t(`theme.colorName.${option}`)}
-                </button>
+                />
               ))}
             </div>
           </section>
@@ -152,11 +153,9 @@ export function AppearancePanel({
                     </button>
                   </div>
 
-                  {bannerTab === 'colorful' ? (
-                    <p className="profile__hint">{t('appearance.bannerColorfulHint')}</p>
-                  ) : (
-                    <p className="profile__hint">{t('appearance.bannerMoviesPlaceholder')}</p>
-                  )}
+                  <p className="profile__hint">
+                    {t(bannerTab === 'colorful' ? 'appearance.bannerColorfulHint' : 'appearance.bannerMoviesHint')}
+                  </p>
                 </>
               )}
             </section>

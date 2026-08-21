@@ -23,8 +23,8 @@ export const en = {
   'appearance.bannerEnable': 'Show side banners',
   'appearance.bannerColorful': 'Colorful',
   'appearance.bannerMovies': 'From movies',
-  'appearance.bannerColorfulHint': 'Uses the accent color chosen above.',
-  'appearance.bannerMoviesPlaceholder': 'Coming soon - a curated set of the most famous titles, not available yet.',
+  'appearance.bannerColorfulHint': 'Uses the theme color chosen above.',
+  'appearance.bannerMoviesHint': 'A handful of currently trending titles (TMDB, AniList for anime).',
 
   // ---------- kinds and statuses ----------
   'kind.film': 'Movie',

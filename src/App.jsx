@@ -201,16 +201,6 @@ function Watchlist({
 
   const watching = items.filter((item) => item.status === 'divam')
 
-  // Plakátky pro postranní bannery - oblíbené a rozkoukané tituly jdou první,
-  // ať banner ukazuje hlavně to, co uživatele aktuálně zajímá.
-  const bannerPosters = useMemo(() => {
-    const weight = (item) => (item.favorite ? 0 : item.status === 'divam' ? 1 : 2)
-    return items
-      .filter((item) => item.poster)
-      .sort((a, b) => weight(a) - weight(b))
-      .map((item) => ({ id: item.id, poster: item.poster, title: item.title }))
-  }, [items])
-
   function handleAdd(title, kind, extra) {
     add(title, kind, extra)
     setQuery('')
@@ -435,7 +425,7 @@ function Watchlist({
 
   return (
     <>
-      <SideBanners style={bannerStyle} posters={bannerPosters} />
+      <SideBanners style={bannerStyle} />
       <main className="app">
       <header className="head">
         <div className="head__bar">
