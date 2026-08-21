@@ -87,10 +87,6 @@
   border: 1px solid var(--edge);
   border-radius: var(--radius);
   box-shadow: 0 20px 48px -20px rgba(0, 0, 0, 0.6);
-  /* Jen tahle karta o kousek větší, na rozdíl od zoomu celé appky (viz git
-     historie) tady nehrozí kolize s vw-based calc() - je to samostatný
-     position:absolute prvek, ne position:fixed. */
-  zoom: 1.15;
 }
 
 .appearance-section {
@@ -1362,10 +1358,14 @@ li:last-child > .add__result {
    i do strany) a je širší než ostatní styly - má být hlavní vizuál, ne jen
    drobná dekorace. Šířka = přesně to, co zbyde vedle vycentrovaného .app
    (žádná mezera do kraje obrazovky, žádná pevná/hádaná hodnota). */
+/* `* var(--app-zoom)` - .app je na širokém desktopu zvětšený přes zoom
+   (viz media query níž), takže je reálně širší, než --app-max-width sám
+   o sobě říká. Zoom přímo na :root/.side-banner nejde použít - 100vw se
+   pod ním chová nekonzistentně a banner pak zabíral půl obrazovky. */
 .side-banner--custom {
   top: 0;
   bottom: 0;
-  width: calc((100vw - var(--app-max-width)) / 2);
+  width: calc((100vw - (var(--app-max-width) * var(--app-zoom))) / 2);
   padding: 0;
   mask-image: none;
   -webkit-mask-image: none;
@@ -1412,6 +1412,15 @@ li:last-child > .add__result {
 @media (min-width: 1400px) {
   .side-banner {
     display: block;
+  }
+
+  /* Jen tady, ne na :root - zoom na .app samotné je "normální" nested
+     zoom (jako by mělo větší font-size), nekříží se s .side-banner--custom
+     výpočtem, protože ten žije mimo zoomovaný podstrom a jen si dopočítá
+     zvětšenou šířku ručně (* var(--app-zoom) výš). */
+  .app,
+  .controls {
+    zoom: var(--app-zoom);
   }
 }
 

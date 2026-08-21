@@ -112,6 +112,9 @@
   --radius: 3px;
   --gutter: 26px;
   --app-max-width: 820px;
+  /* Zvětšení hlavního panelu na širokém desktopu (viz App.css, kolem
+     .side-banner--custom je poznámka proč to nejde přes zoom na :root). */
+  --app-zoom: 1.15;
 
   font: 400 16px/1.45 var(--sans);
   color: var(--label);
