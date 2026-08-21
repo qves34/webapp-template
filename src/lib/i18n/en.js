@@ -22,10 +22,8 @@ export const en = {
   'appearance.bannerHeading': 'Side banners',
   'appearance.bannerEnable': 'Show side banners',
   'appearance.bannerColorful': 'Colorful',
-  'appearance.bannerTrending': 'Trending',
   'appearance.bannerCustom': 'Custom',
   'appearance.bannerColorfulHint': 'Uses the theme color chosen above.',
-  'appearance.bannerTrendingHint': 'A handful of currently trending titles (TMDB, AniList for anime).',
   'appearance.bannerCustomHint': 'Banner set from your list. Change it with the "Set as banner" button on a title.',
   'appearance.bannerCustomEmpty': 'Not set yet - open a title with a TMDB match in your list and click "Set as banner".',
 

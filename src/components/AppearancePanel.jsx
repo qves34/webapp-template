@@ -7,7 +7,7 @@ const COLOR_HEX = { orange: '#e4572e', blue: '#3b82f6', green: '#10b981', purple
 
 // Tab -> reálná hodnota banner_style. 'custom' se navíc nastavuje i z ItemRow
 // (výběrem konkrétního plakátu), tady se jen přepíná zpátky na už uložený.
-const STYLE_FOR_TAB = { colorful: 'pattern', trending: 'famous', custom: 'custom' }
+const STYLE_FOR_TAB = { colorful: 'pattern', custom: 'custom' }
 
 /**
  * Jedno tlačítko "Vzhled" vedle přepínače jazyka, po kliku otevře kartu se
@@ -30,11 +30,9 @@ export function AppearancePanel({
 }) {
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
-  // Barevné/Trendující/Vlastní - jen který panel je vidět, netýká se toho,
-  // jestli jsou bannery zapnuté (to řeší samostatný checkbox níž).
-  const [bannerTab, setBannerTab] = useState(
-    bannerStyle === 'famous' ? 'trending' : bannerStyle === 'custom' ? 'custom' : 'colorful',
-  )
+  // Barevné/Vlastní - jen který panel je vidět, netýká se toho, jestli jsou
+  // bannery zapnuté (to řeší samostatný checkbox níž).
+  const [bannerTab, setBannerTab] = useState(bannerStyle === 'custom' ? 'custom' : 'colorful')
   const rootRef = useRef(null)
 
   useEffect(() => {
@@ -153,15 +151,6 @@ export function AppearancePanel({
                     <button
                       type="button"
                       role="tab"
-                      aria-selected={bannerTab === 'trending'}
-                      className="tabs-mini__tab"
-                      onClick={() => handleBannerTab('trending')}
-                    >
-                      {t('appearance.bannerTrending')}
-                    </button>
-                    <button
-                      type="button"
-                      role="tab"
                       aria-selected={bannerTab === 'custom'}
                       className="tabs-mini__tab"
                       onClick={() => handleBannerTab('custom')}
@@ -172,9 +161,6 @@ export function AppearancePanel({
 
                   {bannerTab === 'colorful' && (
                     <p className="profile__hint">{t('appearance.bannerColorfulHint')}</p>
-                  )}
-                  {bannerTab === 'trending' && (
-                    <p className="profile__hint">{t('appearance.bannerTrendingHint')}</p>
                   )}
                   {bannerTab === 'custom' && (
                     <div className="appearance-custom-banner">

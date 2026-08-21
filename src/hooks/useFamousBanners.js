@@ -4,7 +4,13 @@ import { useEffect, useState } from 'react'
 // není důvod volat /api/banners znovu při každém přepnutí panelu Vzhled.
 let cache = null
 
-/** Pár aktuálně nejoblíbenějších titulů (TMDB trending + AniList) pro banner "Z filmů". */
+/**
+ * Pár aktuálně nejoblíbenějších titulů (TMDB trending + AniList).
+ * Nepoužívá se momentálně nikde - banner "Trendující" byl na žádost
+ * uživatele odebraný (viz dokumentace.md), tenhle hook i /api/banners
+ * ale zůstávají, plánovaná je samostatná stránka "Trendující"
+ * (top 5 filmů/seriálů/anime právě teď), co je bude znovu využívat.
+ */
 export function useFamousBanners(enabled) {
   const [items, setItems] = useState(cache ?? [])
 

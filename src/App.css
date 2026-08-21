@@ -1393,22 +1393,6 @@ li:last-child > .add__result {
   box-shadow: none;
 }
 
-.side-banner__track {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.side-banner__poster {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  border-radius: var(--radius);
-  filter: saturate(0.85);
-  opacity: 0.8;
-  box-shadow: 0 10px 26px -14px rgba(0, 0, 0, 0.6);
-}
-
 @media (min-width: 1400px) {
   .side-banner {
     display: block;
