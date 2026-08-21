@@ -298,7 +298,9 @@ function Watchlist({
 
   if (viewingFriend) {
     return (
-      <main className="app">
+      <>
+        <SideBanners style={bannerStyle} imageLeft={bannerImageLeft} imageRight={bannerImageRight} />
+        <main className="app">
         <header className="head">
           <div className="head__bar">
             <h1
@@ -346,13 +348,16 @@ function Watchlist({
             {t('friends.watchlistEmpty', { nickname: viewingFriend.nickname })}
           </p>
         )}
-      </main>
+        </main>
+      </>
     )
   }
 
   if (view === 'friends') {
     return (
-      <main className="app">
+      <>
+        <SideBanners style={bannerStyle} imageLeft={bannerImageLeft} imageRight={bannerImageRight} />
+        <main className="app">
         <header className="head">
           <div className="head__bar">
             <h1
@@ -392,13 +397,16 @@ function Watchlist({
           removeFriendship={removeFriendship}
           onViewFriend={viewFriendWatchlist}
         />
-      </main>
+        </main>
+      </>
     )
   }
 
   if (view === 'profile') {
     return (
-      <main className="app">
+      <>
+        <SideBanners style={bannerStyle} imageLeft={bannerImageLeft} imageRight={bannerImageRight} />
+        <main className="app">
         <header className="head">
           <div className="head__bar">
             <h1
@@ -438,7 +446,8 @@ function Watchlist({
           onRemoveItem={handleRemove}
           onSetCustomBanner={onSetCustomBanner}
         />
-      </main>
+        </main>
+      </>
     )
   }
 
