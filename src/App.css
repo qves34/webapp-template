@@ -1,7 +1,7 @@
 .app {
   max-width: var(--app-max-width);
   margin: 0 auto;
-  padding: 40px 20px 64px;
+  padding: 40px 34px 64px;
 }
 
 .app-loading {
