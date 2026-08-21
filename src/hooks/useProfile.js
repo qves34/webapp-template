@@ -1,22 +1,24 @@
 import { useCallback, useEffect, useState } from 'react'
-import { isValidBio, isValidNickname } from '../lib/profile'
+import { DEFAULT_BANNER_STYLE, isValidBannerStyle, isValidBio, isValidNickname } from '../lib/profile'
 import { supabase } from '../lib/supabaseClient'
 
 /**
- * Vlastní nickname a bio uživatele. `nickname === null` po doběhnutí `loading`
- * znamená, že si ho ještě nenastavil - App na to reaguje NicknameGate. Bio je
- * volitelné, chybějící řádek v `profile_bios` (dokud ho nikdo neuloží) čteme
- * jako prázdný string.
+ * Vlastní nickname, bio a preference uživatele. `nickname === null` po
+ * doběhnutí `loading` znamená, že si ho ještě nenastavil - App na to reaguje
+ * NicknameGate. Bio je volitelné, chybějící řádek v `profile_bios` (dokud ho
+ * nikdo neuloží) čteme jako prázdný string.
  */
 export function useProfile(userId) {
   const [nickname, setNicknameState] = useState(null)
   const [bio, setBioState] = useState('')
+  const [bannerStyle, setBannerStyleState] = useState(DEFAULT_BANNER_STYLE)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!userId) {
       setNicknameState(null)
       setBioState('')
+      setBannerStyleState(DEFAULT_BANNER_STYLE)
       setLoading(false)
       return
     }
@@ -24,11 +26,14 @@ export function useProfile(userId) {
     let cancelled = false
     setLoading(true)
     Promise.all([
-      supabase.from('profiles').select('nickname').eq('id', userId).maybeSingle(),
+      supabase.from('profiles').select('nickname, banner_style').eq('id', userId).maybeSingle(),
       supabase.from('profile_bios').select('bio').eq('user_id', userId).maybeSingle(),
     ]).then(([{ data: profileData, error: profileError }, { data: bioData }]) => {
       if (cancelled) return
       setNicknameState(profileError ? null : (profileData?.nickname ?? null))
+      setBannerStyleState(
+        isValidBannerStyle(profileData?.banner_style) ? profileData.banner_style : DEFAULT_BANNER_STYLE,
+      )
       setBioState(bioData?.bio ?? '')
       setLoading(false)
     })
@@ -82,5 +87,24 @@ export function useProfile(userId) {
     [userId],
   )
 
-  return { nickname, bio, loading, setNickname, setBio }
+  const setBannerStyle = useCallback(
+    async (value) => {
+      if (!isValidBannerStyle(value)) return { error: { key: 'profile.bannerErrGeneric' } }
+
+      const previous = bannerStyle
+      setBannerStyleState(value)
+      const { error } = await supabase.from('profiles').update({ banner_style: value }).eq('id', userId)
+
+      if (error) {
+        console.warn('Uložení banneru selhalo:', error)
+        setBannerStyleState(previous)
+        return { error: { key: 'profile.bannerErrGeneric' } }
+      }
+
+      return { error: null }
+    },
+    [userId, bannerStyle],
+  )
+
+  return { nickname, bio, bannerStyle, loading, setNickname, setBio, setBannerStyle }
 }

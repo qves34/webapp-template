@@ -22,6 +22,8 @@ Rozkoukané tituly jsou vždycky nahoře a hlavička ukazuje, co zrovna koukáš
 
 Vzhled: tlačítko vpravo nahoře (☀️/🌙) přepíná světlý/tmavý motiv, uložený per prohlížeč (jinak podle systému).
 
+**Postranní bannery**: na širokém desktopu (od ~1400px šířky okna) appka po stranách zobrazí dekorativní banner - buď barevný vzor laděný podle zvoleného barevného schématu, nebo kolonku plakátků oblíbených/rozkoukaných titulů ze seznamu. Nastavuje se v Profilu, volba jde (na rozdíl od motivu/jazyka) přes účet, takže se drží napříč zařízeními. Na užších oknech a mobilu se automaticky skrývá.
+
 ## Požadavky
 
 **Node 20.19+ nebo 22.12+.** Vite 8 na starším Node nenaběhne. Ověř si `node -v`.

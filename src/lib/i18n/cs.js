@@ -204,6 +204,12 @@ export const cs = {
   'profile.newPassword': 'Nové heslo',
   'profile.savePassword': 'Změnit heslo',
   'profile.passwordUpdated': 'Heslo změněno.',
+  'profile.bannerHeading': 'Postranní bannery',
+  'profile.bannerHint': 'Jen na širokém desktopu, kde je po stranách místo.',
+  'profile.banner.off': 'Vypnuto',
+  'profile.banner.pattern': 'Barevný vzor',
+  'profile.banner.posters': 'Plakátky z mého seznamu',
+  'profile.bannerErrGeneric': 'Nastavení banneru se nepodařilo uložit. Zkus to prosím znovu.',
   'profile.favorites': 'Oblíbené',
   'profile.favoritesEmpty': 'Zatím žádné oblíbené položky.',
 }

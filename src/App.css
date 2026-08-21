@@ -1148,6 +1148,109 @@ li:last-child > .add__result {
   color: var(--dim-2);
 }
 
+.profile__banner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.segmented {
+  display: flex;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.segmented__option {
+  background: transparent;
+  border: 0;
+  padding: 9px 13px;
+  font-size: 13px;
+  color: var(--dim-2);
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+
+.segmented__option + .segmented__option {
+  border-left: 1px solid var(--edge);
+}
+
+.segmented__option:hover:not(:disabled) {
+  color: var(--label);
+}
+
+.segmented__option[aria-checked='true'] {
+  background: var(--can-3);
+  color: var(--tape);
+}
+
+.segmented__option:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* ---------- postranní bannery ---------- */
+
+.side-banner {
+  display: none;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 168px;
+  padding: 96px 0 24px;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, transparent, black 96px, black calc(100% - 64px), transparent);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 96px,
+    black calc(100% - 64px),
+    transparent
+  );
+}
+
+.side-banner--left {
+  left: 24px;
+}
+
+.side-banner--right {
+  right: 24px;
+}
+
+.side-banner--pattern {
+  border-radius: var(--radius);
+  background:
+    radial-gradient(circle at 50% 0, var(--can) 0 5px, transparent 6px) repeat-y,
+    linear-gradient(165deg, var(--tape), var(--gold) 35%, var(--kind-anime) 70%, var(--done));
+  background-size: 100% 36px, 100% 100%;
+  opacity: 0.75;
+}
+
+.side-banner__track {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.side-banner__poster {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: var(--radius);
+  filter: saturate(0.85);
+  opacity: 0.8;
+  box-shadow: 0 10px 26px -14px rgba(0, 0, 0, 0.6);
+}
+
+@media (min-width: 1400px) {
+  .side-banner {
+    display: block;
+  }
+}
+
 /* ---------- mobil ---------- */
 
 @media (max-width: 640px) {

@@ -6,6 +6,7 @@ import { FriendsPanel } from './components/FriendsPanel'
 import { ItemRow } from './components/ItemRow'
 import { NicknameGate } from './components/NicknameGate'
 import { ProfilePanel } from './components/ProfilePanel'
+import { SideBanners } from './components/SideBanners'
 import { Toolbar } from './components/Toolbar'
 import { useAuth } from './hooks/useAuth'
 import { useFriends } from './hooks/useFriends'
@@ -107,7 +108,7 @@ function LocaleToggle() {
 
 /** Nickname je potřeba dřív, než appku vůbec uvidíš - jinak by tě přátelé nenašli. */
 function Gate({ user, onSignOut, onUpdatePassword }) {
-  const { nickname, bio, loading, setNickname, setBio } = useProfile(user.id)
+  const { nickname, bio, bannerStyle, loading, setNickname, setBio, setBannerStyle } = useProfile(user.id)
   const { t } = useI18n()
 
   if (loading) return <p className="app-loading">{t('app.loading')}</p>
@@ -120,12 +121,24 @@ function Gate({ user, onSignOut, onUpdatePassword }) {
       onSetNickname={setNickname}
       bio={bio}
       onSetBio={setBio}
+      bannerStyle={bannerStyle}
+      onSetBannerStyle={setBannerStyle}
       onUpdatePassword={onUpdatePassword}
     />
   )
 }
 
-function Watchlist({ user, onSignOut, nickname, onSetNickname, bio, onSetBio, onUpdatePassword }) {
+function Watchlist({
+  user,
+  onSignOut,
+  nickname,
+  onSetNickname,
+  bio,
+  onSetBio,
+  bannerStyle,
+  onSetBannerStyle,
+  onUpdatePassword,
+}) {
   const { t, locale } = useI18n()
   const { items, add, update, remove, merge, storageError, loading } = useWatchlist(user.id)
   const {
@@ -216,6 +229,16 @@ function Watchlist({ user, onSignOut, nickname, onSetNickname, bio, onSetBio, on
   }, [items, filter, kindFilter, query, sort, locale])
 
   const watching = items.filter((item) => item.status === 'divam')
+
+  // Plakátky pro postranní bannery - oblíbené a rozkoukané tituly jdou první,
+  // ať banner ukazuje hlavně to, co uživatele aktuálně zajímá.
+  const bannerPosters = useMemo(() => {
+    const weight = (item) => (item.favorite ? 0 : item.status === 'divam' ? 1 : 2)
+    return items
+      .filter((item) => item.poster)
+      .sort((a, b) => weight(a) - weight(b))
+      .map((item) => ({ id: item.id, poster: item.poster, title: item.title }))
+  }, [items])
 
   function handleAdd(title, kind, extra) {
     add(title, kind, extra)
@@ -430,6 +453,8 @@ function Watchlist({ user, onSignOut, nickname, onSetNickname, bio, onSetBio, on
           onSetNickname={onSetNickname}
           bio={bio}
           onSetBio={onSetBio}
+          bannerStyle={bannerStyle}
+          onSetBannerStyle={onSetBannerStyle}
           onUpdatePassword={onUpdatePassword}
           favorites={items.filter((item) => item.favorite)}
           onUpdateItem={update}
@@ -440,7 +465,9 @@ function Watchlist({ user, onSignOut, nickname, onSetNickname, bio, onSetBio, on
   }
 
   return (
-    <main className="app">
+    <>
+      <SideBanners style={bannerStyle} posters={bannerPosters} />
+      <main className="app">
       <header className="head">
         <div className="head__bar">
           <h1
@@ -561,7 +588,8 @@ function Watchlist({ user, onSignOut, nickname, onSetNickname, bio, onSetBio, on
           {query.trim() ? t('list.noMatch', { query: query.trim() }) : t(`empty.${filter}`)}
         </p>
       )}
-    </main>
+      </main>
+    </>
   )
 }
 

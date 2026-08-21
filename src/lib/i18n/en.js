@@ -196,6 +196,12 @@ export const en = {
   'profile.newPassword': 'New password',
   'profile.savePassword': 'Change password',
   'profile.passwordUpdated': 'Password changed.',
+  'profile.bannerHeading': 'Side banners',
+  'profile.bannerHint': 'Only on a wide desktop screen where there is room on the sides.',
+  'profile.banner.off': 'Off',
+  'profile.banner.pattern': 'Colorful pattern',
+  'profile.banner.posters': 'Posters from my list',
+  'profile.bannerErrGeneric': 'Could not save the banner setting. Please try again.',
   'profile.favorites': 'Favorites',
   'profile.favoritesEmpty': 'No favorites yet.',
 }
