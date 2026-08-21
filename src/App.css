@@ -545,6 +545,9 @@ li:last-child > .add__result {
   flex-direction: column;
   gap: 8px;
   align-items: flex-end;
+  /* Vždy vlastní řádek pod taby - jinak se podle délky textu (CS vs EN)
+     nekonzistentně vejde/nevejde vedle nich a layout při přepnutí jazyka poskočí. */
+  flex-basis: 100%;
 }
 
 .sort,
