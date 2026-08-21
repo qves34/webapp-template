@@ -120,9 +120,6 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: color 200ms ease, background 200ms ease;
-  /* Uživatel zjistil, že mu appka sedí nejlíp při zoomu prohlížeče na 125 %
-     - radši rovnou v appce, ať to nemusí nastavovat ručně pokaždé znovu. */
-  zoom: 1.25;
 }
 
 * {
