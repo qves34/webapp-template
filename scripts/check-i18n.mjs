@@ -20,7 +20,14 @@ const FILTERS = ['vse', ...STATUSES]
 
 // Texty, které jsou v obou jazycích shodné záměrně - u zbytku shoda znamená
 // zapomenutý překlad.
-const SAME_ON_PURPOSE = new Set(['app.mark', 'kind.anime', 'kind.anime.short', 'auth.email', 'nickname.label'])
+const SAME_ON_PURPOSE = new Set([
+  'app.mark',
+  'kind.anime',
+  'kind.anime.short',
+  'auth.email',
+  'nickname.label',
+  'field.posterUrlPlaceholder',
+])
 
 const DICTS = { cs, en }
 

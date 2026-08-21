@@ -10,6 +10,12 @@ export const en = {
   'theme.toDark': 'Switch to dark mode',
   'theme.light': 'Light mode',
   'theme.dark': 'Dark mode',
+  'theme.changeColor': 'Change color',
+  'theme.colorScheme': 'Color scheme',
+  'theme.autoModeOn': 'Enable auto mode',
+  'theme.autoModeOff': 'Disable auto mode',
+  'theme.autoModeActive': 'Auto mode active (time-based)',
+  'theme.autoModeInactive': 'Auto mode disabled',
   'lang.switchTo': 'Switch language to {lang}',
 
   // ---------- kinds and statuses ----------
@@ -86,6 +92,13 @@ export const en = {
   'toolbar.sortOption': 'Sort: {label}',
   'toolbar.search': 'Search',
   'toolbar.searchAria': 'Search the list',
+  'toolbar.enterBatchMode': 'Enable batch selection',
+  'toolbar.exitBatchMode': 'Disable batch selection',
+  'toolbar.batchAction': 'Batch action…',
+  'toolbar.selected': {
+    one: '{count} title selected',
+    other: '{count} titles selected',
+  },
 
   // ---------- item row ----------
   'row.ratingTitle': 'Rated {rating} out of 10',
@@ -98,6 +111,11 @@ export const en = {
   'row.editDone': 'Done',
   'row.delete': 'Delete title',
   'row.confirmDelete': 'Delete “{title}”?',
+  'row.confirmBatchDelete': {
+    one: 'Delete {count} title?',
+    other: 'Delete {count} titles?',
+  },
+  'row.select': 'Select title',
 
   'field.title': 'Title',
   'field.kind': 'Type',
@@ -106,7 +124,11 @@ export const en = {
   'field.rating': 'Rating',
   'field.ratingNone': 'Not rated',
   'field.note': 'Note',
-  'field.notePlaceholder': 'Who recommended it, where it streams, what next…',
+  'field.notePlaceholder': 'Who recommended it, where it streams, what next… (Markdown: **bold**, *italic*, `code`, [link](url))',
+  'field.posterUrl': 'Custom poster URL',
+  'field.posterUrlPlaceholder': 'https://example.com/poster.jpg',
+  'row.moveUp': 'Move up',
+  'row.moveDown': 'Move down',
 
   // ---------- empty list ----------
   'empty.vse': 'Nothing here yet. Type a title above and add your first one.',

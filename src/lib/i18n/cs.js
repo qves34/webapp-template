@@ -13,6 +13,12 @@ export const cs = {
   'theme.toDark': 'Přepnout na tmavý režim',
   'theme.light': 'Světlý režim',
   'theme.dark': 'Tmavý režim',
+  'theme.changeColor': 'Změnit barvu',
+  'theme.colorScheme': 'Barevné schéma',
+  'theme.autoModeOn': 'Zapnout automatický režim',
+  'theme.autoModeOff': 'Vypnout automatický režim',
+  'theme.autoModeActive': 'Automatický režim aktivní (dle času)',
+  'theme.autoModeInactive': 'Automatický režim vypnutý',
   'lang.switchTo': 'Přepnout jazyk na {lang}',
 
   // ---------- typy a stavy ----------
@@ -89,6 +95,14 @@ export const cs = {
   'toolbar.sortOption': 'Řadit: {label}',
   'toolbar.search': 'Hledat',
   'toolbar.searchAria': 'Hledat v seznamu',
+  'toolbar.enterBatchMode': 'Zapnout hromadný výběr',
+  'toolbar.exitBatchMode': 'Vypnout hromadný výběr',
+  'toolbar.batchAction': 'Hromadná akce…',
+  'toolbar.selected': {
+    one: 'Vybraný {count} titul',
+    few: 'Vybrané {count} tituly',
+    other: 'Vybraných {count} titulů',
+  },
 
   // ---------- řádek titulu ----------
   'row.ratingTitle': 'Hodnocení {rating} z 10',
@@ -101,6 +115,14 @@ export const cs = {
   'row.editDone': 'Hotovo',
   'row.delete': 'Smazat titul',
   'row.confirmDelete': 'Smazat „{title}“?',
+  'row.confirmBatchDelete': {
+    one: 'Smazat {count} titul?',
+    few: 'Smazat {count} tituly?',
+    other: 'Smazat {count} titulů?',
+  },
+  'row.select': 'Vybrat titul',
+  'row.moveUp': 'Posunout nahoru',
+  'row.moveDown': 'Posunout dolů',
 
   'field.title': 'Název',
   'field.kind': 'Typ',
@@ -109,7 +131,9 @@ export const cs = {
   'field.rating': 'Hodnocení',
   'field.ratingNone': 'Zatím nic',
   'field.note': 'Poznámka',
-  'field.notePlaceholder': 'Kdo to doporučil, kde to běží, co dál…',
+  'field.notePlaceholder': 'Kdo to doporučil, kde to běží, co dál… (Markdown: **bold**, *italic*, `code`, [link](url))',
+  'field.posterUrl': 'URL vlastního plakátku',
+  'field.posterUrlPlaceholder': 'https://example.com/poster.jpg',
 
   // ---------- prázdný seznam ----------
   'empty.vse': 'Zatím prázdno. Napiš nahoru název a přidej první titul.',

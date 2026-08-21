@@ -13,15 +13,49 @@
   --dim: #93a69e;
   --dim-2: #6b807a;
 
+  /* Výchozí (oranžová) - než proběhne JS efekt a nastaví data-color-scheme,
+     ať stránka nebliká bez barev. Specifičtější [data-color-scheme] níž to přebije. */
   --tape: #e4572e;
   --gold: #d9a441;
   --done: #6f8f7e;
 
+  color-scheme: dark;
+}
+
+/* Barevné varianty - výchozí oranžová */
+:root[data-color-scheme='orange'],
+:root[data-theme='dark'][data-color-scheme='orange'] {
+  --tape: #e4572e;
+  --gold: #d9a441;
+  --done: #6f8f7e;
+}
+
+:root[data-color-scheme='blue'],
+:root[data-theme='dark'][data-color-scheme='blue'] {
+  --tape: #3b82f6;
+  --gold: #60a5fa;
+  --done: #34d399;
+}
+
+:root[data-color-scheme='green'],
+:root[data-theme='dark'][data-color-scheme='green'] {
+  --tape: #10b981;
+  --gold: #34d399;
+  --done: #6366f1;
+}
+
+:root[data-color-scheme='purple'],
+:root[data-theme='dark'][data-color-scheme='purple'] {
+  --tape: #8b5cf6;
+  --gold: #a78bfa;
+  --done: #ec4899;
+}
+
+/* Společné barevné varianty pro tmavý motiv */
+:root[data-theme='dark'] {
   --kind-film: #cfc7b2;
   --kind-anime: #b98fd6;
   --kind-serial: #7fa9cf;
-
-  color-scheme: dark;
 }
 
 :root[data-theme='light'] {
@@ -35,15 +69,39 @@
   --dim: #6d6350;
   --dim-2: #948a72;
 
+  color-scheme: light;
+}
+
+/* Barevné varianty - světlý motiv */
+:root[data-theme='light'][data-color-scheme='orange'] {
   --tape: #c8441f;
   --gold: #9c6f18;
   --done: #3f6553;
+}
 
+:root[data-theme='light'][data-color-scheme='blue'] {
+  --tape: #2563eb;
+  --gold: #3b82f6;
+  --done: #059669;
+}
+
+:root[data-theme='light'][data-color-scheme='green'] {
+  --tape: #059669;
+  --gold: #10b981;
+  --done: #4f46e5;
+}
+
+:root[data-theme='light'][data-color-scheme='purple'] {
+  --tape: #7c3aed;
+  --gold: #8b5cf6;
+  --done: #db2777;
+}
+
+/* Společné barevné varianty pro světlý motiv */
+:root[data-theme='light'] {
   --kind-film: #6d6350;
   --kind-anime: #7a4f9c;
   --kind-serial: #2f6390;
-
-  color-scheme: light;
 }
 
 :root {

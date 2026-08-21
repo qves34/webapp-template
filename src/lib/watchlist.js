@@ -141,3 +141,29 @@ export function mergeItems(current, incoming) {
 
   return { items: [...byId.values()], added, updated }
 }
+
+/**
+ * Posune titul o jednu pozici nahoru/dolů v rámci stejného stavu - to je
+ * jediná osa, kde na pořadí (addedAt) vůbec záleží, viz `sortByStav`.
+ * V jiném řazení (abeceda/hodnocení) by posun neměl žádný viditelný efekt.
+ */
+export function moveItem(items, itemId, direction) {
+  const item = items.find((i) => i.id === itemId)
+  if (!item) return items
+
+  const sameStatus = items
+    .filter((i) => i.status === item.status)
+    .sort((a, b) => b.addedAt.localeCompare(a.addedAt))
+  const currentIndex = sameStatus.findIndex((i) => i.id === itemId)
+  const swapIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
+  if (swapIndex < 0 || swapIndex >= sameStatus.length) return items
+
+  const swapItem = sameStatus[swapIndex]
+  const now = new Date().toISOString()
+
+  return items.map((i) => {
+    if (i.id === item.id) return { ...i, addedAt: swapItem.addedAt, updatedAt: now }
+    if (i.id === swapItem.id) return { ...i, addedAt: item.addedAt, updatedAt: now }
+    return i
+  })
+}

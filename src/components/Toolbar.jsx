@@ -13,6 +13,11 @@ export function Toolbar({
   counts,
   kindCounts,
   total,
+  batchMode,
+  onToggleBatchMode,
+  selectedCount,
+  onBatchUpdate,
+  onBatchDelete,
 }) {
   const { t } = useI18n()
 
@@ -71,6 +76,42 @@ export function Toolbar({
       </div>
 
       <div className="toolbar__controls">
+        {batchMode && selectedCount > 0 && (
+          <div className="batch-controls">
+            <span className="batch-info">{t('toolbar.selected', { count: selectedCount })}</span>
+            <select
+              className="batch-action"
+              onChange={(e) => {
+                const [field, value] = e.target.value.split(':')
+                if (field === 'delete') {
+                  onBatchDelete()
+                } else {
+                  onBatchUpdate(field, value)
+                }
+              }}
+            >
+              <option value="">{t('toolbar.batchAction')}</option>
+              <option value="status:chci">{t('status.chci')}</option>
+              <option value="status:divam">{t('status.divam')}</option>
+              <option value="status:pauza">{t('status.pauza')}</option>
+              <option value="status:preruseno">{t('status.preruseno')}</option>
+              <option value="status:hotovo">{t('status.hotovo')}</option>
+              <option value="favorite:true">{t('row.favoriteAdd')}</option>
+              <option value="favorite:false">{t('row.favoriteRemove')}</option>
+              <option value="delete">{t('row.delete')}</option>
+            </select>
+          </div>
+        )}
+
+        <button
+          type="button"
+          className={`batch-toggle ${batchMode ? 'batch-toggle--active' : ''}`}
+          onClick={onToggleBatchMode}
+          title={batchMode ? t('toolbar.exitBatchMode') : t('toolbar.enterBatchMode')}
+        >
+          {batchMode ? '✕' : '☐'}
+        </button>
+
         <select
           className="sort"
           value={sort}

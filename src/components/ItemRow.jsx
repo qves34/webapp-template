@@ -1,10 +1,21 @@
 import { useState } from 'react'
 import { useI18n } from '../lib/i18n/context'
 import { KINDS, STATUSES, nextStatus } from '../lib/watchlist'
+import { MarkdownRenderer } from './MarkdownRenderer'
 
 const RATINGS = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
 
-export function ItemRow({ item, onUpdate, onRemove, readOnly = false }) {
+export function ItemRow({
+  item,
+  onUpdate,
+  onRemove,
+  onMove,
+  canMoveUp = false,
+  canMoveDown = false,
+  onSelect,
+  selected,
+  readOnly = false,
+}) {
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
 
@@ -49,7 +60,7 @@ export function ItemRow({ item, onUpdate, onRemove, readOnly = false }) {
           <span className="row__status row__status--static">{t(`status.${item.status}`)}</span>
         </div>
 
-        {item.note && <p className="row__note">{item.note}</p>}
+        {item.note && <MarkdownRenderer text={item.note} className="row__note" />}
       </li>
     )
   }
@@ -57,6 +68,17 @@ export function ItemRow({ item, onUpdate, onRemove, readOnly = false }) {
   return (
     <li className="row" data-status={item.status} data-open={open || undefined}>
       <div className="row__strip" aria-hidden="true" />
+
+      {onSelect && (
+        <div className="row__checkbox">
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={(e) => onSelect(item.id, e.target.checked)}
+            aria-label={t('row.select')}
+          />
+        </div>
+      )}
 
       <div className="row__main">
         {item.poster ? (
@@ -198,13 +220,45 @@ export function ItemRow({ item, onUpdate, onRemove, readOnly = false }) {
             />
           </label>
 
+          <label className="field field--wide">
+            <span className="field__label">{t('field.posterUrl')}</span>
+            <input
+              value={item.poster || ''}
+              onChange={(event) => onUpdate(item.id, { poster: event.target.value })}
+              placeholder={t('field.posterUrlPlaceholder')}
+            />
+          </label>
+
           <button type="button" className="detail__remove" onClick={() => onRemove(item)}>
             {t('row.delete')}
           </button>
+
+          {onMove && (
+            <div className="detail__move">
+              <button
+                type="button"
+                className="detail__move-btn"
+                onClick={() => onMove(item.id, 'up')}
+                disabled={!canMoveUp}
+                title={t('row.moveUp')}
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                className="detail__move-btn"
+                onClick={() => onMove(item.id, 'down')}
+                disabled={!canMoveDown}
+                title={t('row.moveDown')}
+              >
+                ↓
+              </button>
+            </div>
+          )}
         </div>
       )}
 
-      {!open && item.note && <p className="row__note">{item.note}</p>}
+      {!open && item.note && <MarkdownRenderer text={item.note} className="row__note" />}
     </li>
   )
 }

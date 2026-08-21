@@ -16,7 +16,7 @@ import { useTheme } from './hooks/useTheme'
 import { useWatchlist } from './hooks/useWatchlist'
 import { useI18n } from './lib/i18n/context'
 import { localeMeta, nextLocale } from './lib/i18n/core'
-import { STATUSES, loadItems, sortItems } from './lib/watchlist'
+import { STATUSES, loadItems, sortItems, moveItem } from './lib/watchlist'
 
 const MIGRATION_FLAG = 'watchlist.migrated.v1'
 
@@ -43,19 +43,46 @@ function App() {
 }
 
 function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme()
+  const { theme, colorScheme, autoMode, toggleTheme, cycleColorScheme, toggleAutoMode } = useTheme()
   const { t } = useI18n()
 
+  const colorIcons = {
+    orange: '🟠',
+    blue: '🔵',
+    green: '🟢',
+    purple: '🟣'
+  }
+
   return (
-    <button
-      type="button"
-      className="theme-toggle"
-      onClick={toggleTheme}
-      aria-label={theme === 'dark' ? t('theme.toLight') : t('theme.toDark')}
-      title={theme === 'dark' ? t('theme.light') : t('theme.dark')}
-    >
-      {theme === 'dark' ? '☀️' : '🌙'}
-    </button>
+    <>
+      <button
+        type="button"
+        className="theme-toggle"
+        onClick={toggleTheme}
+        aria-label={theme === 'dark' ? t('theme.toLight') : t('theme.toDark')}
+        title={theme === 'dark' ? t('theme.light') : t('theme.dark')}
+      >
+        {theme === 'dark' ? '☀️' : '🌙'}
+      </button>
+      <button
+        type="button"
+        className={`auto-toggle ${autoMode ? 'auto-toggle--active' : ''}`}
+        onClick={toggleAutoMode}
+        aria-label={autoMode ? t('theme.autoModeOff') : t('theme.autoModeOn')}
+        title={autoMode ? t('theme.autoModeActive') : t('theme.autoModeInactive')}
+      >
+        🕐
+      </button>
+      <button
+        type="button"
+        className="color-toggle"
+        onClick={cycleColorScheme}
+        aria-label={t('theme.changeColor')}
+        title={`${t('theme.colorScheme')}: ${colorScheme}`}
+      >
+        {colorIcons[colorScheme]}
+      </button>
+    </>
   )
 }
 
@@ -120,6 +147,8 @@ function Watchlist({ user, onSignOut, nickname, onSetNickname, bio, onSetBio, on
   const [migration, setMigration] = useState(null)
   const [view, setView] = useState('mine')
   const [viewingFriend, setViewingFriend] = useState(null)
+  const [selectedItems, setSelectedItems] = useState([])
+  const [batchMode, setBatchMode] = useState(false)
   const friendWatchlist = useFriendWatchlist(viewingFriend?.id)
   const friendProfile = useFriendProfile(viewingFriend?.id)
   const noticeId = useRef(0)
@@ -196,6 +225,54 @@ function Watchlist({ user, onSignOut, nickname, onSetNickname, bio, onSetBio, on
 
   function handleRemove(item) {
     if (window.confirm(t('row.confirmDelete', { title: item.title }))) remove(item.id)
+  }
+
+  // Reorder má smysl jen v řazení 'stav' beze zapnutého filtru/hledání -
+  // to je jediný stav, kdy zobrazené pořadí přesně odpovídá tomu, co moveItem mění.
+  const canReorder = sort === 'stav' && filter === 'vse' && kindFilter === 'vse' && query.trim() === ''
+
+  function handleMove(itemId, direction) {
+    const newItems = moveItem(items, itemId, direction)
+    if (newItems === items) return
+    for (const newItem of newItems) {
+      const oldItem = items.find((i) => i.id === newItem.id)
+      if (oldItem && oldItem.addedAt !== newItem.addedAt) {
+        update(newItem.id, { addedAt: newItem.addedAt })
+      }
+    }
+  }
+
+  function handleSelect(itemId, selected) {
+    if (selected) {
+      setSelectedItems([...selectedItems, itemId])
+    } else {
+      setSelectedItems(selectedItems.filter(id => id !== itemId))
+    }
+  }
+
+  function toggleBatchMode() {
+    setBatchMode((current) => {
+      if (current) setSelectedItems([])
+      return !current
+    })
+  }
+
+  function handleBatchUpdate(field, value) {
+    selectedItems.forEach(itemId => {
+      update(itemId, { [field]: value })
+    })
+    setSelectedItems([])
+    setBatchMode(false)
+  }
+
+  function handleBatchDelete() {
+    if (window.confirm(t('row.confirmBatchDelete', { count: selectedItems.length }))) {
+      selectedItems.forEach(itemId => {
+        remove(itemId)
+      })
+      setSelectedItems([])
+      setBatchMode(false)
+    }
   }
 
   function goHome() {
@@ -426,6 +503,11 @@ function Watchlist({ user, onSignOut, nickname, onSetNickname, bio, onSetBio, on
         counts={counts}
         kindCounts={kindCounts}
         total={items.length}
+        batchMode={batchMode}
+        onToggleBatchMode={toggleBatchMode}
+        selectedCount={selectedItems.length}
+        onBatchUpdate={handleBatchUpdate}
+        onBatchDelete={handleBatchDelete}
       />
 
       {migration && (
@@ -458,8 +540,20 @@ function Watchlist({ user, onSignOut, nickname, onSetNickname, bio, onSetBio, on
         <p className="empty">{t('list.loading')}</p>
       ) : visible.length > 0 ? (
         <ul className="list">
-          {visible.map((item) => (
-            <ItemRow key={item.id} item={item} onUpdate={update} onRemove={handleRemove} />
+          {visible.map((item, index) => (
+            <ItemRow
+              key={item.id}
+              item={item}
+              onUpdate={update}
+              onRemove={handleRemove}
+              onMove={canReorder ? handleMove : undefined}
+              canMoveUp={canReorder && index > 0 && visible[index - 1].status === item.status}
+              canMoveDown={
+                canReorder && index < visible.length - 1 && visible[index + 1].status === item.status
+              }
+              onSelect={batchMode ? handleSelect : undefined}
+              selected={selectedItems.includes(item.id)}
+            />
           ))}
         </ul>
       ) : (
