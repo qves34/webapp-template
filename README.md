@@ -133,6 +133,14 @@ Jazyk UI to neovlivňuje - dotaz se na TMDB matchuje i proti přeloženým názv
 
 Známé omezení: `index.html` má natvrdo `lang="cs"` a českou `<meta name="description">`. Provider obojí po načtení přepíše podle zvoleného jazyka, ale náhledy sdíleného odkazu (Slack, Facebook) JS nespouštějí, takže popisek uvidí vždycky česky. Opravit by to šlo až prerenderem, což by kvůli jedné větě byla velká cena.
 
+## PWA (instalovatelnost)
+
+Appka jde nainstalovat na plochu/domovskou obrazovku (Android, desktop Chrome/Edge; iOS Safari přes „Přidat na plochu" v menu sdílení, tam manifest neřeší instalovatelnost, ale ikonu/název bere z `apple-touch-icon`/`apple-mobile-web-app-title`).
+
+- `public/manifest.webmanifest` - jméno, barvy, `display: standalone`, ikony (`icon-192.png`/`icon-512.png`/`icon-512-maskable.png`, vygenerované z `favicon.svg`).
+- `public/sw.js` - registruje se v `main.jsx` (jen v produkci, `import.meta.env.PROD`, ať nekomplikuje HMR na `npm run dev`). Bez cachování - appka potřebuje vždycky čerstvá data ze Supabase, service worker je tu čistě kvůli podmínce instalovatelnosti (Chrome appku bez SW na plochu nenabídne), požadavky si obslouží síť normálně.
+- `index.html` - `<link rel="manifest">`, `<link rel="apple-touch-icon">` a `apple-mobile-web-app-*` meta tagy pro iOS.
+
 ## Nasazení (GitHub → Vercel)
 
 Jednorázové napojení: https://vercel.com → „Add New Project" → vyber repo → Deploy (preset „Vite" se pozná sám).
@@ -147,4 +155,3 @@ Po přidání `TMDB_API_KEY`, `VITE_SUPABASE_URL` a `VITE_SUPABASE_ANON_KEY` do 
 - **Offline zápis** - appka teď vyžaduje spojení pro každou akci (přidání/úprava/smazání jde rovnou na Supabase). Offline fronta by šla dodělat, zatím to pro osobní použití nevadí.
 - **Skutečná vlastní doména** - zdarma přejmenovaná `*.vercel.app` adresa (Domains → Add Existing, název s příponou `.vercel.app`) už nastavená; opravdová vlastní TLD doména (mimo `*.vercel.app`) zatím ne.
 - **Samostatná stránka "Trendující"** - dřívější banner „Trendující" (rotující kolonka pár titulů po straně) byl zrušen, protože se ukázalo, že vlastní banner z konkrétního titulu je lepší hlavní vizuál. Plán: nová stránka/karta ukazující top 5 filmů/seriálů/anime právě teď - `api/banners.js` a `useFamousBanners.js` (TMDB trending + AniList, živý žebříček) na to už jsou připravené, jen zatím nikde napojené.
-- **PWA** - appka je mobil-friendly, ale nejde nainstalovat na plochu (chybí manifest + service worker).

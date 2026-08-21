@@ -43,7 +43,7 @@ export function parseMarkdown(text) {
   })
 
   // Seznamy (- item)
-  result = result.replace(/^\-\s+(.+)$/gm, '<li>$1</li>')
+  result = result.replace(/^-\s+(.+)$/gm, '<li>$1</li>')
   result = result.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
 
   // Nové řádky

@@ -11,3 +11,11 @@ createRoot(document.getElementById('root')).render(
     </I18nProvider>
   </StrictMode>,
 )
+
+// PWA instalovatelnost (bez cachování, viz public/sw.js) - jen v produkci,
+// `npm run dev` s vlastním SW zbytečně komplikuje HMR.
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+  })
+}
