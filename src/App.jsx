@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { AddForm } from './components/AddForm'
+import { AppearancePanel } from './components/AppearancePanel'
 import { AuthForm } from './components/AuthForm'
 import { FriendsPanel } from './components/FriendsPanel'
 import { ItemRow } from './components/ItemRow'
@@ -24,12 +25,28 @@ const MIGRATION_FLAG = 'watchlist.migrated.v1'
 function App() {
   const { session, user, loading, signIn, signUp, signOut, updatePassword } = useAuth()
   const { t } = useI18n()
+  const theme = useTheme()
+  // Nahoře, ne v Gate - jinak by tlačítko Vzhled (sedí vedle jazyka, mimo Gate)
+  // nemělo k bannerům přístup. Bez přihlášení `useProfile(undefined)` vrátí
+  // výchozí hodnoty a nic nenačítá.
+  const profile = useProfile(user?.id)
 
   return (
     <>
       <div className="controls">
         <LocaleToggle />
-        <ThemeToggle />
+        <AppearancePanel
+          theme={theme.theme}
+          colorScheme={theme.colorScheme}
+          autoMode={theme.autoMode}
+          colorSchemes={theme.COLOR_SCHEMES}
+          onSetLightDark={theme.setLightDark}
+          onSetColorScheme={theme.setColorScheme}
+          onToggleAutoMode={theme.toggleAutoMode}
+          bannerStyle={profile.bannerStyle}
+          onSetBannerStyle={profile.setBannerStyle}
+          showBanners={!!session && !!profile.nickname}
+        />
       </div>
 
       {loading ? (
@@ -37,52 +54,8 @@ function App() {
       ) : !session ? (
         <AuthForm onSignIn={signIn} onSignUp={signUp} />
       ) : (
-        <Gate user={user} onSignOut={signOut} onUpdatePassword={updatePassword} />
+        <Gate user={user} profile={profile} onSignOut={signOut} onUpdatePassword={updatePassword} />
       )}
-    </>
-  )
-}
-
-function ThemeToggle() {
-  const { theme, colorScheme, autoMode, toggleTheme, cycleColorScheme, toggleAutoMode } = useTheme()
-  const { t } = useI18n()
-
-  const colorIcons = {
-    orange: '🟠',
-    blue: '🔵',
-    green: '🟢',
-    purple: '🟣'
-  }
-
-  return (
-    <>
-      <button
-        type="button"
-        className="theme-toggle"
-        onClick={toggleTheme}
-        aria-label={theme === 'dark' ? t('theme.toLight') : t('theme.toDark')}
-        title={theme === 'dark' ? t('theme.light') : t('theme.dark')}
-      >
-        {theme === 'dark' ? '☀️' : '🌙'}
-      </button>
-      <button
-        type="button"
-        className={`auto-toggle ${autoMode ? 'auto-toggle--active' : ''}`}
-        onClick={toggleAutoMode}
-        aria-label={autoMode ? t('theme.autoModeOff') : t('theme.autoModeOn')}
-        title={autoMode ? t('theme.autoModeActive') : t('theme.autoModeInactive')}
-      >
-        🕐
-      </button>
-      <button
-        type="button"
-        className="color-toggle"
-        onClick={cycleColorScheme}
-        aria-label={t('theme.changeColor')}
-        title={`${t('theme.colorScheme')}: ${colorScheme}`}
-      >
-        {colorIcons[colorScheme]}
-      </button>
     </>
   )
 }
@@ -107,8 +80,8 @@ function LocaleToggle() {
 }
 
 /** Nickname je potřeba dřív, než appku vůbec uvidíš - jinak by tě přátelé nenašli. */
-function Gate({ user, onSignOut, onUpdatePassword }) {
-  const { nickname, bio, bannerStyle, loading, setNickname, setBio, setBannerStyle } = useProfile(user.id)
+function Gate({ user, profile, onSignOut, onUpdatePassword }) {
+  const { nickname, bio, bannerStyle, loading, setNickname, setBio } = profile
   const { t } = useI18n()
 
   if (loading) return <p className="app-loading">{t('app.loading')}</p>
@@ -122,7 +95,6 @@ function Gate({ user, onSignOut, onUpdatePassword }) {
       bio={bio}
       onSetBio={setBio}
       bannerStyle={bannerStyle}
-      onSetBannerStyle={setBannerStyle}
       onUpdatePassword={onUpdatePassword}
     />
   )
@@ -136,7 +108,6 @@ function Watchlist({
   bio,
   onSetBio,
   bannerStyle,
-  onSetBannerStyle,
   onUpdatePassword,
 }) {
   const { t, locale } = useI18n()
@@ -453,8 +424,6 @@ function Watchlist({
           onSetNickname={onSetNickname}
           bio={bio}
           onSetBio={onSetBio}
-          bannerStyle={bannerStyle}
-          onSetBannerStyle={onSetBannerStyle}
           onUpdatePassword={onUpdatePassword}
           favorites={items.filter((item) => item.favorite)}
           onUpdateItem={update}

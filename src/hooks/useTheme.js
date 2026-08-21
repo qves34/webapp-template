@@ -32,7 +32,7 @@ function getThemeByTime() {
 /** Světlý/tmavý motiv + barevné schéma - uložené per prohlížeč, jinak podle systému. */
 export function useTheme() {
   const [theme, setTheme] = useState(initialTheme)
-  const [colorScheme, setColorScheme] = useState(initialColorScheme)
+  const [colorScheme, setColorSchemeState] = useState(initialColorScheme)
   const [autoMode, setAutoMode] = useState(initialAutoMode)
 
   useEffect(() => {
@@ -55,15 +55,14 @@ export function useTheme() {
     localStorage.setItem(AUTO_MODE_KEY, autoMode)
   }, [autoMode])
 
-  function toggleTheme() {
+  function setLightDark(value) {
+    if (value !== 'light' && value !== 'dark') return
     setAutoMode(false)
-    setTheme((current) => (current === 'dark' ? 'light' : 'dark'))
+    setTheme(value)
   }
 
-  function cycleColorScheme() {
-    const currentIndex = COLOR_SCHEMES.indexOf(colorScheme)
-    const nextIndex = (currentIndex + 1) % COLOR_SCHEMES.length
-    setColorScheme(COLOR_SCHEMES[nextIndex])
+  function setColorScheme(value) {
+    if (COLOR_SCHEMES.includes(value)) setColorSchemeState(value)
   }
 
   function toggleAutoMode() {
@@ -74,5 +73,5 @@ export function useTheme() {
     }
   }
 
-  return { theme, colorScheme, autoMode, toggleTheme, cycleColorScheme, toggleAutoMode, COLOR_SCHEMES }
+  return { theme, colorScheme, autoMode, setLightDark, setColorScheme, toggleAutoMode, COLOR_SCHEMES }
 }

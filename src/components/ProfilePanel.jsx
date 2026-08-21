@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { authErrorKey } from '../lib/authErrors'
 import { useI18n } from '../lib/i18n/context'
-import { BANNER_STYLES, BIO_MAX_LENGTH } from '../lib/profile'
+import { BIO_MAX_LENGTH } from '../lib/profile'
 import { ItemRow } from './ItemRow'
 
 export function ProfilePanel({
@@ -10,22 +10,12 @@ export function ProfilePanel({
   onSetNickname,
   bio,
   onSetBio,
-  bannerStyle,
-  onSetBannerStyle,
   onUpdatePassword,
   favorites,
   onUpdateItem,
   onRemoveItem,
 }) {
   const { t } = useI18n()
-  const [bannerBusy, setBannerBusy] = useState(false)
-
-  async function handleBannerPick(value) {
-    if (value === bannerStyle || bannerBusy) return
-    setBannerBusy(true)
-    await onSetBannerStyle(value)
-    setBannerBusy(false)
-  }
   const [nicknameValue, setNicknameValue] = useState(nickname)
   const [nicknameBusy, setNicknameBusy] = useState(false)
   const [nicknameNotice, setNicknameNotice] = useState(null)
@@ -154,26 +144,6 @@ export function ProfilePanel({
             {t('profile.savePassword')}
           </button>
         </form>
-
-        <div className="profile__banner">
-          <span className="field__label">{t('profile.bannerHeading')}</span>
-          <p className="profile__hint">{t('profile.bannerHint')}</p>
-          <div className="segmented" role="radiogroup" aria-label={t('profile.bannerHeading')}>
-            {BANNER_STYLES.map((option) => (
-              <button
-                key={option}
-                type="button"
-                role="radio"
-                aria-checked={bannerStyle === option}
-                className="segmented__option"
-                disabled={bannerBusy}
-                onClick={() => handleBannerPick(option)}
-              >
-                {t(`profile.banner.${option}`)}
-              </button>
-            ))}
-          </div>
-        </div>
       </section>
 
       <section className="friends__section">
