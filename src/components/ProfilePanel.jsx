@@ -14,6 +14,7 @@ export function ProfilePanel({
   favorites,
   onUpdateItem,
   onRemoveItem,
+  onSetCustomBanner,
 }) {
   const { t } = useI18n()
   const [nicknameValue, setNicknameValue] = useState(nickname)
@@ -153,7 +154,13 @@ export function ProfilePanel({
         ) : (
           <ul className="list">
             {favorites.map((item) => (
-              <ItemRow key={item.id} item={item} onUpdate={onUpdateItem} onRemove={onRemoveItem} />
+              <ItemRow
+                key={item.id}
+                item={item}
+                onUpdate={onUpdateItem}
+                onRemove={onRemoveItem}
+                onSetCustomBanner={onSetCustomBanner}
+              />
             ))}
           </ul>
         )}

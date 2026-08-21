@@ -12,6 +12,7 @@ export function useProfile(userId) {
   const [nickname, setNicknameState] = useState(null)
   const [bio, setBioState] = useState('')
   const [bannerStyle, setBannerStyleState] = useState(DEFAULT_BANNER_STYLE)
+  const [bannerImageUrl, setBannerImageUrlState] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -19,6 +20,7 @@ export function useProfile(userId) {
       setNicknameState(null)
       setBioState('')
       setBannerStyleState(DEFAULT_BANNER_STYLE)
+      setBannerImageUrlState(null)
       setLoading(false)
       return
     }
@@ -26,7 +28,11 @@ export function useProfile(userId) {
     let cancelled = false
     setLoading(true)
     Promise.all([
-      supabase.from('profiles').select('nickname, banner_style').eq('id', userId).maybeSingle(),
+      supabase
+        .from('profiles')
+        .select('nickname, banner_style, banner_image_url')
+        .eq('id', userId)
+        .maybeSingle(),
       supabase.from('profile_bios').select('bio').eq('user_id', userId).maybeSingle(),
     ]).then(([{ data: profileData, error: profileError }, { data: bioData }]) => {
       if (cancelled) return
@@ -34,6 +40,7 @@ export function useProfile(userId) {
       setBannerStyleState(
         isValidBannerStyle(profileData?.banner_style) ? profileData.banner_style : DEFAULT_BANNER_STYLE,
       )
+      setBannerImageUrlState(profileData?.banner_image_url ?? null)
       setBioState(bioData?.bio ?? '')
       setLoading(false)
     })
@@ -106,5 +113,40 @@ export function useProfile(userId) {
     [userId, bannerStyle],
   )
 
-  return { nickname, bio, bannerStyle, loading, setNickname, setBio, setBannerStyle }
+  // Nastaví oboje najednou (styl 'custom' + konkrétní URL) - odděleně by šlo
+  // uložit jen banner_style bez obrázku k němu.
+  const setCustomBanner = useCallback(
+    async (imageUrl) => {
+      const previousStyle = bannerStyle
+      const previousImage = bannerImageUrl
+      setBannerStyleState('custom')
+      setBannerImageUrlState(imageUrl)
+      const { error } = await supabase
+        .from('profiles')
+        .update({ banner_style: 'custom', banner_image_url: imageUrl })
+        .eq('id', userId)
+
+      if (error) {
+        console.warn('Uložení vlastního banneru selhalo:', error)
+        setBannerStyleState(previousStyle)
+        setBannerImageUrlState(previousImage)
+        return { error: { key: 'profile.bannerErrGeneric' } }
+      }
+
+      return { error: null }
+    },
+    [userId, bannerStyle, bannerImageUrl],
+  )
+
+  return {
+    nickname,
+    bio,
+    bannerStyle,
+    bannerImageUrl,
+    loading,
+    setNickname,
+    setBio,
+    setBannerStyle,
+    setCustomBanner,
+  }
 }

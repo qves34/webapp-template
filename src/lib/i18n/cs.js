@@ -25,9 +25,12 @@ export const cs = {
   'appearance.bannerHeading': 'Postranní bannery',
   'appearance.bannerEnable': 'Zobrazit postranní bannery',
   'appearance.bannerColorful': 'Barevné',
-  'appearance.bannerMovies': 'Z filmů',
+  'appearance.bannerTrending': 'Trendující',
+  'appearance.bannerCustom': 'Vlastní',
   'appearance.bannerColorfulHint': 'Používá barvu tématu zvolenou výše.',
-  'appearance.bannerMoviesHint': 'Pár aktuálně nejoblíbenějších titulů (TMDB, AniList pro anime).',
+  'appearance.bannerTrendingHint': 'Pár aktuálně nejoblíbenějších titulů (TMDB, AniList pro anime).',
+  'appearance.bannerCustomHint': 'Banner nastavený z tvého seznamu. Změníš ho tlačítkem „Nastavit jako banner" u titulu.',
+  'appearance.bannerCustomEmpty': 'Zatím nenastaveno - otevři titul se svým TMDB záznamem ve svém seznamu a klikni na „Nastavit jako banner".',
 
   // ---------- typy a stavy ----------
   'kind.film': 'Film',
@@ -131,6 +134,11 @@ export const cs = {
   'row.select': 'Vybrat titul',
   'row.moveUp': 'Posunout nahoru',
   'row.moveDown': 'Posunout dolů',
+  'row.bannerPickerOpen': 'Nastavit jako banner',
+  'row.bannerPickerClose': 'Zavřít výběr banneru',
+  'row.bannerPickerLoading': 'Načítám plakáty…',
+  'row.bannerPickerEmpty': 'Pro tenhle titul TMDB žádné další plakáty nemá.',
+  'row.bannerPickerChoose': 'Vybrat tenhle plakát jako banner',
 
   'field.title': 'Název',
   'field.kind': 'Typ',

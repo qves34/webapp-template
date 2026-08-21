@@ -129,3 +129,21 @@ Záložka "Z filmů" byla nahlášená jako "nefunguje" - přepnutí tabu jen m�
 - V panelu Vzhled teď přepnutí na záložku "Z filmů" (když jsou bannery zapnuté) rovnou nastaví `bannerStyle` na `'famous'`, ne jen náhledový text.
 
 README aktualizované - odstavec o zdrojích v "Kam dál" nahrazený poznámkou, že jde o **živý trendující žebříček**, ne ručně sestavený seznam "nejslavnějších" titulů (jednodušší na údržbu, ale obsah se v čase mění).
+
+## Bannery "Vlastní" - jeden konkrétní plakát z vlastního seznamu (2026-08-21)
+
+Uživatel po vyzkoušení upřesnil, co původně bannerem "Z filmů" myslel: ne kolonku několika drobných obrázků, ale jeden velký svislý "hero" banner ke konkrétnímu titulu z vlastního seznamu (referenční obrázky - alternativní key-art plakáty jako u Jokera). Zjišťoval jsem, odkud takové plakáty vzít:
+
+- Fanouškovské kurátorské weby specializované přesně na tenhle styl (ThePosterDB, MediaUX) appka použít nemůže - **ThePosterDB má v Terms of Service výslovně zakázané scrapování** ("scrape the Services... by any means other than our published interfaces"), takže by šlo o porušení podmínek.
+- Legitimní cesta: TMDB `/movie/{id}/images` (a `/tv/{id}/images`) endpoint vrací **všechny plakáty** k danému titulu, ne jen ten jeden ze search - appka na TMDB už napojená, žádný nový klíč. U slavných titulů bývá slušný výběr alternativních verzí, u obskurnějších míň.
+
+Implementace:
+- **`api/posters.js`** (nová serverless funkce) - `GET ?tmdbId=X&kind=Y` vrátí až 12 plakátů (`w500`, seřazené podle `vote_average`) přes `include_image_language=en,null` (textless/anglické varianty, ne cizojazyčné s cizími titulky). "Anime" v appce není vázané na konkrétní TMDB media_type (aproximace přes žánr běží nad `movie` i `tv`, viz `api/search.js`), takže se u něj zkusí `tv` a když nic nevrátí, `movie`. Cache 24 h.
+- **`useTitlePosters.js`** - načte plakáty k danému `tmdbId`, jen když je picker otevřený.
+- **`PosterPicker.jsx`** - mřížka náhledů, klik uloží vybraný.
+- **`ItemRow.jsx`** - v rozbaleném "Upravit" nové tlačítko "Nastavit jako banner" (jen u titulů s `tmdbId`, tedy ne u ručně zapsaných) otevře `PosterPicker`.
+- **`profiles.banner_image_url`** (nový sloupec, migrace na produkční DB) - vyplněný jen u `banner_style = 'custom'`. `useProfile.js` má `setCustomBanner(url)`, co uloží obojí najednou atomicky.
+- **`SideBanners.jsx`** - `style === 'custom'` vykreslí jeden velký obrázek přes celou výšku bannneru na obou stranách (ne stack malých náhledů jako u "Trendující").
+- **Panel Vzhled**: 3. záložka "Vlastní" - když je nastavený banner, ukáže malý náhled + text, jinak vyzve otevřít titul v seznamu. Tab jen přepne zpátky na `'custom'`, pokud je banner zapnutý; samotné nastavení obrázku jde jen přes `ItemRow`, protože `AppearancePanel` sedí mimo `Gate`/`Watchlist` a nemá přístup k `items` (bylo by potřeba i `useWatchlist` zvednout na úroveň `App`, což pro jeden picker nestálo za tu složitost).
+
+Přejmenování kvůli srozumitelnosti: dřívější tab "Z filmů" (trendující kolonka) → "Trendující", nový tab "Vlastní" je teď to, co uživatel původně myslel pod "Z filmů".

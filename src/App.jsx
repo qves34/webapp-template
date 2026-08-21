@@ -44,6 +44,7 @@ function App() {
           onSetColorScheme={theme.setColorScheme}
           onToggleAutoMode={theme.toggleAutoMode}
           bannerStyle={profile.bannerStyle}
+          bannerImageUrl={profile.bannerImageUrl}
           onSetBannerStyle={profile.setBannerStyle}
           showBanners={!!session && !!profile.nickname}
         />
@@ -81,7 +82,7 @@ function LocaleToggle() {
 
 /** Nickname je potřeba dřív, než appku vůbec uvidíš - jinak by tě přátelé nenašli. */
 function Gate({ user, profile, onSignOut, onUpdatePassword }) {
-  const { nickname, bio, bannerStyle, loading, setNickname, setBio } = profile
+  const { nickname, bio, bannerStyle, bannerImageUrl, loading, setNickname, setBio, setCustomBanner } = profile
   const { t } = useI18n()
 
   if (loading) return <p className="app-loading">{t('app.loading')}</p>
@@ -95,6 +96,8 @@ function Gate({ user, profile, onSignOut, onUpdatePassword }) {
       bio={bio}
       onSetBio={setBio}
       bannerStyle={bannerStyle}
+      bannerImageUrl={bannerImageUrl}
+      onSetCustomBanner={setCustomBanner}
       onUpdatePassword={onUpdatePassword}
     />
   )
@@ -108,6 +111,8 @@ function Watchlist({
   bio,
   onSetBio,
   bannerStyle,
+  bannerImageUrl,
+  onSetCustomBanner,
   onUpdatePassword,
 }) {
   const { t, locale } = useI18n()
@@ -418,6 +423,7 @@ function Watchlist({
           favorites={items.filter((item) => item.favorite)}
           onUpdateItem={update}
           onRemoveItem={handleRemove}
+          onSetCustomBanner={onSetCustomBanner}
         />
       </main>
     )
@@ -425,7 +431,7 @@ function Watchlist({
 
   return (
     <>
-      <SideBanners style={bannerStyle} />
+      <SideBanners style={bannerStyle} imageUrl={bannerImageUrl} />
       <main className="app">
       <header className="head">
         <div className="head__bar">
@@ -539,6 +545,7 @@ function Watchlist({
               }
               onSelect={batchMode ? handleSelect : undefined}
               selected={selectedItems.includes(item.id)}
+              onSetCustomBanner={onSetCustomBanner}
             />
           ))}
         </ul>

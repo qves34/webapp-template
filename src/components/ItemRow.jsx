@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useI18n } from '../lib/i18n/context'
 import { KINDS, STATUSES, nextStatus } from '../lib/watchlist'
 import { MarkdownRenderer } from './MarkdownRenderer'
+import { PosterPicker } from './PosterPicker'
 
 const RATINGS = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
 
@@ -14,10 +15,12 @@ export function ItemRow({
   canMoveDown = false,
   onSelect,
   selected,
+  onSetCustomBanner,
   readOnly = false,
 }) {
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
+  const [bannerPickerOpen, setBannerPickerOpen] = useState(false)
 
   if (readOnly) {
     return (
@@ -253,6 +256,28 @@ export function ItemRow({
               >
                 ↓
               </button>
+            </div>
+          )}
+
+          {onSetCustomBanner && item.tmdbId && (
+            <div className="detail__banner">
+              <button
+                type="button"
+                className="detail__remove"
+                onClick={() => setBannerPickerOpen((value) => !value)}
+              >
+                {t(bannerPickerOpen ? 'row.bannerPickerClose' : 'row.bannerPickerOpen')}
+              </button>
+              {bannerPickerOpen && (
+                <PosterPicker
+                  tmdbId={item.tmdbId}
+                  kind={item.kind}
+                  onPick={(url) => {
+                    onSetCustomBanner(url)
+                    setBannerPickerOpen(false)
+                  }}
+                />
+              )}
             </div>
           )}
         </div>

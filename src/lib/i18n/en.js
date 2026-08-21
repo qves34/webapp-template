@@ -22,9 +22,12 @@ export const en = {
   'appearance.bannerHeading': 'Side banners',
   'appearance.bannerEnable': 'Show side banners',
   'appearance.bannerColorful': 'Colorful',
-  'appearance.bannerMovies': 'From movies',
+  'appearance.bannerTrending': 'Trending',
+  'appearance.bannerCustom': 'Custom',
   'appearance.bannerColorfulHint': 'Uses the theme color chosen above.',
-  'appearance.bannerMoviesHint': 'A handful of currently trending titles (TMDB, AniList for anime).',
+  'appearance.bannerTrendingHint': 'A handful of currently trending titles (TMDB, AniList for anime).',
+  'appearance.bannerCustomHint': 'Banner set from your list. Change it with the "Set as banner" button on a title.',
+  'appearance.bannerCustomEmpty': 'Not set yet - open a title with a TMDB match in your list and click "Set as banner".',
 
   // ---------- kinds and statuses ----------
   'kind.film': 'Movie',
@@ -137,6 +140,11 @@ export const en = {
   'field.posterUrlPlaceholder': 'https://example.com/poster.jpg',
   'row.moveUp': 'Move up',
   'row.moveDown': 'Move down',
+  'row.bannerPickerOpen': 'Set as banner',
+  'row.bannerPickerClose': 'Close banner picker',
+  'row.bannerPickerLoading': 'Loading posters…',
+  'row.bannerPickerEmpty': 'TMDB has no other posters for this title.',
+  'row.bannerPickerChoose': 'Choose this poster as banner',
 
   // ---------- empty list ----------
   'empty.vse': 'Nothing here yet. Type a title above and add your first one.',

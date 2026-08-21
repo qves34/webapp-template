@@ -5,6 +5,10 @@ import { useI18n } from '../lib/i18n/context'
 // zrovna aktivní, jinak by se u zvolené barvy nedalo poznat, jak vypadají ty ostatní.
 const COLOR_HEX = { orange: '#e4572e', blue: '#3b82f6', green: '#10b981', purple: '#8b5cf6' }
 
+// Tab -> reálná hodnota banner_style. 'custom' se navíc nastavuje i z ItemRow
+// (výběrem konkrétního plakátu), tady se jen přepíná zpátky na už uložený.
+const STYLE_FOR_TAB = { colorful: 'pattern', trending: 'famous', custom: 'custom' }
+
 /**
  * Jedno tlačítko "Vzhled" vedle přepínače jazyka, po kliku otevře kartu se
  * vším kolem vzhledu pohromadě - dřív to byly 3 samostatné ikonky vedle sebe
@@ -19,14 +23,17 @@ export function AppearancePanel({
   onSetColorScheme,
   onToggleAutoMode,
   bannerStyle,
+  bannerImageUrl,
   onSetBannerStyle,
   showBanners,
 }) {
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
-  // Barevné/Z filmů - jen který panel je vidět, netýká se toho, jestli jsou
-  // bannery zapnuté (to řeší samostatný checkbox níž).
-  const [bannerTab, setBannerTab] = useState(bannerStyle === 'famous' ? 'movies' : 'colorful')
+  // Barevné/Trendující/Vlastní - jen který panel je vidět, netýká se toho,
+  // jestli jsou bannery zapnuté (to řeší samostatný checkbox níž).
+  const [bannerTab, setBannerTab] = useState(
+    bannerStyle === 'famous' ? 'trending' : bannerStyle === 'custom' ? 'custom' : 'colorful',
+  )
   const rootRef = useRef(null)
 
   useEffect(() => {
@@ -48,12 +55,12 @@ export function AppearancePanel({
   }, [open])
 
   function handleBannerEnable(enabled) {
-    onSetBannerStyle(enabled ? (bannerTab === 'movies' ? 'famous' : 'pattern') : 'off')
+    onSetBannerStyle(enabled ? STYLE_FOR_TAB[bannerTab] : 'off')
   }
 
   function handleBannerTab(tab) {
     setBannerTab(tab)
-    if (bannerStyle !== 'off') onSetBannerStyle(tab === 'movies' ? 'famous' : 'pattern')
+    if (bannerStyle !== 'off') onSetBannerStyle(STYLE_FOR_TAB[tab])
   }
 
   return (
@@ -145,17 +152,43 @@ export function AppearancePanel({
                     <button
                       type="button"
                       role="tab"
-                      aria-selected={bannerTab === 'movies'}
+                      aria-selected={bannerTab === 'trending'}
                       className="tabs-mini__tab"
-                      onClick={() => handleBannerTab('movies')}
+                      onClick={() => handleBannerTab('trending')}
                     >
-                      {t('appearance.bannerMovies')}
+                      {t('appearance.bannerTrending')}
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={bannerTab === 'custom'}
+                      className="tabs-mini__tab"
+                      onClick={() => handleBannerTab('custom')}
+                    >
+                      {t('appearance.bannerCustom')}
                     </button>
                   </div>
 
-                  <p className="profile__hint">
-                    {t(bannerTab === 'colorful' ? 'appearance.bannerColorfulHint' : 'appearance.bannerMoviesHint')}
-                  </p>
+                  {bannerTab === 'colorful' && (
+                    <p className="profile__hint">{t('appearance.bannerColorfulHint')}</p>
+                  )}
+                  {bannerTab === 'trending' && (
+                    <p className="profile__hint">{t('appearance.bannerTrendingHint')}</p>
+                  )}
+                  {bannerTab === 'custom' && (
+                    <div className="appearance-custom-banner">
+                      {bannerImageUrl && (
+                        <img
+                          className="appearance-custom-banner__preview"
+                          src={bannerImageUrl}
+                          alt=""
+                        />
+                      )}
+                      <p className="profile__hint">
+                        {t(bannerImageUrl ? 'appearance.bannerCustomHint' : 'appearance.bannerCustomEmpty')}
+                      </p>
+                    </div>
+                  )}
                 </>
               )}
             </section>

@@ -22,7 +22,7 @@ Rozkoukané tituly jsou vždycky nahoře a hlavička ukazuje, co zrovna koukáš
 
 **Vzhled**: tlačítko „Vzhled" vpravo nahoře (vedle `CS`/`EN`) otevře kartu se vším kolem vzhledu pohromadě - světlý/tmavý motiv, automatické přepínání podle času (20:00-6:00 tmavý), barva tématu (oranžová/modrá/zelená/fialová) a postranní bannery. Motiv/barva/auto režim se pamatují per prohlížeč (jinak podle systému), stejně jako dřív.
 
-**Postranní bannery**: na širokém desktopu (od ~1400px šířky okna) appka po stranách zobrazí dekorativní banner. V kartě Vzhled má sekce „Postranní bannery" 2 záložky: **Barevné** (vzor laděný podle zvolené barvy tématu) a **Z filmů** (pár aktuálně nejoblíbenějších titulů ve vysoké kvalitě - film/seriál přes TMDB trending, anime přes AniList, viz `api/banners.js`). Na rozdíl od motivu/jazyka jde volba přes účet (`profiles.banner_style`), takže se drží napříč zařízeními. Na užších oknech a mobilu se automaticky skrývá.
+**Postranní bannery**: na širokém desktopu (od ~1400px šířky okna) appka po stranách zobrazí dekorativní banner. V kartě Vzhled má sekce „Postranní bannery" 3 záložky: **Barevné** (vzor laděný podle zvolené barvy tématu), **Trendující** (pár aktuálně nejoblíbenějších titulů - film/seriál přes TMDB trending, anime přes AniList, viz `api/banners.js`) a **Vlastní** (jeden konkrétní plakát z tvého vlastního seznamu - u titulu s TMDB záznamem klikni na „Nastavit jako banner" a appka nabídne dostupné plakáty z TMDB, viz `api/posters.js`). Na rozdíl od motivu/jazyka jde volba přes účet (`profiles.banner_style`/`banner_image_url`), takže se drží napříč zařízeními. Na užších oknech a mobilu se automaticky skrývá.
 
 ## Požadavky
 
@@ -86,7 +86,8 @@ src/
   index.css                  barvy, fonty, reset
   App.css                    vzhled komponent
 api/search.js                proxy na TMDB search/multi (klíč jen na serveru), názvy vždy `en-US`
-api/banners.js                pár trendujících titulů pro banner "Z filmů" (TMDB trending + AniList), cachované na edge
+api/banners.js                pár trendujících titulů pro banner "Trendující" (TMDB trending + AniList), cachované na edge
+api/posters.js                dostupné plakáty ke konkrétnímu titulu z TMDB, pro banner "Vlastní"
 api/hello.js                 pozůstatek ze šablony, appka ho nepoužívá - na produkci ale běží jako `/api/hello`
 scripts/check-i18n.mjs       kontrola slovníků, pouští se přes `npm run check:i18n`
 supabase/schema.sql           tabulky + RLS politiky, spustit ručně v Supabase SQL editoru
@@ -142,4 +143,4 @@ Po přidání `TMDB_API_KEY`, `VITE_SUPABASE_URL` a `VITE_SUPABASE_ANON_KEY` do 
 - **Realtime sync mezi otevřenými zařízeními** - dnes se data načtou při přihlášení/refreshi, ne živě přes Supabase Realtime (`postgres_changes`). Zatím netřeba, appka řeší jen „data mě následují", ne živé multi-device updaty.
 - **Offline zápis** - appka teď vyžaduje spojení pro každou akci (přidání/úprava/smazání jde rovnou na Supabase). Offline fronta by šla dodělat, zatím to pro osobní použití nevadí.
 - **Skutečná vlastní doména** - zdarma přejmenovaná `*.vercel.app` adresa (Domains → Add Existing, název s příponou `.vercel.app`) už nastavená; opravdová vlastní TLD doména (mimo `*.vercel.app`) zatím ne.
-- **Bannery „Z filmů" - živý žebříček, ne kurátorský výběr** - appka teď bere aktuálně trendující/populární tituly (TMDB `/trending`, AniList `TRENDING_DESC`), ne ručně sestavený seznam „nejslavnějších" - jednodušší na údržbu, ale obsah se v čase mění a nejde ho ručně kurátorovat. Šlo by nahradit pevným seznamem tmdbId/AniList id, kdyby bylo žádoucí mít stálou sadu.
+- **Banner „Trendující" - živý žebříček, ne kurátorský výběr** - appka bere aktuálně trendující/populární tituly (TMDB `/trending`, AniList `TRENDING_DESC`), ne ručně sestavený seznam „nejslavnějších" - jednodušší na údržbu, ale obsah se v čase mění a nejde ho ručně kurátorovat. Šlo by nahradit pevným seznamem tmdbId/AniList id, kdyby bylo žádoucí mít stálou sadu.

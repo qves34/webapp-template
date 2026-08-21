@@ -1,6 +1,6 @@
 export const NICKNAME_PATTERN = /^[a-zA-Z0-9_]{3,20}$/
 export const BIO_MAX_LENGTH = 200
-export const BANNER_STYLES = ['off', 'pattern', 'famous']
+export const BANNER_STYLES = ['off', 'pattern', 'famous', 'custom']
 export const DEFAULT_BANNER_STYLE = 'pattern'
 
 export function isValidNickname(value) {
