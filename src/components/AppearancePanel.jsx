@@ -23,7 +23,8 @@ export function AppearancePanel({
   onSetColorScheme,
   onToggleAutoMode,
   bannerStyle,
-  bannerImageUrl,
+  bannerImageLeft,
+  bannerImageRight,
   onSetBannerStyle,
   showBanners,
 }) {
@@ -177,15 +178,22 @@ export function AppearancePanel({
                   )}
                   {bannerTab === 'custom' && (
                     <div className="appearance-custom-banner">
-                      {bannerImageUrl && (
-                        <img
-                          className="appearance-custom-banner__preview"
-                          src={bannerImageUrl}
-                          alt=""
-                        />
+                      {(bannerImageLeft || bannerImageRight) && (
+                        <div className="appearance-custom-banner__previews">
+                          {bannerImageLeft && (
+                            <img className="appearance-custom-banner__preview" src={bannerImageLeft} alt="" />
+                          )}
+                          {bannerImageRight && bannerImageRight !== bannerImageLeft && (
+                            <img className="appearance-custom-banner__preview" src={bannerImageRight} alt="" />
+                          )}
+                        </div>
                       )}
                       <p className="profile__hint">
-                        {t(bannerImageUrl ? 'appearance.bannerCustomHint' : 'appearance.bannerCustomEmpty')}
+                        {t(
+                          bannerImageLeft || bannerImageRight
+                            ? 'appearance.bannerCustomHint'
+                            : 'appearance.bannerCustomEmpty',
+                        )}
                       </p>
                     </div>
                   )}

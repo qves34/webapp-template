@@ -44,7 +44,8 @@ function App() {
           onSetColorScheme={theme.setColorScheme}
           onToggleAutoMode={theme.toggleAutoMode}
           bannerStyle={profile.bannerStyle}
-          bannerImageUrl={profile.bannerImageUrl}
+          bannerImageLeft={profile.bannerImageLeft}
+          bannerImageRight={profile.bannerImageRight}
           onSetBannerStyle={profile.setBannerStyle}
           showBanners={!!session && !!profile.nickname}
         />
@@ -82,7 +83,17 @@ function LocaleToggle() {
 
 /** Nickname je potřeba dřív, než appku vůbec uvidíš - jinak by tě přátelé nenašli. */
 function Gate({ user, profile, onSignOut, onUpdatePassword }) {
-  const { nickname, bio, bannerStyle, bannerImageUrl, loading, setNickname, setBio, setCustomBanner } = profile
+  const {
+    nickname,
+    bio,
+    bannerStyle,
+    bannerImageLeft,
+    bannerImageRight,
+    loading,
+    setNickname,
+    setBio,
+    setCustomBanner,
+  } = profile
   const { t } = useI18n()
 
   if (loading) return <p className="app-loading">{t('app.loading')}</p>
@@ -96,7 +107,8 @@ function Gate({ user, profile, onSignOut, onUpdatePassword }) {
       bio={bio}
       onSetBio={setBio}
       bannerStyle={bannerStyle}
-      bannerImageUrl={bannerImageUrl}
+      bannerImageLeft={bannerImageLeft}
+      bannerImageRight={bannerImageRight}
       onSetCustomBanner={setCustomBanner}
       onUpdatePassword={onUpdatePassword}
     />
@@ -111,7 +123,8 @@ function Watchlist({
   bio,
   onSetBio,
   bannerStyle,
-  bannerImageUrl,
+  bannerImageLeft,
+  bannerImageRight,
   onSetCustomBanner,
   onUpdatePassword,
 }) {
@@ -431,7 +444,7 @@ function Watchlist({
 
   return (
     <>
-      <SideBanners style={bannerStyle} imageUrl={bannerImageUrl} />
+      <SideBanners style={bannerStyle} imageLeft={bannerImageLeft} imageRight={bannerImageRight} />
       <main className="app">
       <header className="head">
         <div className="head__bar">

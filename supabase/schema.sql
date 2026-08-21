@@ -55,8 +55,10 @@ create table public.profiles (
   created_at timestamptz not null default now(),
   -- Postranní bannery na širokém desktopu (viz README) - 'off'/'pattern'/'famous'/'custom'.
   banner_style text not null default 'pattern',
-  -- Vyplněné jen u 'custom' - plakát z TMDB obrázků konkrétního titulu z vlastního seznamu.
-  banner_image_url text,
+  -- Vyplněné jen u 'custom' - plakáty z TMDB obrázků konkrétního titulu z
+  -- vlastního seznamu. Obě strany jdou nastavit stejně, nebo každou zvlášť.
+  banner_image_left text,
+  banner_image_right text,
   constraint nickname_format check (nickname ~ '^[a-zA-Z0-9_]{3,20}$'),
   constraint banner_style_values check (banner_style in ('off', 'pattern', 'famous', 'custom'))
 );

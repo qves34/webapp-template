@@ -12,7 +12,8 @@ export function useProfile(userId) {
   const [nickname, setNicknameState] = useState(null)
   const [bio, setBioState] = useState('')
   const [bannerStyle, setBannerStyleState] = useState(DEFAULT_BANNER_STYLE)
-  const [bannerImageUrl, setBannerImageUrlState] = useState(null)
+  const [bannerImageLeft, setBannerImageLeftState] = useState(null)
+  const [bannerImageRight, setBannerImageRightState] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -20,7 +21,8 @@ export function useProfile(userId) {
       setNicknameState(null)
       setBioState('')
       setBannerStyleState(DEFAULT_BANNER_STYLE)
-      setBannerImageUrlState(null)
+      setBannerImageLeftState(null)
+      setBannerImageRightState(null)
       setLoading(false)
       return
     }
@@ -30,7 +32,7 @@ export function useProfile(userId) {
     Promise.all([
       supabase
         .from('profiles')
-        .select('nickname, banner_style, banner_image_url')
+        .select('nickname, banner_style, banner_image_left, banner_image_right')
         .eq('id', userId)
         .maybeSingle(),
       supabase.from('profile_bios').select('bio').eq('user_id', userId).maybeSingle(),
@@ -40,7 +42,8 @@ export function useProfile(userId) {
       setBannerStyleState(
         isValidBannerStyle(profileData?.banner_style) ? profileData.banner_style : DEFAULT_BANNER_STYLE,
       )
-      setBannerImageUrlState(profileData?.banner_image_url ?? null)
+      setBannerImageLeftState(profileData?.banner_image_left ?? null)
+      setBannerImageRightState(profileData?.banner_image_right ?? null)
       setBioState(bioData?.bio ?? '')
       setLoading(false)
     })
@@ -113,36 +116,45 @@ export function useProfile(userId) {
     [userId, bannerStyle],
   )
 
-  // Nastaví oboje najednou (styl 'custom' + konkrétní URL) - odděleně by šlo
-  // uložit jen banner_style bez obrázku k němu.
+  // Nastaví styl 'custom' + obrázek. `side` 'both' přepíše obě strany stejně
+  // (výchozí, rychlá volba), 'left'/'right' upraví jen jednu a druhá zůstane,
+  // jak byla - tak jde mít na každé straně jiný plakát ze stejného titulu.
   const setCustomBanner = useCallback(
-    async (imageUrl) => {
+    async (side, imageUrl) => {
       const previousStyle = bannerStyle
-      const previousImage = bannerImageUrl
+      const previousLeft = bannerImageLeft
+      const previousRight = bannerImageRight
+
+      const nextLeft = side === 'right' ? bannerImageLeft : imageUrl
+      const nextRight = side === 'left' ? bannerImageRight : imageUrl
+
       setBannerStyleState('custom')
-      setBannerImageUrlState(imageUrl)
+      setBannerImageLeftState(nextLeft)
+      setBannerImageRightState(nextRight)
       const { error } = await supabase
         .from('profiles')
-        .update({ banner_style: 'custom', banner_image_url: imageUrl })
+        .update({ banner_style: 'custom', banner_image_left: nextLeft, banner_image_right: nextRight })
         .eq('id', userId)
 
       if (error) {
         console.warn('Uložení vlastního banneru selhalo:', error)
         setBannerStyleState(previousStyle)
-        setBannerImageUrlState(previousImage)
+        setBannerImageLeftState(previousLeft)
+        setBannerImageRightState(previousRight)
         return { error: { key: 'profile.bannerErrGeneric' } }
       }
 
       return { error: null }
     },
-    [userId, bannerStyle, bannerImageUrl],
+    [userId, bannerStyle, bannerImageLeft, bannerImageRight],
   )
 
   return {
     nickname,
     bio,
     bannerStyle,
-    bannerImageUrl,
+    bannerImageLeft,
+    bannerImageRight,
     loading,
     setNickname,
     setBio,

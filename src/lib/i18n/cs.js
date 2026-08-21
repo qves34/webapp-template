@@ -139,6 +139,10 @@ export const cs = {
   'row.bannerPickerLoading': 'Načítám plakáty…',
   'row.bannerPickerEmpty': 'Pro tenhle titul TMDB žádné další plakáty nemá.',
   'row.bannerPickerChoose': 'Vybrat tenhle plakát jako banner',
+  'row.bannerSideLabel': 'Na kterou stranu',
+  'row.bannerSideBoth': 'Obě strany',
+  'row.bannerSideLeft': 'Jen levá',
+  'row.bannerSideRight': 'Jen pravá',
 
   'field.title': 'Název',
   'field.kind': 'Typ',

@@ -145,6 +145,10 @@ export const en = {
   'row.bannerPickerLoading': 'Loading posters…',
   'row.bannerPickerEmpty': 'TMDB has no other posters for this title.',
   'row.bannerPickerChoose': 'Choose this poster as banner',
+  'row.bannerSideLabel': 'Which side',
+  'row.bannerSideBoth': 'Both sides',
+  'row.bannerSideLeft': 'Left only',
+  'row.bannerSideRight': 'Right only',
 
   // ---------- empty list ----------
   'empty.vse': 'Nothing here yet. Type a title above and add your first one.',

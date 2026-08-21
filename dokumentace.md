@@ -147,3 +147,10 @@ Implementace:
 - **Panel Vzhled**: 3. záložka "Vlastní" - když je nastavený banner, ukáže malý náhled + text, jinak vyzve otevřít titul v seznamu. Tab jen přepne zpátky na `'custom'`, pokud je banner zapnutý; samotné nastavení obrázku jde jen přes `ItemRow`, protože `AppearancePanel` sedí mimo `Gate`/`Watchlist` a nemá přístup k `items` (bylo by potřeba i `useWatchlist` zvednout na úroveň `App`, což pro jeden picker nestálo za tu složitost).
 
 Přejmenování kvůli srozumitelnosti: dřívější tab "Z filmů" (trendující kolonka) → "Trendující", nový tab "Vlastní" je teď to, co uživatel původně myslel pod "Z filmů".
+
+## Vlastní banner: širší, až ke krajům, každá strana zvlášť (2026-08-21, pokračování)
+
+Po prvním vyzkoušení dvě úpravy:
+
+- **`profiles.banner_image_url` (jeden sloupec) → `banner_image_left` + `banner_image_right`** (migrace na produkční DB - přidání sloupců, přenesení existující hodnoty do obou, smazání starého sloupce). `useProfile.setCustomBanner(side, url)` teď bere `side: 'both' | 'left' | 'right'` - `'both'` (výchozí, tlačítko "Nastavit jako banner") přepíše obě strany stejně, `'left'`/`'right'` upraví jen jednu, druhá zůstane. V `ItemRow.jsx` přibyl segmentovaný přepínač "Obě strany / Jen levá / Jen pravá" nad výběrem plakátu (reuse `.segmented` stylu, žádné nové CSS). `SideBanners.jsx`: chybějící strana padne zpátky na tu druhou, ať banner není poloviční, když si uživatel nastaví jen jednu.
+- **Styl "Vlastní" je teď širší a jde až ke krajům obrazovky** (nahoře i do strany) - na žádost uživatele ("ať to jde vidět víc"). `.side-banner--custom` má `width: clamp(200px, 18vw, 320px)` (ne pevná hodnota, ať při 1400px - dolní hranici viditelnosti bannerů - nepřetéká přes `.app` uprostřed), `left/right: 0` místo 24px okraje, žádný padding-top (dřív 96px kvůli místu pro `.controls`) ani mask fade nahoře/dole - `.controls` má vyšší z-index, takže překryv není problém. Ostatní dva styly (Barevné/Trendující) zůstaly beze změny (168px, 24px okraj) - jsou to menší dekorativní prvky, ne hlavní vizuál.

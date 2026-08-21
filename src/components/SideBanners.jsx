@@ -7,7 +7,7 @@ const MAX_PER_SIDE = 6
  * proto `aria-hidden` a `pointer-events: none` v CSS. Skryté pod ~1400px,
  * kam se vejde i .app (max-width 820px) beze stísnění.
  */
-export function SideBanners({ style, imageUrl }) {
+export function SideBanners({ style, imageLeft, imageRight }) {
   const { items } = useFamousBanners(style === 'famous')
 
   if (style === 'off' || !style) return null
@@ -36,15 +36,19 @@ export function SideBanners({ style, imageUrl }) {
   }
 
   if (style === 'custom') {
-    if (!imageUrl) return null
+    // Obě strany šly nastavit nezávisle - chybějící strana ukáže tu druhou,
+    // ať banner není poloviční, když si uživatel vybral jen jednu.
+    const left = imageLeft ?? imageRight
+    const right = imageRight ?? imageLeft
+    if (!left && !right) return null
 
     return (
       <>
         <div className="side-banner side-banner--left side-banner--custom" aria-hidden="true">
-          <img className="side-banner__custom-image" src={imageUrl} alt="" />
+          <img className="side-banner__custom-image" src={left} alt="" />
         </div>
         <div className="side-banner side-banner--right side-banner--custom" aria-hidden="true">
-          <img className="side-banner__custom-image" src={imageUrl} alt="" />
+          <img className="side-banner__custom-image" src={right} alt="" />
         </div>
       </>
     )

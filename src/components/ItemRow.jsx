@@ -21,6 +21,7 @@ export function ItemRow({
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [bannerPickerOpen, setBannerPickerOpen] = useState(false)
+  const [bannerSide, setBannerSide] = useState('both')
 
   if (readOnly) {
     return (
@@ -269,14 +270,45 @@ export function ItemRow({
                 {t(bannerPickerOpen ? 'row.bannerPickerClose' : 'row.bannerPickerOpen')}
               </button>
               {bannerPickerOpen && (
-                <PosterPicker
-                  tmdbId={item.tmdbId}
-                  kind={item.kind}
-                  onPick={(url) => {
-                    onSetCustomBanner(url)
-                    setBannerPickerOpen(false)
-                  }}
-                />
+                <>
+                  <div className="segmented" role="radiogroup" aria-label={t('row.bannerSideLabel')}>
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={bannerSide === 'both'}
+                      className="segmented__option"
+                      onClick={() => setBannerSide('both')}
+                    >
+                      {t('row.bannerSideBoth')}
+                    </button>
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={bannerSide === 'left'}
+                      className="segmented__option"
+                      onClick={() => setBannerSide('left')}
+                    >
+                      {t('row.bannerSideLeft')}
+                    </button>
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={bannerSide === 'right'}
+                      className="segmented__option"
+                      onClick={() => setBannerSide('right')}
+                    >
+                      {t('row.bannerSideRight')}
+                    </button>
+                  </div>
+                  <PosterPicker
+                    tmdbId={item.tmdbId}
+                    kind={item.kind}
+                    onPick={(url) => {
+                      onSetCustomBanner(bannerSide, url)
+                      setBannerPickerOpen(false)
+                    }}
+                  />
+                </>
               )}
             </div>
           )}
