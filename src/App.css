@@ -87,6 +87,10 @@
   border: 1px solid var(--edge);
   border-radius: var(--radius);
   box-shadow: 0 20px 48px -20px rgba(0, 0, 0, 0.6);
+  /* Jen tahle karta o kousek větší, na rozdíl od zoomu celé appky (viz git
+     historie) tady nehrozí kolize s vw-based calc() - je to samostatný
+     position:absolute prvek, ne position:fixed. */
+  zoom: 1.15;
 }
 
 .appearance-section {
