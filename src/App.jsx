@@ -7,6 +7,7 @@ import { FriendsPanel } from './components/FriendsPanel'
 import { ItemRow } from './components/ItemRow'
 import { NicknameGate } from './components/NicknameGate'
 import { ProfilePanel } from './components/ProfilePanel'
+import { RecommendationsPanel } from './components/RecommendationsPanel'
 import { SideBanners } from './components/SideBanners'
 import { StatsPanel } from './components/StatsPanel'
 import { Toolbar } from './components/Toolbar'
@@ -15,6 +16,7 @@ import { useFriends } from './hooks/useFriends'
 import { useFriendProfile } from './hooks/useFriendProfile'
 import { useFriendWatchlist } from './hooks/useFriendWatchlist'
 import { useProfile } from './hooks/useProfile'
+import { useRecommendations } from './hooks/useRecommendations'
 import { useTheme } from './hooks/useTheme'
 import { useWatchlist } from './hooks/useWatchlist'
 import { useI18n } from './lib/i18n/context'
@@ -155,6 +157,7 @@ function Watchlist({
   const [batchMode, setBatchMode] = useState(false)
   const friendWatchlist = useFriendWatchlist(viewingFriend?.id)
   const friendProfile = useFriendProfile(viewingFriend?.id)
+  const titleRecommendations = useRecommendations(items, view === 'recommendations')
   const noticeId = useRef(0)
   const migrationChecked = useRef(false)
 
@@ -297,6 +300,25 @@ function Watchlist({
   function openStats() {
     setViewingFriend(null)
     setView('stats')
+  }
+
+  function openRecommendations() {
+    setViewingFriend(null)
+    setView('recommendations')
+  }
+
+  const existingTmdbIds = useMemo(
+    () => new Set(items.filter((item) => item.tmdbId != null).map((item) => item.tmdbId)),
+    [items],
+  )
+
+  function handleAddRecommendation(recommendation) {
+    add(recommendation.title, recommendation.kind, {
+      tmdbId: recommendation.tmdbId,
+      year: recommendation.year,
+      poster: recommendation.poster,
+    })
+    showNotice('ok', 'recommendations.added', { title: recommendation.title })
   }
 
   function viewFriendWatchlist(id, nickname) {
@@ -539,6 +561,61 @@ function Watchlist({
     )
   }
 
+  if (view === 'recommendations') {
+    return (
+      <>
+        <SideBanners style={bannerStyle} imageLeft={bannerImageLeft} imageRight={bannerImageRight} />
+        <main className="app">
+        <header className="head">
+          <div className="head__bar">
+            <h1
+              className="head__mark head__mark--link"
+              role="button"
+              tabIndex={0}
+              onClick={goHome}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  goHome()
+                }
+              }}
+            >
+              {t('app.mark')}
+            </h1>
+            <div className="head__backup">
+              <button type="button" className="ghost" onClick={() => setView('mine')}>
+                {t('nav.backMine')}
+              </button>
+              <button type="button" className="ghost" onClick={onSignOut}>
+                {t('auth.signOut')}
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {notice && (
+          <p
+            key={notice.id}
+            className={`notice notice--${notice.kind}`}
+            onAnimationEnd={() => setNotice(null)}
+          >
+            {t(notice.key, notice.vars)}
+          </p>
+        )}
+
+        <RecommendationsPanel
+          results={titleRecommendations.results}
+          loading={titleRecommendations.loading}
+          error={titleRecommendations.error}
+          seedCount={titleRecommendations.seedCount}
+          existingTmdbIds={existingTmdbIds}
+          onAdd={handleAddRecommendation}
+        />
+        </main>
+      </>
+    )
+  }
+
   return (
     <>
       <SideBanners style={bannerStyle} imageLeft={bannerImageLeft} imageRight={bannerImageRight} />
@@ -569,6 +646,9 @@ function Watchlist({
             </button>
             <button type="button" className="ghost" onClick={openStats}>
               {t('nav.stats')}
+            </button>
+            <button type="button" className="ghost" onClick={openRecommendations}>
+              {t('nav.recommendations')}
             </button>
             <button type="button" className="ghost" onClick={onSignOut}>
               {t('auth.signOut')}

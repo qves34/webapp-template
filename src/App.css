@@ -1163,6 +1163,79 @@ li:last-child > .add__result {
   object-fit: cover;
 }
 
+.recommendations {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
+}
+
+.rec-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--can-2);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  padding: 10px;
+}
+
+.rec-card__poster {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 3px;
+  background: var(--can-3);
+}
+
+.rec-card__poster--empty {
+  border: 1px dashed var(--edge);
+}
+
+.rec-card__title {
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.rec-card__meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim-2);
+}
+
+.rec-card__meta[data-kind='film'] {
+  color: var(--kind-film);
+}
+
+.rec-card__meta[data-kind='anime'] {
+  color: var(--kind-anime);
+}
+
+.rec-card__meta[data-kind='serial'] {
+  color: var(--kind-serial);
+}
+
+.rec-card__add {
+  margin-top: auto;
+  background: var(--can-3);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  padding: 7px 10px;
+  font-size: 13px;
+  color: var(--label);
+  cursor: pointer;
+  transition: background 120ms;
+}
+
+.rec-card__add:hover {
+  background: var(--tape);
+  color: #14100e;
+}
+
 /* ---------- stavy a pata ---------- */
 
 .empty {

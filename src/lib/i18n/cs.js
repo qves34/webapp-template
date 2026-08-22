@@ -80,6 +80,7 @@ export const cs = {
   'nav.friends': 'Přátelé',
   'nav.profile': 'Profil',
   'nav.stats': 'Přehled',
+  'nav.recommendations': 'Doporučené',
   'nav.backFriends': '← Přátelé',
   'nav.backMine': '← Moje',
 
@@ -212,6 +213,12 @@ export const cs = {
   'friends.loadFailed': 'Seznam se nepodařilo načíst.',
   'friends.watchlistEmpty': '{nickname} má zatím prázdný seznam.',
   'friends.watchlistNoMatch': 'V tomhle typu nemá {nickname} nic.',
+
+  'recommendations.needMore': 'Ohodnoť (7+) nebo si oblib aspoň {count} tituly, ať má appka z čeho doporučovat.',
+  'recommendations.error': 'Doporučení se nepodařilo načíst.',
+  'recommendations.empty': 'Zatím nic nového - možná už máš podobné tituly v seznamu.',
+  'recommendations.add': 'Přidat do seznamu',
+  'recommendations.added': '„{title}“ přidáno do seznamu.',
 
   // ---------- profil ----------
   'profile.accountHeading': 'Účet',

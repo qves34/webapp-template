@@ -23,6 +23,7 @@ Projekt je nasazený a live.
 - **Git**: napojeno na GitHub (`qves34/watchlist`), `main` nasazen na produkci
 - **Lint**: oxlint (`.oxlintrc.json`)
 - **README.md**: návod pro lokální vývoj a nasazení (česky)
+- **Doporučené tituly (2026-08-22)**: nová záložka "Doporučené" v hlavičce. Seed = tituly s `tmdbId`, co jsou buď oblíbené, nebo Dokoukané s hodnocením 7+ (favorit má přednost před hodnocením, max 8 seedů, `useRecommendations.js`). Backend `api/recommendations.js` zavolá TMDB `/{movie|tv}/{id}/recommendations` pro každý seed (anime seed zkusí obojí, stejně jako `api/posters.js`), výsledky sečte podle `tmdbId` napříč seedy (víc shod = výš), vyfiltruje vše, co uživatel v seznamu už má, vrátí top 16. Kind hádá stejnou heuristikou jako `api/search.js` (žánr Animace + `original_language=ja` → anime). Frontend cachuje podle "signatury" seedů (`RecommendationsPanel.jsx`), ať přidání doporučeného titulu hned nezahodí načtená data. Míň než 2 seedy → appka vysvětlí, že potřebuje víc ohodnocených/oblíbených titulů, žádný fetch se neposílá. Ověřeno smoke testem přímo přes handler (reálné TMDB volání s Duna/Attack on Titan jako seedy) a `npm run build`/`lint`/`check:i18n` - **ne** end-to-end v prohlížeči (chybí zde přihlášený testovací účet s daty).
 
 ## Co chybí / další kroky
 

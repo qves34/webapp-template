@@ -78,6 +78,7 @@ export const en = {
   'nav.friends': 'Friends',
   'nav.profile': 'Profile',
   'nav.stats': 'Overview',
+  'nav.recommendations': 'Recommended',
   'nav.backFriends': '← Friends',
   'nav.backMine': '← Mine',
 
@@ -204,6 +205,12 @@ export const en = {
   'friends.loadFailed': 'Could not load the list.',
   'friends.watchlistEmpty': '{nickname} has an empty list so far.',
   'friends.watchlistNoMatch': '{nickname} has nothing of this type.',
+
+  'recommendations.needMore': 'Rate (7+) or favorite at least {count} titles so the app has something to work from.',
+  'recommendations.error': 'Could not load recommendations.',
+  'recommendations.empty': 'Nothing new for now - you might already have similar titles in your list.',
+  'recommendations.add': 'Add to list',
+  'recommendations.added': '"{title}" added to your list.',
 
   // ---------- profile ----------
   'profile.accountHeading': 'Account',

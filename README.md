@@ -18,6 +18,7 @@ Postavené na React + Vite, nasazuje se na Vercel přes `git push`. Účty a dat
 - **Profil**: email (jen náhled), změna nicknamu a hesla, krátké bio (max 200 znaků) a přehled oblíbených titulů. Bio vidí jen tví přijatí přátelé, ne kdokoli přihlášený.
 - **Možná znáš**: appka sama navrhne lidi s podobným vkusem - podle shodných titulů v seznamu (a ještě víc podle shodných oblíbených) doporučí uživatele, se kterými se dost překrýváš, aniž bys musel znát jejich nickname.
 - **Přehled**: statistiky vlastního seznamu - počty podle typu a stavu (s grafy), průměrné hodnocení, počet oblíbených/nesnášených, nejaktivnější měsíc (kdy jsi přidal(a) nejvíc titulů) a žebříček nejlépe hodnocených.
+- **Doporučené**: záložka s tituly podle tvého vkusu - appka vezme, co máš oblíbené nebo Dokoukané s hodnocením 7+, a přes TMDB doporučení najde podobné tituly, co ještě nemáš v seznamu. Klik na kartu titul rovnou přidá. Potřebuje aspoň pár ohodnocených/oblíbených titulů, jinak nemá z čeho vycházet.
 - **Čeština a angličtina**: tlačítko `CS`/`EN` vpravo nahoře přepne jazyk celého UI. Napoprvé se jazyk vybere podle prohlížeče (`navigator.languages`), volba se pak pamatuje per prohlížeč. Přepíná se i řazení podle abecedy (čeština řadí Č/Ř/Š jinak než angličtina). **Názvy titulů se nepřekládají** - drží se anglicky v obou jazycích UI, viz sekce Jazyky.
 
 Rozkoukané tituly jsou vždycky nahoře a hlavička ukazuje, co zrovna koukáš.
