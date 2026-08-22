@@ -1,11 +1,11 @@
-# Dokumentace - webapp-template
+# Dokumentace - watchlist
 
 ## Stav (2026-08-07)
 
 Projekt je nasazený a live.
 
 - **Produkce**: https://wwatchlist.vercel.app/
-- **Repo**: https://github.com/qves34/webapp-template
+- **Repo**: https://github.com/qves34/watchlist
 - **Deploy**: automaticky přes Vercel při `git push` na `main`
 
 ## Co je hotové
@@ -20,7 +20,7 @@ Projekt je nasazený a live.
 - **Lokalizace CS/EN (2026-08-07)**: celé UI přes slovníky v `src/lib/i18n/` (132 klíčů, počet průběžně roste/klesá s novými funkcemi), přepínač `CS`/`EN` vedle přepínače motivu. Napoprvé se jazyk vybere podle `navigator.languages`, pak se drží v `localStorage` (`watchlist.locale`). Plurály řeší `Intl.PluralRules` (čeština 1 / 2-4 / 5+), řazení podle abecedy `Intl.Collator` s aktuálním jazykem. **Názvy titulů se nepřekládají** - `api/search.js` se ptá TMDB vždycky s `language=en-US` (rozhodnutí uživatele 2026-08-07: anglický název je univerzálnější a hlavně na TMDB vždycky existuje, kdežto český u anime a méně známých seriálů často chybí; navíc je jednoznačný, takže hledání v seznamu má co hledat). Chybové hlášky ze Supabase se do UI nepouštějí - jsou natvrdo anglicky, takže se `error.code` mapuje na vlastní klíč (`lib/authErrors.js`, `useProfile`, `useFriends`); neznámý kód spadne na obecnou hlášku a skutečný důvod jde do konzole. Identifikátory typů/stavů zůstávají nepřeložené (jsou to hodnoty v DB), popisky drží slovník - `lib/watchlist.js` proto nese jen holá pole `KINDS`/`STATUSES`/`SORT_MODES` bez labelů.
 - **Kontrola slovníků**: `npm run check:i18n` (`scripts/check-i18n.mjs`) hlídá paritu klíčů mezi jazyky, plurálové tvary, shodné zástupné symboly a nepřeložené texty. Bez testovacího frameworku - `lib/i18n/core.js` je čistý JS bez Reactu, takže ho Node načte přímo. První permanentní kontrola v projektu.
 - **Vercel deploy**: `vercel.json` s SPA routing pravidlem, framework preset "Vite" rozpoznán automaticky
-- **Git**: napojeno na GitHub (`qves34/webapp-template`), `main` nasazen na produkci
+- **Git**: napojeno na GitHub (`qves34/watchlist`), `main` nasazen na produkci
 - **Lint**: oxlint (`.oxlintrc.json`)
 - **README.md**: návod pro lokální vývoj a nasazení (česky)
 
