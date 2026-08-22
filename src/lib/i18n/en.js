@@ -203,6 +203,7 @@ export const en = {
   'friends.watchlistOf': 'Watchlist of',
   'friends.loadFailed': 'Could not load the list.',
   'friends.watchlistEmpty': '{nickname} has an empty list so far.',
+  'friends.watchlistNoMatch': '{nickname} has nothing of this type.',
 
   // ---------- profile ----------
   'profile.accountHeading': 'Account',

@@ -211,6 +211,7 @@ export const cs = {
   'friends.watchlistOf': 'Watchlist uživatele',
   'friends.loadFailed': 'Seznam se nepodařilo načíst.',
   'friends.watchlistEmpty': '{nickname} má zatím prázdný seznam.',
+  'friends.watchlistNoMatch': 'V tomhle typu nemá {nickname} nic.',
 
   // ---------- profil ----------
   'profile.accountHeading': 'Účet',

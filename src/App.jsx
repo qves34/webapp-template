@@ -19,7 +19,7 @@ import { useTheme } from './hooks/useTheme'
 import { useWatchlist } from './hooks/useWatchlist'
 import { useI18n } from './lib/i18n/context'
 import { localeMeta, nextLocale } from './lib/i18n/core'
-import { loadItems, sortItems, moveItem } from './lib/watchlist'
+import { KINDS, loadItems, sortItems, moveItem } from './lib/watchlist'
 
 const MIGRATION_FLAG = 'watchlist.migrated.v1'
 
@@ -150,6 +150,7 @@ function Watchlist({
   const [migration, setMigration] = useState(null)
   const [view, setView] = useState('mine')
   const [viewingFriend, setViewingFriend] = useState(null)
+  const [friendKindFilter, setFriendKindFilter] = useState('vse')
   const [selectedItems, setSelectedItems] = useState([])
   const [batchMode, setBatchMode] = useState(false)
   const friendWatchlist = useFriendWatchlist(viewingFriend?.id)
@@ -300,7 +301,19 @@ function Watchlist({
 
   function viewFriendWatchlist(id, nickname) {
     setViewingFriend({ id, nickname })
+    setFriendKindFilter('vse')
   }
+
+  const friendKindCounts = useMemo(() => {
+    const result = {}
+    for (const item of friendWatchlist.items) result[item.kind] = (result[item.kind] ?? 0) + 1
+    return result
+  }, [friendWatchlist.items])
+
+  const friendVisible = useMemo(() => {
+    if (friendKindFilter === 'vse') return friendWatchlist.items
+    return friendWatchlist.items.filter((item) => item.kind === friendKindFilter)
+  }, [friendWatchlist.items, friendKindFilter])
 
   if (viewingFriend) {
     return (
@@ -339,19 +352,50 @@ function Watchlist({
           {friendProfile.bio && <p className="head__bio">{friendProfile.bio}</p>}
         </header>
 
+        {!friendWatchlist.loading && !friendWatchlist.error && friendWatchlist.items.length > 0 && (
+          <div className="tabs" role="tablist" aria-label={t('toolbar.filterKind')}>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={friendKindFilter === 'vse'}
+              className="tab"
+              onClick={() => setFriendKindFilter('vse')}
+            >
+              {t('toolbar.all')} <span className="tab__count">{friendWatchlist.items.length}</span>
+            </button>
+            {KINDS.map((kind) => (
+              <button
+                key={kind}
+                type="button"
+                role="tab"
+                aria-selected={friendKindFilter === kind}
+                className="tab"
+                data-kind={kind}
+                onClick={() => setFriendKindFilter(kind)}
+              >
+                {t(`kind.${kind}`)} <span className="tab__count">{friendKindCounts[kind] ?? 0}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
         {friendWatchlist.loading ? (
           <p className="empty">{t('app.loading')}</p>
         ) : friendWatchlist.error ? (
           <p className="empty">{t('friends.loadFailed')}</p>
-        ) : friendWatchlist.items.length > 0 ? (
+        ) : friendWatchlist.items.length === 0 ? (
+          <p className="empty">
+            {t('friends.watchlistEmpty', { nickname: viewingFriend.nickname })}
+          </p>
+        ) : friendVisible.length > 0 ? (
           <ul className="list">
-            {friendWatchlist.items.map((item) => (
+            {friendVisible.map((item) => (
               <ItemRow key={item.id} item={item} readOnly />
             ))}
           </ul>
         ) : (
           <p className="empty">
-            {t('friends.watchlistEmpty', { nickname: viewingFriend.nickname })}
+            {t('friends.watchlistNoMatch', { nickname: viewingFriend.nickname })}
           </p>
         )}
         </main>
